@@ -1,0 +1,14 @@
+
+<h1><%= title %></h1>
+
+<form method="POST" action="get" id="statform">
+  <p>Cluster: <select name="cluster" id="cluster">
+  <% OODClusters.sort_by {|cluster| cluster.metadata.title || cluster.id.to_s.titleize }.each do |cluster| %>
+    <option value="<%= cluster.id %>"><%= cluster.metadata.title || cluster.id.to_s.titleize %></option>
+  <% end %>
+  </select></p>
+  <p>Enter the JobID to lookup: <input type="text" name="jobid"> <input type="submit"></p>
+</form>
+
+<div id="jobdetails">
+</div>

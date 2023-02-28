@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <meta charset="UTF-8">
+
+  <link rel="stylesheet" type="text/css" href="<%= url("/bootstrap-3.3.7/css/bootstrap.min.css") %>">
+  <link rel="stylesheet" type="text/css" href="<%= url("/ood-bootstrap3-override-0.0.1/navbar.css") %>">
+<style>
+.navbar-dark {
+  background-color: #e77500;
+}
+
+.navbar-light {
+  background-color: #e77500;
+}
+
+.navbar-inverse {
+  background-color: #e77500;
+  color: #fff;
+  font-size: 1.25rem;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a {
+  color: #fff;
+  font-size: 20px;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a:focus {
+  color: rgba(255,255,255,0.75);
+}
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a:hover {
+  color: rgba(255,255,255,0.75);
+}
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a:visited {
+  color: rgba(255,255,255,0.75);
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <!-- navbar  -->
+  <nav class="ood-appkit navbar navbar-inverse navbar-static-top" role="navigation">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <ul class="navbar-breadcrumbs">
+          <li><a href="<%= dashboard_url %>"><%= dashboard_title %></a></li>
+          <li><a href="<%= url('/') %>"><%= title %></a></li>
+        </ul>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+</header>
+
+<div class="container" role="main">
+  <% if @error %>
+      <div class="alert alert-danger"><%= @error %></div>
+  <% end %>
+
+  <%== yield %>
+</div>
+
+<script src="<%= url("/jquery-3.2.1/jquery-3.2.1.min.js") %>"></script>
+<script src="<%= url("/bootstrap-3.3.7/js/bootstrap.min.js") %>"></script>
+<script>
+$(document).ready(function() {
+
+    // process the form
+    $('#statform').submit(function(event) {
+
+        // get the form data
+        // there are many ways to get this data using jQuery (you can use the class or id also)
+        var formData = {
+            'jobid'              : $('input[name=jobid]').val(),
+            'cluster'            : $('select[name=cluster]').val(),
+        };
+
+        // process the form
+        $.ajax({
+            type        : 'POST', // define the type of HTTP verb we want to use (POST for our form)
+            url         : '<%= url("/") %>', // the url where we want to POST
+            data        : formData, // our data object
+            dataType    : 'html', // what type of data do we expect back from the server
+            encode      : true
+        })
+            // using the done promise callback
+            .done(function(data) {
+
+                // log data to the console so we can see
+                console.log(data);
+                console.log(data.success);
+                
+                if(data){
+                    //$('#jobdetails').replaceWith(data); //put the data into #jobdetails element of the DOM
+                    $('#jobdetails').html(data); //put the data into #jobdetails element of the DOM
+                } else {
+                    $('#jobdetails').html("ERROR");
+                }
+
+                // here we will handle errors and validation messages
+            });
+
+        // stop the form from submitting the normal way and refreshing the page
+        event.preventDefault();
+    });
+
+});
+</script>
+</body>
+</html>

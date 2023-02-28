@@ -1,0 +1,78 @@
+.ood-appkit.navbar ul.navbar-breadcrumbs > li > a, .ood-appkit.navbar ul.navbar-breadcrumbs > li + li:before {
+  float: left;
+  padding: 15px 0;
+  font-size: 18px;
+  margin-left: 15px;
+  line-height: 20px;
+  height: 50px;
+}
+
+.ood-appkit.navbar ul.navbar-breadcrumbs > li > a:hover, .ood-appkit.navbar ul.navbar-breadcrumbs > li + li:hover:before, .ood-appkit.navbar ul.navbar-breadcrumbs > li > a:focus, .ood-appkit.navbar ul.navbar-breadcrumbs > li + li:focus:before {
+  text-decoration: none;
+}
+.ood-appkit.navbar ul.navbar-breadcrumbs > li > a > img, .ood-appkit.navbar ul.navbar-breadcrumbs > li + li:before > img {
+  display: block;
+}
+
+.ood-appkit.navbar ul.navbar-breadcrumbs {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .ood-appkit.navbar ul.navbar-breadcrumbs {
+    margin-left: -15px;
+  }
+}
+
+.ood-appkit.navbar ul.navbar-breadcrumbs > li {
+  float: left;
+}
+
+.ood-appkit.navbar ul.navbar-breadcrumbs > li + li a:before {
+  margin-right: 15px;
+  content: '/';
+}
+
+.ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li > a {
+  color: #5e5e5e;
+}
+
+.ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li > a:hover, .ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li > a:focus {
+  color: #777;
+  background-color: transparent;
+}
+
+.ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li:last-child > a {
+  color: #777;
+}
+
+.ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li:last-child > a:hover, .ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li:last-child > a:focus {
+  color: #5e5e5e;
+}
+
+.ood-appkit.navbar.navbar-default ul.navbar-breadcrumbs > li + li:before {
+  color: #5e5e5e;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a {
+  color: #cccccc;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a:hover, .ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li > a:focus {
+  color: #fff;
+  background-color: transparent;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li:last-child > a {
+  color: #fff;
+}
+
+li:last-child > a:focus {
+  color: #cccccc;
+}
+
+.ood-appkit.navbar.navbar-inverse ul.navbar-breadcrumbs > li + li:before {
+  color: #cccccc;
+}

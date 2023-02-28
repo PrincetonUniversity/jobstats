@@ -146,6 +146,10 @@ The following image illustrates what the dashboard looks like in use:
 
 Visualization
 
+### Open OnDemand JobStats Helper
+
+ood-jobstats-helper subdirectory contains an Open OnDemand app that, given a job id, will by querying sacct generate a full Grafana URL with job's jobid, start and end times.
+
 ### Generating Job Summaries
 
 Job summaries, as described above, are generated and stored in the Slurm database at the end of each job by using slurmctld epilog script, e.g.:
