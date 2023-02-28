@@ -2,6 +2,9 @@
 
 Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates on the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
 
+
+
+
 ## jobstats
 
 The `jobstats` command provides users with a Slurm job efficiency report for a given jobid:
@@ -24,7 +27,7 @@ $ jobstats 39798795
         Cluster: della
      Start Time: Fri Mar 4, 2022 at 1:56 AM
        Run Time: 18:41:56
-     Time Limit: 2-00:00:00
+     Time Limit: 4-00:00:00
 
                               Overall Utilization
 ================================================================================
@@ -65,7 +68,7 @@ $ jobstats 39798795
     resources available for other users. For more info:
     https://researchcomputing.princeton.edu/support/knowledge-base/memory
 
-  * The time efficiency of this job is 39%. The time efficiency is the run time
+  * The time efficiency of this job is 19%. The time efficiency is the run time
     divided by the time limit. For future jobs please consider decreasing the
     value of the --time directive to increase the time efficiency. This will
     lower your queue time and allow the Slurm job scheduler to work more
