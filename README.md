@@ -1,10 +1,10 @@
 # Jobstats and jobstats
 
-Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates within the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
+Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates on the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
 
 ## jobstats
 
-The jobstats command provides users with a Slurm job efficiency report for a given jobid:
+The `jobstats` command provides users with a Slurm job efficiency report for a given jobid:
 
 ```
 $ jobstats 39798795
@@ -76,8 +76,7 @@ $ jobstats 39798795
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
 ```
 
-
-One can also output the JSON:
+One can also output the raw JSON:
 
 ```
 $ jobstats -j 39798795 | jq
@@ -124,6 +123,10 @@ $ jobstats -j 39798795 | jq
   "total_time": 67316
 }
 ```
+
+For completed jobs, the data is taken from a call to sacct with several fields including AdminComment. For running jobs, the Prometheus database must be queried.
+
+Importantly, the `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats` including the notes.
 
 ### Installation
 
