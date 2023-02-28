@@ -138,6 +138,8 @@ There are four exporters.
 
 ### Grafana
 
+<center><img src="https://tigress-web.princeton.edu/~jdh4/jobstats_grafana.png"></center>
+
 Visualization
 
 ### Generating Job Summaries
