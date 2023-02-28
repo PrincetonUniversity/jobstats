@@ -138,6 +138,10 @@ There are four exporters.
 
 ### Grafana
 
+Grafana dashboard json that uses all of the exporters is included in the grafana subdirectory. It expects one parameter, jobid. As it may not be easy to find the time range we also use an ondemand job stats helper that generates the correct time range given a jobid, documented in the next section.
+
+The following image illustrates what the dashboard looks like in use:
+
 <center><img src="https://tigress-web.princeton.edu/~jdh4/jobstats_grafana.png"></center>
 
 Visualization
