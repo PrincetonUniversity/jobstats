@@ -134,6 +134,10 @@ The installation requirements for `jobstats` are Python 3.6+ and version 1.17+ o
 
 ## Jobstats Platform
 
+### Exporters
+
+There are four exporters.
+
 ### Grafana
 
 Visualization
