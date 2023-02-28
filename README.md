@@ -1,6 +1,6 @@
 # Jobstats and jobstats
 
-Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates within the Jobstats platform. If you are looking to setup the Jobstats platform then [see below]().
+Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates within the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
 
 ## jobstats
 
@@ -131,6 +131,10 @@ The installation requirements for `jobstats` are Python 3.6+ and version 1.17+ o
 
 ## Jobstats Platform
 
+### Grafana
+
+Visualization
+
 ### Generating Job Summaries
 
 Job summaries, as described above, are generated and stored in the Slurm database at the end of each job by using slurmctld epilog script, e.g.:
@@ -170,7 +174,7 @@ logger SlurmctldEpilog[$INTERNAL_JOBID]: End processing
 exit 0
 ```
 
-Note the special treatment of array jobs where array job id is equal to the job id - this is because setting AdminComment for such jobs would overwrite AdminComments for all of array jobs with that array job id. Therefore those jobs have to be referred to with ${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} rather than $SLURM_JOB_ID.
+Note the special treatment of array jobs where array job id is equal to the job id - this is because setting AdminComment for such jobs would overwrite AdminComments for all of array jobs with that array job id. Therefore those jobs have to be referred to with `${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}` rather than `$SLURM_JOB_ID`.
 
 For processing old jobs where slurmctld epilog script did not run or for jobs where it failed for some reason we have a per cluster ingest jobstats service. This is running on the slurmdbd host, as a systemd timer and service. E.g. for della cluster:
 
@@ -219,11 +223,13 @@ ExecStart=/usr/local/sbin/ingest_jobstats -c della -n 1000
 WantedBy=multi-user.target
 ```
 
-### Subsection
+The **FIXME--ingest_jobstats** is a python script that queries and modifies the slurm database directly. Hopefully slurm will add a way to securely modify all array jobs and at that point this ingest method should not be needed.
 
-### Grafana
+### OnDemand Helper Script
 
-Visualization
+### Other
+
+
 
 
 
