@@ -144,8 +144,6 @@ The following image illustrates what the dashboard looks like in use:
 
 <center><img src="https://tigress-web.princeton.edu/~jdh4/jobstats_grafana.png"></center>
 
-Visualization
-
 ### Open OnDemand JobStats Helper
 
 ood-jobstats-helper subdirectory contains an Open OnDemand app that, given a job id, will by querying sacct generate a full Grafana URL with job's jobid, start and end times.
@@ -158,89 +156,11 @@ Job summaries, as described above, are generated and stored in the Slurm databas
 EpilogSlurmctld=/usr/local/sbin/slurmctldepilog
 ```
 
-Below is the script:
+The script can be found in the slurm subdirectory, named "slurmctldepilog.sh".
 
-```
-#!/bin/bash
-# it looks like that this is sometimes too fast, wait a tiny bit to let slurmdbd get the data it needs
-sleep 5s
-if [ "x$SLURM_ARRAY_JOB_ID" = "x$SLURM_JOB_ID" ]; then
-        INTERNAL_JOBID=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}
-else
-        INTERNAL_JOBID=$SLURM_JOB_ID
-fi
-logger SlurmctldEpilog[$INTERNAL_JOBID]: Begin processing
-STATS="`jobstats -f -b $SLURM_JOB_ID`"
-ERR=$?
-if [ $ERR = 0 ]; then
-        if [[ $STATS =~ ^(Short|None|H4s) ]]; then
-                logger "SlurmctldEpilog[$INTERNAL_JOBID]: Success with output $STATS"
-                OUT="`sacctmgr -i update job where jobid=$INTERNAL_JOBID set AdminComment=JS1:$STATS 2>&1`"
-                if [ $? != 0 ]; then
-                        logger "SlurmctldEpilog[$INTERNAL_JOBID]: Errored out when storing AdminComment with $OUT"
-                fi
-        else
-                logger "SlurmctldEpilog[$INTERNAL_JOBID]: Apparent success but invalid output $STATS"
-        fi
-else
-        logger "SlurmctldEpilog[$INTERNAL_JOBID]: Failed to process with error $ERR and output $STATS"
-fi
-logger SlurmctldEpilog[$INTERNAL_JOBID]: End processing
-exit 0
-```
+For processing old jobs where slurmctld epilog script did not run or for jobs where it failed there is a per cluster ingest jobstats service. This is a python based script running on the slurmdbd host, as a systemd timer and service, querying and modifying slurm database directly. The script (ingest_jobstats.py) and systemd timer and service scripts are in the slurm directory. 
 
-Note the special treatment of array jobs where array job id is equal to the job id - this is because setting AdminComment for such jobs would overwrite AdminComments for all of array jobs with that array job id. Therefore those jobs have to be referred to with `${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}` rather than `$SLURM_JOB_ID`.
-
-For processing old jobs where slurmctld epilog script did not run or for jobs where it failed for some reason we have a per cluster ingest jobstats service. This is running on the slurmdbd host, as a systemd timer and service. E.g. for della cluster:
-
-```
-$ cat /etc/systemd/system/ingest_jobstats-della.timer
-[Unit]
-Description=Timer for jobstats data ingest into cluster della database tables
-Requires=ingest_jobstats-della.service
-
-[Timer]
-Unit=ingest_jobstats-della.service
-#OnCalendar=*:0/4
-OnBootSec=10min
-OnUnitActiveSec=4min
-
-[Install]
-WantedBy=timers.target
-```
-
-and the service:
-
-```
-$ cat /etc/systemd/system/ingest_jobstats-della.timer
-[Unit]
-Description=Timer for jobstats data ingest into cluster della database tables
-Requires=ingest_jobstats-della.service
-
-[Timer]
-Unit=ingest_jobstats-della.service
-#OnCalendar=*:0/4
-OnBootSec=10min
-OnUnitActiveSec=4min
-
-[Install]
-WantedBy=timers.target
-[root@db ~]# cat /etc/systemd/system/ingest_jobstats-della.service 
-[Unit]
-Description=Ingest jobstats data into cluster della database tables
-Wants=ingest_jobstats-della.timer
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/sbin/ingest_jobstats -c della -n 1000
-
-[Install]
-WantedBy=multi-user.target
-```
-
-The **FIXME--ingest_jobstats** is a python script that queries and modifies the slurm database directly. Hopefully slurm will add a way to securely modify all array jobs and at that point this ingest method should not be needed.
-
-### OnDemand Helper Script
+We made heavy use of this script to generate job summaries for older jobs but with the current version of the Epilog script it should not be needed anymore.
 
 ### Other
 

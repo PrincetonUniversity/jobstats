@@ -1,0 +1,12 @@
+[Unit]
+Description=Timer for jobstats data ingest into cluster della database tables
+Requires=ingest_jobstats-della.service
+
+[Timer]
+Unit=ingest_jobstats-della.service
+#OnCalendar=*:0/4
+OnBootSec=10min
+OnUnitActiveSec=4min
+
+[Install]
+WantedBy=timers.target
