@@ -134,7 +134,19 @@ The installation requirements for `jobstats` are Python 3.6+ and version 1.17+ o
 
 ### Exporters
 
-There are four exporters.
+We use these four exporters:
+- node exporter: https://github.com/prometheus/node_exporter
+- cgroup exporter: https://github.com/plazonic/cgroup_exporter
+- nvidia gpu exporter: https://github.com/plazonic/nvidia_gpu_prometheus_exporter
+- gpfs exporter: https://github.com/plazonic/gpfs-exporter
+
+### GPU Job Ownership Helper
+In order to correctly track which GPU is assigned to which jobid we use slurm prolog and epilog scripts to create files in ```/run/gpustat``` directory named either after GPU ordinal number (0, 1, ..) or, in the case of MIG cards, MIG-UUID. These files contain space separated jobid and uid number of the user. E.g.
+```
+# cat /run/gpustat/MIG-265a219d-a49f-578a-825d-222c72699c16
+45916256 262563
+```
+These two scrips can be found in slurm directory.
 
 ### Grafana
 
