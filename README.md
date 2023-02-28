@@ -173,7 +173,7 @@ logger SlurmctldEpilog[$INTERNAL_JOBID]: Begin processing
 STATS="`jobstats -f -b $SLURM_JOB_ID`"
 ERR=$?
 if [ $ERR = 0 ]; then
-        if None|H4s) ; then
+        if [[ $STATS =~ ^(Short|None|H4s) ]]; then
                 logger "SlurmctldEpilog[$INTERNAL_JOBID]: Success with output $STATS"
                 OUT="`sacctmgr -i update job where jobid=$INTERNAL_JOBID set AdminComment=JS1:$STATS 2>&1`"
                 if [ $? != 0 ]; then
