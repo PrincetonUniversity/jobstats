@@ -1,11 +1,6 @@
-# Jobstats and jobstats
-
 Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates on the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
 
-
-
-
-## jobstats
+# jobstats
 
 The `jobstats` command provides users with a Slurm job efficiency report for a given jobid:
 
@@ -135,7 +130,7 @@ Importantly, the `jobstats` command is also used to replace `smail`, which is th
 
 The installation requirements for `jobstats` are Python 3.6+ and version 1.17+ of the Python `blessed` package which is used for coloring and styling text.
 
-## Jobstats Platform
+# Jobstats Platform
 
 ### Exporters
 
