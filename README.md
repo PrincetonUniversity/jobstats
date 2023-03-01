@@ -140,6 +140,57 @@ We use these four exporters:
 - nvidia gpu exporter: https://github.com/plazonic/nvidia_gpu_prometheus_exporter
 - gpfs exporter: https://github.com/plazonic/gpfs-exporter
 
+### Basic Prometheus Configuration
+What follows is an example of production configuration used for the Tiger cluster that has both regular and GPU nodes.
+```
+---
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: master
+- job_name: Tiger Nodes
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  file_sd_configs:
+  - files:
+    - "/etc/prometheus/local_files_sd_config.d/tigernodes.json"
+  metric_relabel_configs:
+  - source_labels:
+    - __name__
+    regex: "^go_.*"
+    action: drop
+- job_name: TigerGPU Nodes
+  scrape_interval: 30s
+  scrape_timeout: 30s
+  file_sd_configs:
+  - files:
+    - "/etc/prometheus/local_files_sd_config.d/tigergpus.json"
+  metric_relabel_configs:
+  - source_labels:
+    - __name__
+    regex: "^go_.*"
+    action: drop
+```
+tigernode.json looks like:
+```
+ [
+   {
+     "labels": {
+       "cluster": "tiger"
+     },
+     "targets": [
+       "tiger-h19c1n10:9100",
+       "tiger-h19c1n10:9306",
+       ...
+     ]
+   }
+ ]
+```
+where both node_exporter (port 9100) and cgroup_exporter (port 9306) are listed, for all of tiger's nodes. tigergpus.json looks very similar except that it collects data from nvidia_gpu_prometheus_exporter on port 9445.
+
+Note the additional label cluster.
+
 ### GPU Job Ownership Helper
 In order to correctly track which GPU is assigned to which jobid we use slurm prolog and epilog scripts to create files in ```/run/gpustat``` directory named either after GPU ordinal number (0, 1, ..) or, in the case of MIG cards, MIG-UUID. These files contain space separated jobid and uid number of the user. E.g.
 ```
@@ -174,10 +225,9 @@ For processing old jobs where slurmctld epilog script did not run or for jobs wh
 
 We made heavy use of this script to generate job summaries for older jobs but with the current version of the Epilog script it should not be needed anymore.
 
-### Other
-
-
-
-
-
-
+### Job email script
+We use slurm/jobstats_mail.sh as the slurm's Mail program. E.g. from slurm.conf:
+```
+MailProg=/usr/local/bin/jobstats_mail.sh
+````
+This will include jobstats information for jobs that have requested email notifications on completion.
