@@ -197,7 +197,11 @@ In order to correctly track which GPU is assigned to which jobid we use slurm pr
 # cat /run/gpustat/MIG-265a219d-a49f-578a-825d-222c72699c16
 45916256 262563
 ```
-These two scrips can be found in slurm directory.
+These two scripts can be found in the slurm directory. For example, slurm/epilog.d/gpustats_helper.sh could be installed as /etc/slurm/epilog.d/gpustats_helper.sh and slurm/prolog.d/gpustats_helper.sh as /etc/slurm/prolog.d/gpustats_helper.sh with these slurm.conf config statements:
+```
+ Prolog=/etc/slurm/prolog.d/*.sh
+ Epilog=/etc/slurm/epilog.d/*.sh
+```
 
 ### Grafana
 
@@ -216,7 +220,7 @@ ood-jobstats-helper subdirectory contains an Open OnDemand app that, given a job
 Job summaries, as described above, are generated and stored in the Slurm database at the end of each job by using slurmctld epilog script, e.g.:
 
 ```
-EpilogSlurmctld=/usr/local/sbin/slurmctldepilog
+EpilogSlurmctld=/usr/local/sbin/slurmctldepilog.sh
 ```
 
 The script can be found in the slurm subdirectory, named "slurmctldepilog.sh".
