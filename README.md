@@ -242,5 +242,5 @@ In addition to `jobstats`, the following software tools build on the Jobstats pl
 
 - [gpudash](https://github.com/PrincetonUniversity/gpudash)  
 - [job defense shield](https://github.com/jdh4/job_defense_shield)  
-- [reportseff](https://github.com/tcomi/reportseff)  
+- [reportseff](https://github.com/troycomi/reportseff)  
 - [utilization reports](https://github.com/PrincetonUniversity/monthly_sponsor_reports)  
