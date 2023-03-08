@@ -241,6 +241,6 @@ This will include jobstats information for jobs that have requested email notifi
 In addition to `jobstats`, the following software tools build on the Jobstats platform:
 
 - [gpudash](https://github.com/PrincetonUniversity/gpudash)  
-- [job defense shield](https://github.com/jdh4/job_defense_shield)  
+- [job defense shield](https://github.com/PrincetonUniversity/job_defense_shield)  
 - [reportseff](https://github.com/troycomi/reportseff)  
 - [utilization reports](https://github.com/PrincetonUniversity/monthly_sponsor_reports)  
