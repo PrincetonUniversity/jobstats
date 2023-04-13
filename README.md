@@ -1,4 +1,4 @@
-Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates on the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform).
+Jobstats is a job monitoring platform composed of data exporters, Prometheus, Grafana and the Slurm database whereas `jobstats` is a command that operates on the Jobstats platform. If you are looking to setup the Jobstats platform then [see below](#jobstats-platform) and [this manuscript](https://tigress-web.princeton.edu/~jdh4/jobstats_submitted_version_pearc_3march2023.pdf).
 
 # jobstats
 
