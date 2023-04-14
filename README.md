@@ -252,7 +252,7 @@ The `jobstats` command analyzes each job and produces custom notes at the bottom
     runs on 1 node (independent of the number of cores). Consider carrying
     out this work elsewhere.
  
-   * The Stellar cluster is intended for multinode jobs. Serial jobs are
+  * The Stellar cluster is intended for multinode jobs. Serial jobs are
     assigned the lowest job priority. On Stellar, a serial job is one that
     uses 1 node and less than 48 CPU-cores. Consider carrying out this work
     elsewhere. This note does not apply to GPU jobs.
