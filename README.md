@@ -236,6 +236,34 @@ MailProg=/usr/local/bin/jobstats_mail.sh
 ````
 This will include jobstats information for jobs that have requested email notifications on completion.
 
+### Notes
+
+The `jobstats` command analyzes each job and produces custom notes at the bottom of the output. Below are several examples:
+
+```
+  * This job ran on the mig partition where jobs are limited to 1 CPU-core,
+    32 GB of CPU memory and 10 GB of GPU memory. A MIG GPU is about 1/7th as
+    powerful as an A100 GPU. Please continue using the mig partition when
+    possible. For more:
+      https://researchcomputing.princeton.edu/systems/della#gpus
+
+  * The Tiger cluster is intended for multinode jobs. Serial jobs are
+    assigned the lowest job priority. On Tiger, a serial job is one that
+    runs on 1 node (independent of the number of cores). Consider carrying
+    out this work elsewhere.
+ 
+   * The Stellar cluster is intended for multinode jobs. Serial jobs are
+    assigned the lowest job priority. On Stellar, a serial job is one that
+    uses 1 node and less than 48 CPU-cores. Consider carrying out this work
+    elsewhere. This note does not apply to GPU jobs.
+
+  * For additional job metrics including metrics plotted against time:
+      https://mystellar.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
+
+  * For additional job metrics including metrics plotted against time:
+      https://stats.rc.princeton.edu  (VPN required off-campus)
+```
+
 # Tools of the Jobstats Platform
 
 In addition to `jobstats`, the following software tools build on the Jobstats platform:
