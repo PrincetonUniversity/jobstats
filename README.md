@@ -274,10 +274,10 @@ The `jobstats` command analyzes each job and produces custom notes at the bottom
 
   * The CPU utilization of this job (24%) is approximately equal to 1
     divided by the number of allocated CPU-cores (1/4=25%). This suggests
-    that you may be trying to run a code that can only use 1 CPU-core. If
-    this is true then allocating more than 1 CPU-core is wasteful. Please
-    consult the documentation for the software to see if it is parallelized.
-    For more info:
+    that you may be running a code that can only use 1 CPU-core. If this is
+    true then allocating more than 1 CPU-core is wasteful. Please consult
+    the documentation for the software to see if it is parallelized. For
+    more info:
       https://researchcomputing.princeton.edu/support/knowledge-base/parallel-code
 
   * This job did not use the CPU. This suggests that something went wrong at
