@@ -241,21 +241,45 @@ This will include jobstats information for jobs that have requested email notifi
 The `jobstats` command analyzes each job and produces custom notes at the bottom of the output. Below are several examples:
 
 ```
-  * This job ran on the mig partition where jobs are limited to 1 CPU-core,
-    32 GB of CPU memory and 10 GB of GPU memory. A MIG GPU is about 1/7th as
-    powerful as an A100 GPU. Please continue using the mig partition when
-    possible. For more:
-      https://researchcomputing.princeton.edu/systems/della#gpus
+  * This job ran on the mig partition where jobs are limited to 1 CPU-core, 32 GB
+    of CPU memory and 10 GB of GPU memory. A MIG GPU is about 1/7th as powerful as
+    an A100 GPU. Please continue using the mig partition when possible. For more:
+    https://researchcomputing.princeton.edu/systems/della#gpus
 
-  * The Tiger cluster is intended for multinode jobs. Serial jobs are
-    assigned the lowest job priority. On Tiger, a serial job is one that
-    runs on 1 node (independent of the number of cores). Consider carrying
-    out this work elsewhere.
- 
-  * The Stellar cluster is intended for multinode jobs. Serial jobs are
-    assigned the lowest job priority. On Stellar, a serial job is one that
-    uses 1 node and less than 48 CPU-cores. Consider carrying out this work
-    elsewhere. This note does not apply to GPU jobs.
+  * This job completed while only needing 19% of the requested time which
+    was 2-00:00:00. For future jobs, please decrease the value of the --time
+    Slurm directive. This will lower your queue times and allow the Slurm
+    job scheduler to work more effectively for all users. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/slurm
+
+  * This job did not use the GPU. Please resolve this before running
+    additional jobs. Wasting resources prevents other users from getting
+    their work done and it causes your subsequent jobs to have a lower
+    priority. Is the code GPU-enabled? Please consult the documentation for
+    the code. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/gpu-computing
+
+  * This job only used 15% of the 100GB of total allocated CPU memory.
+    Please consider allocating less memory by using the Slurm directive
+    --mem-per-cpu=3G or --mem=18G. This will reduce your queue times and
+    make the resources available to other users. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/memory
+
+  * This job ran on a large-memory (datascience) node but it only used 117
+    GB of CPU memory. The large-memory nodes should only be used for jobs
+    that require more than 190 GB. Please allocate less memory by using the
+    Slurm directive --mem-per-cpu=9G or --mem=150G. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/memory
+
+  * This job did not use the CPU. This suggests that something went wrong at
+    the very beginning of the job. Check your Slurm script for errors and
+    look for useful information in the file slurm-46987157.out if it exists.
+
+  * The Stellar cluster is intended for jobs that require multiple nodes.
+    Jobs that run in the serial partition are assigned the lowest job
+    priority. On Stellar, a job will run in the serial partition if it uses
+    1 node and less than 48 CPU-cores. Consider carrying out this work
+    elsewhere.
 
   * For additional job metrics including metrics plotted against time:
       https://mystellar.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
