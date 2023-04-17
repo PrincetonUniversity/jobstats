@@ -241,10 +241,11 @@ This will include jobstats information for jobs that have requested email notifi
 The `jobstats` command analyzes each job and produces custom notes at the bottom of the output. Below are several examples:
 
 ```
-  * This job ran on the mig partition where jobs are limited to 1 CPU-core, 32 GB
-    of CPU memory and 10 GB of GPU memory. A MIG GPU is about 1/7th as powerful as
-    an A100 GPU. Please continue using the mig partition when possible. For more:
-    https://researchcomputing.princeton.edu/systems/della#gpus
+  * This job ran on the mig partition where each job is limited to 1 MIG
+    GPU, 1 CPU-core, 10 GB of GPU memory and 32 GB of CPU memory. A MIG GPU
+    is about 1/7th as powerful as an A100 GPU. Please continue using the mig
+    partition when possible. For more info:
+      https://researchcomputing.princeton.edu/systems/della#gpus
 
   * This job completed while only needing 19% of the requested time which
     was 2-00:00:00. For future jobs, please decrease the value of the --time
