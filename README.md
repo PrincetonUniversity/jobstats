@@ -284,11 +284,10 @@ The `jobstats` command analyzes each job and produces custom notes at the bottom
     the very beginning of the job. Check your Slurm script for errors and
     look for useful information in the file slurm-46987157.out if it exists.
 
-  * The Stellar cluster is intended for jobs that require multiple nodes.
-    Jobs that run in the serial partition are assigned the lowest job
-    priority. On Stellar, a job will run in the serial partition if it uses
-    1 node and less than 48 CPU-cores. Consider carrying out this work
-    elsewhere.
+  * The Tiger cluster is intended for jobs that require multiple nodes. This
+    job ran in the serial partition where jobs are assigned the lowest
+    priority. On Tiger, a job will run in the serial partition if it only
+    requires 1 node. Consider carrying out this work elsewhere.
 
   * For additional job metrics including metrics plotted against time:
       https://mystellar.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
