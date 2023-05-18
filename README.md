@@ -57,18 +57,17 @@ $ jobstats 39798795
 
                                      Notes
 ================================================================================
-  * This job requested 5.3 GB of memory per CPU-core. Given that the overall
-    CPU memory usage was only 6%, please consider reducing your CPU memory
-    allocation for future jobs. This will reduce your queue times and make the
-    resources available for other users. For more info:
-    https://researchcomputing.princeton.edu/support/knowledge-base/memory
+  * This job only used 6% of the 256GB of total allocated CPU memory. For
+    future jobs, please allocate less memory by using a Slurm directive such
+    as --mem-per-cpu=1G or --mem=10G. This will reduce your queue times and
+    make the resources available to other users. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/memory
 
-  * The time efficiency of this job is 19%. The time efficiency is the run time
-    divided by the time limit. For future jobs please consider decreasing the
-    value of the --time directive to increase the time efficiency. This will
-    lower your queue time and allow the Slurm job scheduler to work more
-    effectively for all users. For more info:
-    https://researchcomputing.princeton.edu/support/knowledge-base/slurm
+  * This job only needed 19% of the requested time which was 4-00:00:00. For
+    future jobs, please request less time by modifying the --time Slurm
+    directive. This will lower your queue times and allow the Slurm job
+    scheduler to work more effectively for all users. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/slurm
 
   * For additional job metrics including metrics plotted against time:
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
