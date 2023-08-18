@@ -75,54 +75,6 @@ $ jobstats 39798795
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
 ```
 
-One can also output the raw JSON:
-
-```
-$ jobstats -j 39798795 | jq
-{
-  "gpus": 4,
-  "nodes": {
-    "della-i14g2": {
-      "cpus": 24,
-      "gpu_total_memory": {
-        "0": 42949672960,
-        "1": 42949672960
-      },
-      "gpu_used_memory": {
-        "0": 28453568512,
-        "1": 28453568512
-      },
-      "gpu_utilization": {
-        "0": 65.7,
-        "1": 64.5
-      },
-      "total_memory": 137438953472,
-      "total_time": 164480.1,
-      "used_memory": 8444272640
-    },
-    "della-i14g3": {
-      "cpus": 24,
-      "gpu_total_memory": {
-        "0": 42949672960,
-        "1": 42949672960
-      },
-      "gpu_used_memory": {
-        "0": 28453634048,
-        "1": 28453634048
-      },
-      "gpu_utilization": {
-        "0": 72.9,
-        "1": 67.5
-      },
-      "total_memory": 137438953472,
-      "total_time": 154135.9,
-      "used_memory": 8419606528
-    }
-  },
-  "total_time": 67316
-}
-```
-
 For completed jobs, the data is taken from a call to sacct with several fields including AdminComment. For running jobs, the Prometheus database must be queried.
 
 Importantly, the `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats` including the notes.
@@ -304,6 +256,56 @@ The `jobstats` command analyzes each job and produces custom notes at the bottom
 
   * For additional job metrics including metrics plotted against time:
       https://stats.rc.princeton.edu  (VPN required off-campus)
+```
+
+### JSON Output
+
+One can also output the raw JSON:
+
+```
+$ jobstats -j 39798795 | jq
+{
+  "gpus": 4,
+  "nodes": {
+    "della-i14g2": {
+      "cpus": 24,
+      "gpu_total_memory": {
+        "0": 42949672960,
+        "1": 42949672960
+      },
+      "gpu_used_memory": {
+        "0": 28453568512,
+        "1": 28453568512
+      },
+      "gpu_utilization": {
+        "0": 65.7,
+        "1": 64.5
+      },
+      "total_memory": 137438953472,
+      "total_time": 164480.1,
+      "used_memory": 8444272640
+    },
+    "della-i14g3": {
+      "cpus": 24,
+      "gpu_total_memory": {
+        "0": 42949672960,
+        "1": 42949672960
+      },
+      "gpu_used_memory": {
+        "0": 28453634048,
+        "1": 28453634048
+      },
+      "gpu_utilization": {
+        "0": 72.9,
+        "1": 67.5
+      },
+      "total_memory": 137438953472,
+      "total_time": 154135.9,
+      "used_memory": 8419606528
+    }
+  },
+  "total_time": 67316
+}
 ```
 
 # Tools of the Jobstats Platform
