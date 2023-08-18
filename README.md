@@ -131,6 +131,8 @@ Importantly, the `jobstats` command is also used to replace `smail`, which is th
 
 The installation requirements for `jobstats` are Python 3.6+ and version 1.17+ of the Python `blessed` package which is used for coloring and styling text.
 
+# Jobstats Platform
+
 Below is an outline of the steps that need to be taken to setup the Jobstats platform for a Slurm cluster:
 
 - Switch to cgroup based job accounting from Linux process accounting 
@@ -139,8 +141,6 @@ Below is an outline of the steps that need to be taken to setup the Jobstats pla
 - Setup the Prometheus server and configure it to scrape data from the compute nodes and all configured exporters
 - Setup the slurmctldepilog.sh script for long-term job summary retention
 - Lastly, configure Grafana and Open OnDemand
-
-# Jobstats Platform
 
 ### Exporters
 
