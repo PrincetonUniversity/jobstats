@@ -245,7 +245,6 @@ note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
 style = "bold-red"
 NOTES.append((condition, note, style))
 
-
 # out of memory
 condition = 'self.state == "OUT_OF_MEMORY"'
 note = ("This job failed because it needed more CPU memory than the amount that " \
