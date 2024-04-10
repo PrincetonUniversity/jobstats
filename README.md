@@ -282,20 +282,6 @@ note = ('f"This job ran in the {self.qos} QOS. Each user can only run a small nu
 style = "normal"
 NOTES.append((condition, note, style))
 
-# more details for della
-condition = '(self.cluster == "della")'
-note = ("For additional job metrics including metrics plotted against time:",
-        "https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
-style = "normal"
-NOTES.append((condition, note, style))
-
-# more details for adroit
-condition = '(self.cluster == "adroit")'
-note = ("For additional job metrics including metrics plotted against time:",
-        "https://myadroit.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
-style = "normal"
-NOTES.append((condition, note, style))
-
 # excess CPU memory
 condition = '(not zero_gpu) and (not zero_cpu) and (cpu_memory_utilization < c.MIN_MEMORY_USAGE) ' \
             'and (gb_per_core > (mpc / 1024**3) - 2) and (total > mpc) and gpu_show and ' \
@@ -323,6 +309,20 @@ note = ('f"The CPU utilization of this job ({self.cpu_efficiency}%) is{approx}eq
         '"allocating more than 1 CPU-core is wasteful. Please consult the "' \
         '"documentation for the software to see if it is parallelized. For more info:"',
         "https://researchcomputing.princeton.edu/support/knowledge-base/parallel-code")
+style = "normal"
+NOTES.append((condition, note, style))
+
+# more details for della
+condition = '(self.cluster == "della")'
+note = ("For additional job metrics including metrics plotted against time:",
+        "https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
+style = "normal"
+NOTES.append((condition, note, style))
+
+# more details for adroit
+condition = '(self.cluster == "adroit")'
+note = ("For additional job metrics including metrics plotted against time:",
+        "https://myadroit.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
 style = "normal"
 NOTES.append((condition, note, style))
 
