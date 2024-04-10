@@ -278,14 +278,14 @@ NOTES.append((condition, note, style))
 condition = '"test" in self.qos or "debug" in self.qos'
 note = ('f"This job ran in the {self.qos} QOS. Each user can only run a small number of "' \
         '"jobs simultaneously in this QOS. For more info:"',
-        'https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue')
+        "https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue")
 style = "normal"
 NOTES.append((condition, note, style))
 
 # more details for della
 condition = '(self.cluster == "della")'
-note = ('"For additional job metrics including metrics plotted against time:"',
-        'https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)')
+note = ("For additional job metrics including metrics plotted against time:",
+        "https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
 style = "normal"
 NOTES.append((condition, note, style))
 
