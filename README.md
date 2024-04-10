@@ -200,9 +200,9 @@ note = ('f"The overall GPU utilization of this job is only {round(self.gpu_utili
 style = "bold-red"
 NOTES.append((condition, note, style))
 
-# low CPU utilization (black)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_BLACK) ' \
-            'and int(self.ncpus) > 1'
+# low CPU utilization (black, more than one core)
+condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
+            'and (self.cpu_efficiency > c.CPU_UTIL_RED) and int(self.ncpus) > 1'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -211,9 +211,9 @@ note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
 style = "normal"
 NOTES.append((condition, note, style))
 
-# low CPU utilization (red)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_BLACK) ' \
-            'and (int(self.ncpus) > 1) and (self.cpu_efficiency < c.CPU_UTIL_RED)'
+# low CPU utilization (red, more than one core)
+condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_RED) ' \
+            'and (int(self.ncpus) > 1)'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -221,6 +221,29 @@ note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         "https://researchcomputing.princeton.edu/get-started/cpu-utilization")
 style = "bold-red"
 NOTES.append((condition, note, style))
+
+# low CPU utilization (black, serial job)
+condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
+            'and (self.cpu_efficiency > c.CPU_UTIL_RED) and int(self.ncpus) == 1'
+note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
+        'f"is{somewhat}low compared to the target range of "' \
+        'f"90% and above. Please investigate the reason for the low efficiency. "' \
+        '"For more info:"',
+        "https://researchcomputing.princeton.edu/get-started/cpu-utilization")
+style = "normal"
+NOTES.append((condition, note, style))
+
+# low CPU utilization (red, serial job)
+condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_RED) ' \
+            'and (int(self.ncpus) == 1)'
+note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
+        'f"is{somewhat}low compared to the target range of "' \
+        'f"90% and above. Please investigate the reason for the low efficiency. "' \
+        '"For more info:"',
+        "https://researchcomputing.princeton.edu/get-started/cpu-utilization")
+style = "bold-red"
+NOTES.append((condition, note, style))
+
 
 # out of memory
 condition = 'self.state == "OUT_OF_MEMORY"'
@@ -257,10 +280,10 @@ NOTES.append((condition, note, style))
 condition = 'self.time_eff_violation and self.time_efficiency > c.TIME_EFFICIENCY_RED'
 note = ('f"This job only needed {self.time_efficiency}% of the requested time "' \
         'f"which was {self.human_seconds(SECONDS_PER_MINUTE * self.timelimitraw)}. "' \
-        "For future jobs, please request less time by modifying " \
-        "the --time Slurm directive. This will " \
-        "lower your queue times and allow the Slurm job scheduler to work more " \
-        "effectively for all users. For more info:",
+        '"For future jobs, please request less time by modifying "' \
+        '"the --time Slurm directive. This will "' \
+        '"lower your queue times and allow the Slurm job scheduler to work more "' \
+        '"effectively for all users. For more info:"',
         "https://researchcomputing.princeton.edu/support/knowledge-base/slurm")
 style = "normal"
 NOTES.append((condition, note, style))
@@ -271,14 +294,6 @@ condition = '(not zero_gpu) and self.gpus and (self.gpu_utilization < c.GPU_UTIL
 note = ('f"The overall GPU utilization of this job is {round(self.gpu_utilization)}%. "' \
         '"This value is somewhat low compared to the cluster mean value of 50%. For more info:"',
         'https://researchcomputing.princeton.edu/support/knowledge-base/gpu-computing#util')
-style = "normal"
-NOTES.append((condition, note, style))
-
-# job ran in the test queue
-condition = '"test" in self.qos or "debug" in self.qos'
-note = ('f"This job ran in the {self.qos} QOS. Each user can only run a small number of "' \
-        '"jobs simultaneously in this QOS. For more info:"',
-        "https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue")
 style = "normal"
 NOTES.append((condition, note, style))
 
@@ -309,6 +324,14 @@ note = ('f"The CPU utilization of this job ({self.cpu_efficiency}%) is{approx}eq
         '"allocating more than 1 CPU-core is wasteful. Please consult the "' \
         '"documentation for the software to see if it is parallelized. For more info:"',
         "https://researchcomputing.princeton.edu/support/knowledge-base/parallel-code")
+style = "normal"
+NOTES.append((condition, note, style))
+
+# job ran in the test queue
+condition = '"test" in self.qos or "debug" in self.qos'
+note = ('f"This job ran in the {self.qos} QOS. Each user can only run a small number of "' \
+        '"jobs simultaneously in this QOS. For more info:"',
+        'https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue')
 style = "normal"
 NOTES.append((condition, note, style))
 
