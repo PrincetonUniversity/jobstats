@@ -101,7 +101,7 @@ Below is an outline of the steps that need to be taken to setup the Jobstats pla
 
 Use the `config.py` below as the starting point for your configuration file:
 
-```
+```python
 ##########################
 ## JOBSTATS CONFIG FILE ##
 ##########################
