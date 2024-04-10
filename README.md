@@ -99,8 +99,9 @@ Below is an outline of the steps that need to be taken to setup the Jobstats pla
 
 ### Configuration File
 
+Use the `config.py` below as the starting point for your configuration file:
+
 ```
-$ cat config.py
 ##########################
 ## JOBSTATS CONFIG FILE ##
 ##########################
