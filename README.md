@@ -106,7 +106,7 @@ Use the `config.py` below as the starting point for your configuration file:
 ## JOBSTATS CONFIG FILE ##
 ##########################
 
-# prometheous server address and port
+# prometheus server address and port
 PROM_SERVER = "http://vigilant2:8480"
 
 # number of seconds between measurements
@@ -138,7 +138,7 @@ DEFAULT_MEM_PER_CORE = {"adroit":3355443200,
                         "tiger":4294967296,
                         "traverse":7812500000}
 
-# number of CPU-cores per node per cluster
+# number of CPU-cores per node for each cluster
 # this will eventually be replaced with explicit values for each node
 CORES_PER_NODE = {"adroit":32,
                   "della":28,
@@ -150,7 +150,8 @@ CORES_PER_NODE = {"adroit":32,
 #########################################################################################
 ##                               C U S T O M    N O T E S                              ##
 ##                                                                                     ##
-## Be sure to work from the examples. Pay attention to the different quote characters. ##
+## Be sure to work from the examples. Pay attention to the different quote characters  ##
+## when f-strings are involved.                                                        ##
 #########################################################################################
 NOTES = []
 
