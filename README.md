@@ -84,7 +84,7 @@ Importantly, the `jobstats` command is also used to replace `smail`, which is th
 
 ### Installation
 
-The installation requirements for `jobstats` are Python 3.6+, [https://pypi.org/project/requests/](`Requests`) and version 1.17+ of the Python [https://pypi.org/project/blessed/](`blessed`) package which is used for coloring and styling text.
+The installation requirements for `jobstats` are Python 3.6+, [`Requests`](https://pypi.org/project/requests/) and version 1.17+ of the Python [`blessed`](https://pypi.org/project/blessed/) package which is used for coloring and styling text.
 
 ```
 $ pip install requests blessed
