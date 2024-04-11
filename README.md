@@ -84,10 +84,10 @@ Importantly, the `jobstats` command is also used to replace `smail`, which is th
 
 ### Installation
 
-The installation requirements for `jobstats` are Python 3.6+, [`Requests`](https://pypi.org/project/requests/) and version 1.17+ of the Python [`blessed`](https://pypi.org/project/blessed/) package which is used for coloring and styling text.
+The installation requirements for `jobstats` are Python 3.6+ and [Requests 2.20+](https://pypi.org/project/requests/) and optionally [blessed 1.17+](https://pypi.org/project/blessed/) which can be used for coloring and styling text.
 
 ```
-$ pip install requests blessed
+$ conda create --name js-env python=3.7 requests blessed -c conda-forge
 ```
 
 # Jobstats Platform
