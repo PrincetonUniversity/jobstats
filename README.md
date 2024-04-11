@@ -97,7 +97,7 @@ After doing the setup, to start using the `jobstats` command on your system, run
 ```bash
 $ git clone https://github.com/PrincetonUniversity/jobstats.git
 $ cd jobstats
-# use a text editor to create config.py  # see the example configuration file below
+# use a text editor to create config.py (see the example configuration file below)
 $ chmod u+x jobstats
 $ ./jobstats 1234567
 ```
