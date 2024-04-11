@@ -92,7 +92,7 @@ The necessary software can be installed as follows:
 $ conda create --name js-env python=3.7 requests blessed -c conda-forge
 ```
 
-After doing the setup, to start using the `jobstats` command on your system, run these commands:
+After setting up the Jobstats platform (see below), to start using the `jobstats` command on your system, run these commands:
 
 ```bash
 $ git clone https://github.com/PrincetonUniversity/jobstats.git
@@ -101,17 +101,6 @@ $ cd jobstats
 $ chmod u+x jobstats
 $ ./jobstats 1234567
 ```
-
-# Jobstats Platform
-
-Below is an outline of the steps that need to be taken to setup the Jobstats platform for a Slurm cluster:
-
-- Switch to cgroup based job accounting from Linux process accounting 
-- Setup the exporters: cgroup, node, GPU (on the nodes) and, optionally, GPFS (centrally)
-- Setup the prolog.d and epilog.d scripts on the GPU nodes
-- Setup the Prometheus server and configure it to scrape data from the compute nodes and all configured exporters
-- Setup the slurmctldepilog.sh script for long-term job summary retention
-- Lastly, configure Grafana and Open OnDemand
 
 ### Configuration File
 
@@ -372,6 +361,17 @@ note = "Have a nice day!"
 style = "normal"
 NOTES.append((condition, note, style))
 ```
+
+# Jobstats Platform
+
+Below is an outline of the steps that need to be taken to setup the Jobstats platform for a Slurm cluster:
+
+- Switch to cgroup based job accounting from Linux process accounting 
+- Setup the exporters: cgroup, node, GPU (on the nodes) and, optionally, GPFS (centrally)
+- Setup the prolog.d and epilog.d scripts on the GPU nodes
+- Setup the Prometheus server and configure it to scrape data from the compute nodes and all configured exporters
+- Setup the slurmctldepilog.sh script for long-term job summary retention
+- Lastly, configure Grafana and Open OnDemand
 
 ### Exporters
 
