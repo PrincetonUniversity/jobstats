@@ -604,6 +604,3 @@ In addition to `jobstats`, the following software tools build on the Jobstats pl
 - Princeton Computer Science
 - Princeton Research Computing
 - and more
-
-[comment] <> (- NAVER LABS Europe)
-[comment] <> (- UKRI Science and Technology Facilities Council)
