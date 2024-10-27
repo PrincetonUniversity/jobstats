@@ -1,4 +1,3 @@
-import argparse
 import csv
 import datetime
 import os
@@ -172,7 +171,7 @@ class JobStats:
         except Exception:
             self.error("Failed to lookup jobid %s" % self.jobid)
  
-        if self.jobidraw == None:
+        if self.jobidraw is None:
             if self.cluster:
                 clstr = c.CLUSTER_TRANS[self.cluster] if self.cluster in c.CLUSTER_TRANS else self.cluster
                 self.error(f"Failed to lookup jobid %s on {clstr}. Make sure you specified the correct cluster." % self.jobid)
@@ -180,7 +179,7 @@ class JobStats:
                 self.error("Failed to lookup jobid %s." % self.jobid)
 
         self.gpus = 0
-        if self.tres != None and 'gres/gpu=' in self.tres and 'gres/gpu=0,' not in self.tres:
+        if self.tres is not None and 'gres/gpu=' in self.tres and 'gres/gpu=0,' not in self.tres:
             for part in self.tres.split(","):
                 if "gres/gpu=" in part:
                     self.gpus = int(part.split("=")[-1])
@@ -230,7 +229,7 @@ class JobStats:
                     v = int(v)
                 if node not in self.sp_node:
                     self.sp_node[node] = {}
-                if minor != None:
+                if minor is not None:
                     if n not in self.sp_node[node]:
                         self.sp_node[node][n] = {}
                     self.sp_node[node][n][minor] = v
@@ -253,8 +252,8 @@ class JobStats:
             response = requests.get('{0}/api/v1/{1}'.format(self.prom_server, qstr), params)
             return response.json()
         
-        expanded_query = query%(self.cluster, self.jobidraw, self.diff)
-        self.debug_print("query=%s, time=%s" %(expanded_query,self.end))
+        expanded_query = query % (self.cluster, self.jobidraw, self.diff)
+        self.debug_print("query=%s, time=%s" % (expanded_query,self.end))
         try:
             j = __run_query(expanded_query, time=self.end)
         except Exception as e:
@@ -569,8 +568,8 @@ class JobStats:
                 cmd = ["seff",  f"{self.jobid}"]
                 try:
                     seff = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
-                except:
-                    self.error("No job statistics are available.")
+                except Exception as e:
+                    self.error(f"No job statistics are available ({e}).")
                 else:
                   print("\nRun time is very short so only providing seff output:\n")
                   print(seff)
