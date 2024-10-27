@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import config
+from config import PROM_SERVER
 from jobstats import JobStats
+
 
 if __name__ == "__main__":
 
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     for jobid in args.job:
         stats = JobStats(jobid=jobid,
                          cluster=args.cluster,
-                         prom_server=config.PROM_SERVER,
+                         prom_server=PROM_SERVER,
                          debug=args.debug,
                          debug_syslog=args.syslog,
                          force_recalc=args.force,
