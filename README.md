@@ -304,7 +304,7 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # excess CPU memory
-condition = '(not zero_gpu) and (not zero_cpu) and (cpu_memory_utilization < c.MIN_MEMORY_USAGE) ' \
+condition = '(not zero_gpu) and (not zero_cpu) and (self.js.cpu_memory_efficiency < c.MIN_MEMORY_USAGE) ' \
             'and (gb_per_core > (mpc / 1024**3) - 2) and (total > mpc) and gpu_show and ' \
             '(not self.js.partition == "datascience") and (not self.js.partition == "mig") and ' \
             '(self.js.state != "OUT_OF_MEMORY") and (cores_per_node < cpn) and ' \
