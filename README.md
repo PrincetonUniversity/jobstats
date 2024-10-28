@@ -161,8 +161,8 @@ CORES_PER_NODE = {"adroit":32,
 NOTES = []
 
 # zero GPU utilization (single GPU jobs)
-condition = 'self.gpus and (self.diff > c.MIN_RUNTIME_SECONDS) and num_unused_gpus > 0 ' \
-            'and self.gpus == 1'
+condition = 'self.js.gpus and (self.js.diff > c.MIN_RUNTIME_SECONDS) and num_unused_gpus > 0 ' \
+            'and self.js.gpus == 1'
 note = ("This job did not use the GPU. Please resolve this " \
         "before running additional jobs. Wasting " \
         "resources prevents other users from getting their work done " \
@@ -174,9 +174,9 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # zero GPU utilization (multi-GPU jobs)
-condition = 'self.gpus and (self.diff > c.MIN_RUNTIME_SECONDS) and num_unused_gpus > 0 ' \
-            'and self.gpus > 1'
-note = ('f"This job did not use {num_unused_gpus} of the {self.gpus} allocated GPUs. "' \
+condition = 'self.js.gpus and (self.js.diff > c.MIN_RUNTIME_SECONDS) and num_unused_gpus > 0 ' \
+            'and self.js.gpus > 1'
+note = ('f"This job did not use {num_unused_gpus} of the {self.js.gpus} allocated GPUs. "' \
         '"Please resolve this before running additional jobs. "' \
         '"Wasting resources prevents other users from getting their work done "' \
         '"and it causes your subsequent jobs to have a lower priority. Is the "' \
@@ -187,9 +187,9 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # low GPU utilization (ondemand and salloc)
-condition = '(not zero_gpu) and self.gpus and (self.gpu_utilization <= c.GPU_UTIL_RED) ' \
-            'and interactive_job and (self.diff / SECONDS_PER_HOUR > 12)'
-note = ('f"The overall GPU utilization of this job is only {round(self.gpu_utilization)}%. "' \
+condition = '(not zero_gpu) and self.js.gpus and (self.js.gpu_utilization <= c.GPU_UTIL_RED) ' \
+            'and interactive_job and (self.js.diff / SECONDS_PER_HOUR > 12)'
+note = ('f"The overall GPU utilization of this job is only {round(self.js.gpu_utilization)}%. "' \
         'f"This value is low compared to the cluster mean value of 50%. Please "' \
         'f"do not create \"salloc\" or OnDemand sessions for more than 12 hours unless you "' \
         'f"plan to work intensively during the entire period. For more info:"',
@@ -198,9 +198,9 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # low GPU utilization (batch jobs)
-condition = '(not zero_gpu) and self.gpus and (self.gpu_utilization <= c.GPU_UTIL_RED) ' \
+condition = '(not zero_gpu) and self.js.gpus and (self.js.gpu_utilization <= c.GPU_UTIL_RED) ' \
             'and (not interactive_job)'
-note = ('f"The overall GPU utilization of this job is only {round(self.gpu_utilization)}%. "' \
+note = ('f"The overall GPU utilization of this job is only {round(self.js.gpu_utilization)}%. "' \
         '"This value is low compared to the cluster mean value of 50%. Please "' \
         '"investigate the reason for the low utilization. For more info:"',
         "https://researchcomputing.princeton.edu/support/knowledge-base/gpu-computing#util")
@@ -208,8 +208,8 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # low CPU utilization (black, more than one core)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
-            'and (self.cpu_efficiency > c.CPU_UTIL_RED) and int(self.ncpus) > 1'
+condition = '(not zero_cpu) and (not self.js.gpus) and (self.js.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
+            'and (self.js.cpu_efficiency > c.CPU_UTIL_RED) and int(self.js.ncpus) > 1'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -219,8 +219,8 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # low CPU utilization (red, more than one core)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_RED) ' \
-            'and (int(self.ncpus) > 1)'
+condition = '(not zero_cpu) and (not self.js.gpus) and (self.js.cpu_efficiency < c.CPU_UTIL_RED) ' \
+            'and (int(self.js.ncpus) > 1)'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -230,8 +230,8 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # low CPU utilization (black, serial job)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
-            'and (self.cpu_efficiency > c.CPU_UTIL_RED) and int(self.ncpus) == 1'
+condition = '(not zero_cpu) and (not self.js.gpus) and (self.js.cpu_efficiency <= c.CPU_UTIL_BLACK) ' \
+            'and (self.js.cpu_efficiency > c.CPU_UTIL_RED) and int(self.js.ncpus) == 1'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -241,8 +241,8 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # low CPU utilization (red, serial job)
-condition = '(not zero_cpu) and (not self.gpus) and (self.cpu_efficiency < c.CPU_UTIL_RED) ' \
-            'and (int(self.ncpus) == 1)'
+condition = '(not zero_cpu) and (not self.js.gpus) and (self.js.cpu_efficiency < c.CPU_UTIL_RED) ' \
+            'and (int(self.js.ncpus) == 1)'
 note = ('f"The overall CPU utilization of this job is {ceff}%. This value "' \
         'f"is{somewhat}low compared to the target range of "' \
         'f"90% and above. Please investigate the reason for the low efficiency. "' \
@@ -252,7 +252,7 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # out of memory
-condition = 'self.state == "OUT_OF_MEMORY"'
+condition = 'self.js.state == "OUT_OF_MEMORY"'
 note = ("This job failed because it needed more CPU memory than the amount that " \
         "was requested. The solution is to resubmit the job while " \
         "requesting more CPU memory by " \
@@ -262,7 +262,7 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # timeout
-condition = 'self.state == "TIMEOUT"'
+condition = 'self.js.state == "TIMEOUT"'
 note = ("This job failed because it exceeded the time limit. If there are no " \
         "other problems then the solution is to increase the value of the " \
         "--time Slurm directive and resubmit the job. For more info:",
@@ -271,9 +271,9 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # excessive run time limit (red)
-condition = 'self.time_eff_violation and self.time_efficiency <= c.TIME_EFFICIENCY_RED'
-note = ('f"This job only needed {self.time_efficiency}% of the requested time "' \
-        'f"which was {self.human_seconds(SECONDS_PER_MINUTE * self.timelimitraw)}. "' \
+condition = 'self.js.time_eff_violation and self.js.time_efficiency <= c.TIME_EFFICIENCY_RED'
+note = ('f"This job only needed {self.js.time_efficiency}% of the requested time "' \
+        'f"which was {self.human_seconds(SECONDS_PER_MINUTE * self.js.timelimitraw)}. "' \
         '"For future jobs, please request less time by modifying "' \
         '"the --time Slurm directive. This will "' \
         '"lower your queue times and allow the Slurm job scheduler to work more "' \
@@ -283,9 +283,9 @@ style = "bold-red"
 NOTES.append((condition, note, style))
 
 # excessive run time limit (black)
-condition = 'self.time_eff_violation and self.time_efficiency > c.TIME_EFFICIENCY_RED'
-note = ('f"This job only needed {self.time_efficiency}% of the requested time "' \
-        'f"which was {self.human_seconds(SECONDS_PER_MINUTE * self.timelimitraw)}. "' \
+condition = 'self.js.time_eff_violation and self.js.time_efficiency > c.TIME_EFFICIENCY_RED'
+note = ('f"This job only needed {self.js.time_efficiency}% of the requested time "' \
+        'f"which was {self.human_seconds(SECONDS_PER_MINUTE * self.js.timelimitraw)}. "' \
         '"For future jobs, please request less time by modifying "' \
         '"the --time Slurm directive. This will "' \
         '"lower your queue times and allow the Slurm job scheduler to work more "' \
@@ -295,9 +295,9 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # somewhat low GPU utilization
-condition = '(not zero_gpu) and self.gpus and (self.gpu_utilization < c.GPU_UTIL_BLACK) and ' \
-            '(self.gpu_utilization > c.GPU_UTIL_RED) and (self.diff > c.MIN_RUNTIME_SECONDS)'
-note = ('f"The overall GPU utilization of this job is {round(self.gpu_utilization)}%. "' \
+condition = '(not zero_gpu) and self.js.gpus and (self.js.gpu_utilization < c.GPU_UTIL_BLACK) and ' \
+            '(self.js.gpu_utilization > c.GPU_UTIL_RED) and (self.js.diff > c.MIN_RUNTIME_SECONDS)'
+note = ('f"The overall GPU utilization of this job is {round(self.js.gpu_utilization)}%. "' \
         '"This value is somewhat low compared to the cluster mean value of 50%. For more info:"',
         'https://researchcomputing.princeton.edu/support/knowledge-base/gpu-computing#util')
 style = "normal"
@@ -306,9 +306,9 @@ NOTES.append((condition, note, style))
 # excess CPU memory
 condition = '(not zero_gpu) and (not zero_cpu) and (cpu_memory_utilization < c.MIN_MEMORY_USAGE) ' \
             'and (gb_per_core > (mpc / 1024**3) - 2) and (total > mpc) and gpu_show and ' \
-            '(not self.partition == "datascience") and (not self.partition == "mig") and ' \
-            '(self.state != "OUT_OF_MEMORY") and (cores_per_node < cpn) and ' \
-            '(self.diff > c.MIN_RUNTIME_SECONDS)'
+            '(not self.js.partition == "datascience") and (not self.js.partition == "mig") and ' \
+            '(self.js.state != "OUT_OF_MEMORY") and (cores_per_node < cpn) and ' \
+            '(self.js.diff > c.MIN_RUNTIME_SECONDS)'
 note = ('f"This job {opening} of the {self.cpu_memory_formatted(with_label=False)} "' \
         '"of total allocated CPU memory. "' \
         '"For future jobs, please allocate less memory by using a Slurm directive such "' \
@@ -321,11 +321,11 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # serial jobs wasting multiple cpu-cores
-condition = '(self.nnodes == "1") and (int(self.ncpus) > 1) and (not self.gpus) and (serial_ratio > 0.85 ' \
+condition = '(self.js.nnodes == "1") and (int(self.js.ncpus) > 1) and (not self.js.gpus) and (serial_ratio > 0.85 ' \
             'and serial_ratio < 1.1)'
-note = ('f"The CPU utilization of this job ({self.cpu_efficiency}%) is{approx}equal "' \
+note = ('f"The CPU utilization of this job ({self.js.cpu_efficiency}%) is{approx}equal "' \
         '"to 1 divided by the number of allocated CPU-cores "' \
-        'f"(1/{self.ncpus}={round(eff_if_serial)}%). This suggests that you may be "' \
+        'f"(1/{self.js.ncpus}={round(eff_if_serial)}%). This suggests that you may be "' \
         '"running a code that can only use 1 CPU-core. If this is true then "' \
         '"allocating more than 1 CPU-core is wasteful. Please consult the "' \
         '"documentation for the software to see if it is parallelized. For more info:"',
@@ -334,22 +334,22 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # job ran in the test queue
-condition = '"test" in self.qos or "debug" in self.qos'
-note = ('f"This job ran in the {self.qos} QOS. Each user can only run a small number of "' \
+condition = '"test" in self.js.qos or "debug" in self.js.qos'
+note = ('f"This job ran in the {self.js.qos} QOS. Each user can only run a small number of "' \
         '"jobs simultaneously in this QOS. For more info:"',
         'https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue')
 style = "normal"
 NOTES.append((condition, note, style))
 
 # more details for della
-condition = '(self.cluster == "della")'
+condition = '(self.js.cluster == "della")'
 note = ("For additional job metrics including metrics plotted against time:",
         "https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
 style = "normal"
 NOTES.append((condition, note, style))
 
 # more details for adroit
-condition = '(self.cluster == "adroit")'
+condition = '(self.js.cluster == "adroit")'
 note = ("For additional job metrics including metrics plotted against time:",
         "https://myadroit.princeton.edu/pun/sys/jobstats  (VPN required off-campus)")
 style = "normal"
