@@ -81,7 +81,7 @@ class Jobstats:
             # call prometheus to get detailed statistics (if long enough)
             if self.diff >= 2 * SAMPLING_PERIOD:
                 self.get_job_stats()
-        self.prepare_output()
+        self.parse_stats()
 
     def nodes(self):
         return self.sp_node
@@ -158,15 +158,19 @@ class Jobstats:
                 self.jobname      = i.get('JobName', None)
                 self.debug_print('jobidraw=%s, start=%s, end=%s, cluster=%s, tres=%s, data=%s, user=%s, account=%s, state=%s, timelimit=%s, nodes=%s, ncpus=%s, reqmem=%s, qos=%s, partition=%s, jobname=%s' % (self.jobidraw, self.start, self.end, self.cluster, self.tres, self.data, self.user, self.account, self.state, self.timelimitraw, self.nnodes, self.ncpus, self.reqmem, self.qos, self.partition, self.jobname))
         except Exception:
-            self.error(f"Failed to lookup job {self.jobid}.")
+            msg = (f"Failed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
+                   "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).")
+            self.error(msg)
  
         if self.jobidraw is None:
             if self.cluster:
                 clstr = c.CLUSTER_TRANS[self.cluster] if self.cluster in c.CLUSTER_TRANS else self.cluster
-                msg = f"Failed to lookup job {self.jobid} on {clstr}. Make sure you specified the correct cluster."
+                msg = f"Failed to lookup job {self.jobid} on {clstr}."
                 self.error(msg)
             else:
-                self.error(f"Failed to lookup job {self.jobid}.")
+                msg = (f"Failed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
+                       "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).")
+                self.error(msg)
 
         self.gpus = 0
         if self.tres is not None and 'gres/gpu=' in self.tres and 'gres/gpu=0,' not in self.tres:
@@ -270,7 +274,7 @@ class Jobstats:
             self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
 
 
-    def prepare_output(self):
+    def parse_stats(self):
         sp_node = self.sp_node
 
         if len(sp_node) == 0:
@@ -285,8 +289,8 @@ class Jobstats:
                     print(seff)
                     self.error("")
             else:
-                self.error(f"No stats found for job {self.jobid} probably because it is too old or it\n"
-                          + "expired from Jobstats database. If you are not running this command on the\n"
+                self.error(f"No data was found for job {self.jobid}. This is probably because it is too old\n"
+                          + "or it expired from Jobstats database. If you are not running this command on the\n"
                           + "cluster where the job was run then use the -c option to specify the cluster.\n"
                           +f'If the run time was very short then try running "seff {self.jobid}".')
 
@@ -294,38 +298,60 @@ class Jobstats:
         total = 0
         total_used = 0
         total_cores = 0
+        self.cpu_util_error_code = 0
         self.cpu_util__node_used_alloc_cores = []
         for n in sp_node:
-            used = sp_node[n]['total_time']
-            cores = sp_node[n]['cpus']
-            alloc = self.diff * cores
-            total += alloc
-            total_used += used
-            total_cores += cores
-            self.cpu_util__node_used_alloc_cores.append((n, used, alloc, cores))
+            try:
+                used  = sp_node[n]['total_time']
+                cores = sp_node[n]['cpus']
+            except Exception:
+                self.cpu_util_error_code = 1
+                break
+            else:
+                alloc = self.diff * cores
+                total += alloc
+                total_used += used
+                total_cores += cores
+                self.cpu_util__node_used_alloc_cores.append((n, used, alloc, cores))
+        if self.cpu_util_error_code == 0:
+            if total_used > total:
+                self.cpu_util_error_code = 2
+            if total == 0:
+                self.cpu_util_error_code = 3
         self.cpu_util_total__used_alloc_cores = (total_used, total, total_cores)
 
         # cpu memory
         total = 0
         total_used = 0
         total_cores = 0
+        self.cpu_mem_error_code = 0
         self.cpu_mem__node_used_alloc_cores = []
         for n in sp_node:
-            used = sp_node[n]['used_memory']
-            alloc = sp_node[n]['total_memory']
-            cores = sp_node[n]['cpus']
-            total += alloc
-            total_used += used
-            total_cores += cores
-            self.cpu_mem__node_used_alloc_cores.append((n, used, alloc, cores))
+            try:
+                used  = sp_node[n]['used_memory']
+                alloc = sp_node[n]['total_memory']
+                cores = sp_node[n]['cpus']
+            except Exception:
+                self.cpu_mem_error_code = 1
+                break
+            else:
+                total += alloc
+                total_used += used
+                total_cores += cores
+                self.cpu_mem__node_used_alloc_cores.append((n, used, alloc, cores))
+        if self.cpu_mem_error_code == 0:
+            if total_used > total:
+                self.cpu_mem_error_code = 2
+            if total == 0:
+                self.cpu_mem_error_code = 3
         self.cpu_mem_total__used_alloc_cores = (total_used, total, total_cores)
 
         if self.gpus:
             # gpu utilization
             overall = 0
             overall_gpu_count = 0
+            self.gpu_util_error_code = 0
             self.gpu_util__node_util_index = []
-            key_found = True
             for n in sp_node:
                 d = sp_node[n]
                 if 'gpu_utilization' in d:
@@ -337,29 +363,36 @@ class Jobstats:
                         overall_gpu_count += 1
                         self.gpu_util__node_util_index.append((n, util, g))
                 else:
-                    # this branch deals with mig
-                    key_found = False
-                    self.gpu_util__node_util_index.append((n, 50, "0"))
-            if key_found:
-                self.gpu_util_total__util_gpus = (overall, overall_gpu_count)
-            else:
-                # this branch deals with mig
-                self.gpu_util_total__util_gpus = (50, 1)
+                    self.gpu_util_error_code = 1
+                    self.gpu_util__node_util_index.append((n, None, None))
+                    break
+            self.gpu_util_total__util_gpus = (overall, overall_gpu_count)
 
             # gpu memory usage
             overall = 0
             overall_total = 0
+            self.gpu_mem_error_code = 0
             self.gpu_mem__node_used_total_index = []
             for n in sp_node:
                 d = sp_node[n]
-                gpus = list(d['gpu_total_memory'].keys())
-                gpus.sort()
-                for g in gpus:
-                    used = d['gpu_used_memory'][g]
-                    total = d['gpu_total_memory'][g]
-                    overall += used
-                    overall_total += total
-                    self.gpu_mem__node_used_total_index.append((n, used, total, g))
+                if 'gpu_total_memory' in d and 'gpu_total_memory' in d:
+                    gpus = list(d['gpu_total_memory'].keys())
+                    gpus.sort()
+                    for g in gpus:
+                        used  = d['gpu_used_memory'][g]
+                        total = d['gpu_total_memory'][g]
+                        overall += used
+                        overall_total += total
+                        self.gpu_mem__node_used_total_index.append((n, used, total, g))
+                else:
+                    self.gpu_mem_error_code = 1
+                    self.gpu_mem__node_used_total_index.append((n, None, None, None))
+                    break
+            if self.gpu_mem_error_code == 0:
+                if overall > overall_total:
+                    self.gpu_mem_error_code == 2
+                if overall_total == 0:
+                    self.gpu_mem_error_code == 3
             self.gpu_mem_total__used_alloc = (overall, overall_total)
 
 

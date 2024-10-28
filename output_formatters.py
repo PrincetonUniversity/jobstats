@@ -203,9 +203,8 @@ class BaseFormatter(ABC):
         serial_ratio = self.js.cpu_efficiency / eff_if_serial
         approx = " approximately " if self.js.cpu_efficiency != round(eff_if_serial) else " "
         # next four lines needed for excess CPU memory note
-        cpu_memory_utilization = round(100 * total_used / total) if total != 0 else 0
         gb_per_core = total / total_cores / 1024**3 if total_cores != 0 else 0
-        opening = f"only used {cpu_memory_utilization}%" if cpu_memory_utilization >= 1 \
+        opening = f"only used {self.js.cpu_memory_efficiency}%" if self.js.cpu_memory_efficiency >= 1 \
                                                          else "used less than 1%"
         if self.js.cluster in c.CORES_PER_NODE:
             cpn = c.CORES_PER_NODE[self.js.cluster]
@@ -278,31 +277,59 @@ class ClassicOutput(BaseFormatter):
         ########################################################################
         #                           OVERALL UTILIZATION                        #
         ########################################################################
-        # overall cpu time utilization
-        total_used, total, total_cores = self.js.cpu_util_total__used_alloc_cores
-        self.js.cpu_efficiency = round(100 * total_used / total) if total != 0 else 0
-        meter = self.draw_meter(self.js.cpu_efficiency, "cpu", util=True)
-        report += "  CPU utilization  " + meter + "\n"
-        # overall cpu memory utilization
-        total_used, total, total_cores = self.js.cpu_mem_total__used_alloc_cores
-        cpu_memory_efficiency = round(100 * total_used / total) if total != 0 else 0
-        report += "  CPU memory usage " + self.draw_meter(cpu_memory_efficiency, "cpu") + "\n"
+        # overall CPU time utilization
+        if self.js.cpu_util_error_code == 0:
+            total_used, total, _ = self.js.cpu_util_total__used_alloc_cores
+            self.js.cpu_efficiency = round(100 * total_used / total)
+            meter = self.draw_meter(self.js.cpu_efficiency, "cpu", util=True)
+            report += "  CPU utilization  " + meter + "\n"
+        elif self.js.cpu_util_error_code == 1:
+            report += "  CPU utilization  (JSON is malformed)\n"
+        elif self.js.cpu_util_error_code == 2:
+            report += "  CPU utilization  (Value was erroneously found to be >100%)\n"
+        elif self.js.cpu_util_error_code == 3:
+            report += "  CPU utilization  (Total CPU time was found to be zero)\n"
+        else:
+            report += "  CPU utilization  (Something went wrong)\n"
+        # overall CPU memory utilization
+        if self.js.cpu_mem_error_code == 0:
+            total_used, total, _ = self.js.cpu_mem_total__used_alloc_cores
+            self.js.cpu_memory_efficiency = round(100 * total_used / total)
+            meter = self.draw_meter(self.js.cpu_memory_efficiency, "cpu")
+            report += "  CPU memory usage " + meter + "\n"
+        elif self.js.cpu_mem_error_code == 1:
+            report += "  CPU memory usage (JSON is malformed)\n"
+        elif self.js.cpu_mem_error_code == 2:
+            report += "  CPU memory usage (Value was erroneously found to be >100%)\n"
+        elif self.js.cpu_mem_error_code == 3:
+            report += "  CPU memory usage (Allocated memory was found to be zero)\n"
+        else:
+            report += "  CPU memory usage (Something went wrong)\n"
+        # GPUs
         if self.js.gpus:
-            # overall gpu utilization
-            overall, overall_gpu_count = self.js.gpu_util_total__util_gpus
-            self.js.gpu_utilization = overall / overall_gpu_count
-            if self.js.partition == "mig":
-                unknown = f"  GPU utilization  {self.txt_bold}[{self.txt_normal}" \
-                          f"     GPU utilization is unknown for MIG jobs      " \
-                          f"{self.txt_normal}{self.txt_bold}]{self.txt_normal}"
-                report += unknown + "\n"
-            else:
+            # overall GPU utilization
+            if self.js.gpu_util_error_code == 0:
+                overall, overall_gpu_count = self.js.gpu_util_total__util_gpus
+                self.js.gpu_utilization = overall / overall_gpu_count
                 meter = self.draw_meter(round(self.js.gpu_utilization), "gpu", util=True)
                 report += "  GPU utilization  " + meter + "\n"
-            # overall gpu memory usage
-            overall, overall_total = self.js.gpu_mem_total__used_alloc
-            gpu_memory_usage = round(100 * overall / overall_total)
-            report += "  GPU memory usage " + self.draw_meter(gpu_memory_usage, "gpu") + "\n"
+            elif self.js.gpu_util_error_code == 1:
+                report += "  GPU utilization  (Value is unknown)\n"
+            else:
+                report += "  GPU utilization  (Something went wrong)\n"
+            # overall GPU memory usage
+            if self.js.gpu_mem_error_code == 0:
+                overall, overall_total = self.js.gpu_mem_total__used_alloc
+                gpu_memory_usage = round(100 * overall / overall_total)
+                report += "  GPU memory usage " + self.draw_meter(gpu_memory_usage, "gpu") + "\n"
+            elif self.js.gpu_mem_error_code == 1:
+                report += "  GPU memory usage (JSON is malformed)\n"
+            elif self.js.gpu_mem_error_code == 2:
+                report += "  GPU memory usage (Value was erroneously found to be >100%)\n"
+            elif self.js.gpu_mem_error_code == 3:
+                report += "  GPU memory usage (Allocated memory was found to be zero)\n"
+            else:
+                report += "  GPU memory usage (Something went wrong)\n"
         report += "\n"
 
         ########################################################################
@@ -311,59 +338,86 @@ class ClassicOutput(BaseFormatter):
         report += f"                              {self.txt_bold}Detailed Utilization{self.txt_normal}\n"
         report += 80 * "=" + "\n"
         gutter = "  "
-        # cpu time utilization
+        # CPU time utilization
         report += f"{gutter}CPU utilization per node (CPU time used/run time)\n"
-        for node, used, alloc, cores in self.js.cpu_util__node_used_alloc_cores:
-            msg = ""
-            if used == 0:
-                msg = f" {self.txt_bold}{self.txt_red}<-- CPU node was not used{self.txt_normal}"
-            hs_used = self.human_seconds(used)
-            hs_alloc = self.human_seconds(alloc)
-            eff = 100 * used / alloc
-            report += f"{gutter}    {node}: {hs_used}/{hs_alloc} (efficiency={eff:.1f}%){msg}\n"
-        if self.js.nnodes != "1":
-            used, alloc, _ = self.js.cpu_util_total__used_alloc_cores
-            hs_used = self.human_seconds(used)
-            hs_alloc = self.human_seconds(alloc)
-            eff = 100 * used / alloc
-            report += f"{gutter}Total used/runtime: {hs_used}/{hs_alloc}, efficiency={eff:.1f}%\n"
-        # cpu memory usage
+        if self.js.cpu_util_error_code == 0:
+            for node, used, alloc, cores in self.js.cpu_util__node_used_alloc_cores:
+                msg = ""
+                if used == 0:
+                    msg = f" {self.txt_bold}{self.txt_red}<-- CPU node was not used{self.txt_normal}"
+                hs_used = self.human_seconds(used)
+                hs_alloc = self.human_seconds(alloc)
+                eff = 100 * used / alloc
+                report += f"{gutter}    {node}: {hs_used}/{hs_alloc} (efficiency={eff:.1f}%){msg}\n"
+            if self.js.nnodes != "1":
+                used, alloc, _ = self.js.cpu_util_total__used_alloc_cores
+                hs_used = self.human_seconds(used)
+                hs_alloc = self.human_seconds(alloc)
+                eff = 100 * used / alloc
+                report += f"{gutter}Total used/runtime: {hs_used}/{hs_alloc}, efficiency={eff:.1f}%\n"
+        else:
+            report += f"{gutter}    An error was encountered ({self.js.cpu_util_error_code})\n"
+        # CPU memory usage
         report += f"\n{gutter}CPU memory usage per node - used/allocated\n"
         for node, used, alloc, cores in self.js.cpu_mem__node_used_alloc_cores:
             hb_alloc = self.human_bytes(alloc).replace(".0GB", "GB")
             report += f"{gutter}    {node}: {self.human_bytes(used)}/{hb_alloc} "
             hb_alloc = self.human_bytes(alloc / cores).replace(".0GB", "GB")
-            report += f"({self.human_bytes(used*1.0/cores)}/{hb_alloc} per core of {cores})\n"
+            report += f"({self.human_bytes(used/cores)}/{hb_alloc} per core of {cores})\n"
         total_used, total, total_cores = self.js.cpu_mem_total__used_alloc_cores
         if self.js.nnodes != "1":
             report += f"{gutter}Total used/allocated: {self.human_bytes(total_used)}/{self.human_bytes(total)} "
             hb_total = self.human_bytes(total / total_cores).replace(".0GB", "GB")
-            report += f"({self.human_bytes(total_used*1.0/total_cores)}/{hb_total} per core of {total_cores})\n"
+            report += f"({self.human_bytes(total_used/total_cores)}/{hb_total} per core of {total_cores})\n"
+        # GPUs
         if self.js.gpus:
-            # gpu utilization
+            # GPU utilization
             report += f"\n{gutter}GPU utilization per node\n"
-            if self.js.partition == "mig":
-                report += f"{gutter}    {node} (GPU): GPU utilization is unknown for MIG jobs\n"
-            else:
+            if self.js.gpu_util_error_code == 0:
                 for node, util, gpu_index in self.js.gpu_util__node_util_index:
                     msg = ""
                     if util == 0:
                         msg = f" {self.txt_bold}{self.txt_red}<-- GPU was not used{self.txt_normal}"
                     report += f"{gutter}    {node} (GPU {gpu_index}): {util}%{msg}\n"
-            # gpu memory usage
+            else:
+                 report += f"{gutter}    An error was encountered ({self.js.gpu_util_error_code})\n"
+            # GPU memory usage
             report += f"\n{gutter}GPU memory usage per node - maximum used/total\n"
-            for node, used, total, gpu_index in self.js.gpu_mem__node_used_total_index:
-                hs_used = self.human_bytes(used)
-                hs_total = self.human_bytes(total).replace(".0GB", "GB")
-                eff = 100 * used / total
-                report += f"{gutter}    {node} (GPU {gpu_index}): {hs_used}/{hs_total} ({eff:.1f}%)\n"
+            if self.js.gpu_mem_error_code == 0:
+                for node, used, total, gpu_index in self.js.gpu_mem__node_used_total_index:
+                    hs_used = self.human_bytes(used)
+                    hs_total = self.human_bytes(total).replace(".0GB", "GB")
+                    eff = 100 * used / total
+                    report += f"{gutter}    {node} (GPU {gpu_index}): {hs_used}/{hs_total} ({eff:.1f}%)\n"
+            else:
+                report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
         ########################################################################
         #                              JOB NOTES                               #
         ########################################################################
-        report += "\n"
-        notes = self.job_notes()
-        if notes:
+        gpu_errors = False
+        if self.js.gpus:
+            gpu_errors = bool(self.js.gpu_util_error_code > 0 or self.js.gpu_mem_error_code > 0)
+        if self.js.cpu_util_error_code == 0 and self.js.cpu_mem_error_code == 0 and not gpu_errors:
+            report += "\n"
+            notes = self.job_notes()
+            if notes:
+                report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
+                report += 80 * "=" + "\n"
+                report += notes
+            return report
+        else:
+            report += "\n"
             report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
             report += 80 * "=" + "\n"
-            report += notes
-        return report
+            if self.js.cpu_util_error_code:
+                report += f"{gutter}* The CPU utilization could not be determined.\n"
+            if self.js.cpu_mem_error_code:
+                report += f"{gutter}* The CPU memory usage could not be determined. Try the grafana dashboard.\n"
+            if self.js.gpus:
+                if self.js.gpu_util_error_code:
+                    report += f"{gutter}* The GPU utilization could not be determined.\n"
+                if self.js.gpu_mem_error_code:
+                    report += f"{gutter}* The GPU memory usage could not be determined.\n"
+            report += f"{gutter}* No other notes will be shown.\n"
+            report += "\n"
+            return report
