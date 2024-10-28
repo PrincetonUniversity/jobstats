@@ -114,7 +114,7 @@ class Jobstats:
                   "start",
                   "end",
                   "cluster",
-                  "reqtres",
+                  "alloctres",
                   "admincomment",
                   "user",
                   "account",
@@ -141,7 +141,7 @@ class Jobstats:
                 self.start        = i.get('Start', None)
                 self.end          = i.get('End', None)
                 self.cluster      = i.get('Cluster', None)
-                self.tres         = i.get('ReqTRES', None)
+                self.tres         = i.get('AllocTRES', None)
                 if self.force_recalc:
                     self.data     = None
                 else:
