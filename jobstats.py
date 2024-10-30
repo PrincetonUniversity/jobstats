@@ -136,7 +136,8 @@ class Jobstats:
         self.end      = None
         self.jobidraw = None
         try:
-            for i in csv.DictReader(subprocess.check_output(cmd,stderr=DEVNULL).decode("utf-8").split('\n'), delimiter='|'):
+            sacct_output = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8").split('\n')
+            for i in csv.DictReader(sacct_output, delimiter='|'):
                 self.jobidraw     = i.get('JobIDRaw', None)
                 self.start        = i.get('Start', None)
                 self.end          = i.get('End', None)
@@ -158,8 +159,8 @@ class Jobstats:
                 self.jobname      = i.get('JobName', None)
                 self.debug_print('jobidraw=%s, start=%s, end=%s, cluster=%s, tres=%s, data=%s, user=%s, account=%s, state=%s, timelimit=%s, nodes=%s, ncpus=%s, reqmem=%s, qos=%s, partition=%s, jobname=%s' % (self.jobidraw, self.start, self.end, self.cluster, self.tres, self.data, self.user, self.account, self.state, self.timelimitraw, self.nnodes, self.ncpus, self.reqmem, self.qos, self.partition, self.jobname))
         except Exception:
-            msg = (f"Failed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
-                   "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).")
+            msg = (f"\nFailed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
+                   "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).\n")
             self.error(msg)
  
         if self.jobidraw is None:
@@ -168,8 +169,8 @@ class Jobstats:
                 msg = f"Failed to lookup job {self.jobid} on {clstr}."
                 self.error(msg)
             else:
-                msg = (f"Failed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
-                       "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).")
+                msg = (f"\nFailed to lookup job {self.jobid}. Make sure the cluster is correct by\n"
+                       "specifying the -c option (e.g., $ jobstats 1234567 -c frontier).\n")
                 self.error(msg)
 
         self.gpus = 0
@@ -181,7 +182,7 @@ class Jobstats:
         if self.timelimitraw.isnumeric():
             self.timelimitraw = int(self.timelimitraw)
         if "CANCEL" in self.state:
-          self.state = "CANCELLED"
+            self.state = "CANCELLED"
         if len(self.jobname) > c.MAX_JOBNAME_LEN:
             self.jobname = self.jobname[:c.MAX_JOBNAME_LEN] + "..."
 

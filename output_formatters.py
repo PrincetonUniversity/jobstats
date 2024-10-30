@@ -28,16 +28,16 @@ class BaseFormatter(ABC):
         pass
 
     @staticmethod
-    def human_bytes(size, decimal_places=1):
+    def human_bytes(size: int, decimal_places=1) -> str:
         size = float(size)
-        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB', 'PB']:
             if size < 1024:
                 break
             size /= 1024
         return f"{size:.{decimal_places}f}{unit}"
 
     @staticmethod
-    def human_seconds(seconds):
+    def human_seconds(seconds: int) -> str:
         hour = seconds // 3600
         if hour >= 24:
             days = "%d-" % (hour // 24)
@@ -59,10 +59,9 @@ class BaseFormatter(ABC):
        fmt = "%a %b %-d, %Y at %-I:%M %p"
        return datetime.datetime.fromtimestamp(seconds_since_epoch).strftime(fmt)
 
-    def cpu_memory_formatted(self, with_label=True):
-        total = self.js.reqmem.replace("000M", "G").replace("000G", "T").replace(".50G", ".5G").replace(".50T", ".5T")
-        if (int(self.js.ncpus) == 1 or all([X not in total for X in ("K", "M", "G", "T")])) and with_label:
-            return f'     CPU Memory: {total.replace("M", "MB").replace("G", "GB").replace("T", "TB")}'
+    def cpu_memory_formatted(self, with_label=True) -> str:
+        """Return the total CPU memory with formatting."""
+        total = self.js.reqmem
         if total.endswith("K"):
             bytes_ = float(total.replace("K", "")) * 1e3
         elif total.endswith("M"):
@@ -72,23 +71,32 @@ class BaseFormatter(ABC):
         elif total.endswith("T"):
             bytes_ = float(total.replace("T", "")) * 1e12
         else:
-            return total
-        bytes_per_core = bytes_ / int(self.js.ncpus)
-        for unit in ['B','KB', 'MB', 'GB', 'TB']:
-            if bytes_per_core < 1000:
+            if with_label:
+                return f'     CPU Memory: {total}'
+            else:
+                return total
+        per_core = bytes_ / int(self.js.ncpus)
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if per_core < 1000:
                 break
-            bytes_per_core /= 1000
-        bpc = f"{bytes_per_core:.1f}"
-        bpc = bpc.replace(".0", "")
-        ttl = total.replace("M", "MB").replace("G", "GB").replace("T", "TB")
+            per_core /= 1000
+        pc = f"{per_core:.1f}"
+        pc = pc.replace(".0", "")
+        total = total.replace("000K", "M")
+        total = total.replace("000M", "G")
+        total = total.replace("000G", "T")
+        total = total.replace(".50G", ".5G")
+        total = total.replace(".50T", ".5T")
+        total = f"{total}B"
         if with_label:
-            return f'     CPU Memory: {ttl} ({bpc}{unit} per CPU-core)'
+            return f'     CPU Memory: {total} ({pc}{unit} per CPU-core)'
         else:
-            return ttl
+            return total
  
     @staticmethod
     def rounded_memory_with_safety(mem_used: float) -> int:
-        """Return a rounded version of the suggested memory including 20% safety."""
+        """Return the suggested memory including 20% safety. The input
+           value (mem_used) has units of GB."""
         mem_with_safety = math.ceil(1.2 * mem_used)
         if mem_with_safety > 1000:
             mem_suggested = round(mem_with_safety, -2)
@@ -235,6 +243,9 @@ class ClassicOutput(BaseFormatter):
 
     def __init__(self, js: Jobstats):
         super().__init__(js)
+        self.txt_bold   = ""
+        self.txt_red    = ""
+        self.txt_normal = ""
 
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
@@ -242,10 +253,6 @@ class ClassicOutput(BaseFormatter):
             self.txt_bold   = f"{term.bold}"
             self.txt_red    = f"{term.red}"
             self.txt_normal = f"{term.normal}"
-        else:
-            self.txt_bold   = ""
-            self.txt_red    = ""
-            self.txt_normal = ""
         ########################################################################
         #                               JOB METADATA                           #
         ########################################################################
