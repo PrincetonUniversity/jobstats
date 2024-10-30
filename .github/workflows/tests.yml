@@ -1,0 +1,17 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  tests:
+    name: Check Python 3.7 on Ubuntu
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.7"
+
+      - name: Install package
+        run: pip install requests blessed pytest pytest-cov pytest-mock
+
+      - name: Test package
+        run: pytest --cov=./ --cov-report=xml
