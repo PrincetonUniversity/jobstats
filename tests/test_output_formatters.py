@@ -44,13 +44,13 @@ def test_human_datetime(simple_stats):
     secs_since_epoch = 1730298181
     # shift to Eastern Time Zone (-0400)
     hours = int(time.strftime("%z")) / 100 + 4
-    secs_since_epoch += hours * 60 * 60
+    secs_since_epoch -= hours * 60 * 60
     expected = "Wed Oct 30, 2024 at 10:23 AM"
     assert formatter.human_datetime(secs_since_epoch) == expected
     secs_since_epoch = 1730298181 - 29 * 24 * 60 * 60 + 12 * 60 * 60
     # shift to EDT (-0400)
     hours = int(time.strftime("%z")) / 100 + 4
-    secs_since_epoch += hours * 60 * 60
+    secs_since_epoch -= hours * 60 * 60
     expected = "Tue Oct 1, 2024 at 10:23 PM"
     assert formatter.human_datetime(secs_since_epoch) == expected
 
