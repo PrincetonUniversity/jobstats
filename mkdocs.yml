@@ -1,5 +1,5 @@
 site_name: "Jobstats: A job monitoring platform for GPU clusters"
-site_url:
+site_url: https://princetonuniversity.github.io/jobstats/
 repo_url: "https://github.com/PrincetonUniversity/jobstats"
 repo_name: PrincetonUniversity/jobstats
 nav:
