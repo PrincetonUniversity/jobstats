@@ -109,7 +109,13 @@ For processing old jobs where slurmctld epilog script did not run or for jobs wh
 We made heavy use of this script to generate job summaries for older jobs but with the current version of the Epilog script it should not be needed anymore.
 
 ## Job email script
+
+For completed jobs, the data is taken from a call to sacct with several fields including AdminComment. For running jobs, the Prometheus database must be queried.
+
+Importantly, the `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats` including the notes.
+
 We use slurm/jobstats_mail.sh as the slurm's Mail program. E.g. from slurm.conf:
+
 ```
 MailProg=/usr/local/bin/jobstats_mail.sh
 ````
