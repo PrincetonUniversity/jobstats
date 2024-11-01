@@ -75,25 +75,9 @@ $ jobstats 39798795
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
 ```
 
-For completed jobs, the data is taken from a call to sacct with several fields including AdminComment. For running jobs, the Prometheus database must be queried.
+# Getting Started
 
-Importantly, the `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats` including the notes.
-
-
-
-
-
-
-
-# Tools of the Jobstats Platform
-
-In addition to `jobstats`, the following software tools build on the Jobstats platform:
-
-- [gpudash](https://github.com/PrincetonUniversity/gpudash) - A command for generating a text-based GPU utilization dashboard   
-- [job defense shield](https://github.com/PrincetonUniversity/job_defense_shield) - A tool for sending automated email alerts to users  
-- [reportseff](https://github.com/troycomi/reportseff) - A command for displaying Slurm efficiency reports for several jobs at once
-- [utilization reports](https://github.com/PrincetonUniversity/monthly_sponsor_reports) - A tool for sending detailed usage reports to users by email
-
+Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) in the documentation.
 
 # Users of the Jobstats Platform
 
