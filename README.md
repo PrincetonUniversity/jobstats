@@ -85,4 +85,5 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Free University of Berlin
 - Princeton Computer Science
 - Princeton Research Computing
+- Yale University
 - and more
