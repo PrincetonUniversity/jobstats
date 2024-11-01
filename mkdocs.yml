@@ -1,29 +1,37 @@
-site_name: "Jobstats: A job monitoring platform for GPU clusters"
+site_name: "Jobstats"
 site_url: https://princetonuniversity.github.io/jobstats/
 repo_url: "https://github.com/PrincetonUniversity/jobstats"
 repo_name: PrincetonUniversity/jobstats
 nav:
-  - Home: index.md
+  - What is Jobstats?: what_is.md
   - Jobstats: jobstats.md
+  - Setup: setup.md
+  - Configuration File: configuration.md
+  - Installation: installation.md
+  - jobstats: using_jobstats.md
+  - Custom Notes: notes.md
+  - External Tools: external_tools.md
+  - Publications: publications.md
+  
 theme:
   name: material
   features:
     - navigation.footer
   palette:
-    # Dark Mode
-    - scheme: slate
-      toggle:
-        icon: material/weather-sunny
-        name: Dark mode
-      primary: orange
-      accent: deep purple
-    # Light Mode
+    # light mode
     - scheme: default
       toggle:
         icon: material/weather-night
         name: Light mode
       primary: orange
       accent: blue
+    # dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Dark mode
+      primary: orange
+      accent: deep purple
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -37,8 +45,8 @@ markdown_extensions:
 
 extra:
   social:
-    - icon: simple/youtube
-      link: www.princeton.edu
+    - icon: fontawesome/brands/github
+      link: https://github.com/PrincetonUniversity/jobstats
   generator: false
 
 copyright: "&copy;2024 Princeton University. All rights reserved."
