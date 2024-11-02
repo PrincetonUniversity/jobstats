@@ -11,12 +11,15 @@ def simple_stats(mocker):
     ss64 = ('JS1:H4sIADelIWcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
             '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
             'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
-    data = ('10920562|1730212549|Unknown|tiger2|billing=40,cpu=40,mem=10G,no'
-            'de=1|%s|aturing|physics|RUNNING|1|40|10G|tiger-short|serial|144'
-            '0|myjob\n' % ss64)
+    ss64 = ('JS1:H4sIAPdcJmcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
+            '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
+            'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
+    data = ('10920562|1730212549|1730214578|tiger2|billing=40,cpu=40,mem=10G,no'
+            'de=1|%s|aturing|physics|COMPLETED|1|40|10G|tiger-short|serial|144'
+            '0|9\n' % ss64)
     sacct_bytes = bytes(cols + data, "utf-8")
     mocker.patch("subprocess.check_output", return_value=sacct_bytes)
-    stats = Jobstats(jobid="DUMMY-JOBID", prom_server="DUMMY-SERVER")
+    stats = Jobstats(jobid="10920562", prom_server="DUMMY-SERVER")
     return stats
 
 
@@ -65,7 +68,7 @@ def test_cpu_memory_formatted(simple_stats):
     assert formatter.cpu_memory_formatted(with_label=False) == "10"
     formatter.js.reqmem = "10000G"
     assert formatter.cpu_memory_formatted(with_label=False) == "10TB"
-    formatter.js.reqmem = "100.5G"
+    formatter.js.reqmem = "100.50G"
     formatter.js.ncpus = 9
     expected = "     CPU Memory: 100.5GB (11.2GB per CPU-core)"
     assert formatter.cpu_memory_formatted() == expected
@@ -90,6 +93,42 @@ def test_time_limit_formatted(simple_stats):
 
 def test_draw_meter(simple_stats):
     formatter = ClassicOutput(simple_stats)
-    bars = "|" * (75 // 2)
-    spaces = " " * (50 - len(bars) - 3)
-    assert formatter.draw_meter(75, "cpu") == f"[{bars}{spaces}75%]"
+    expected = "[                                                0%]"
+    assert formatter.draw_meter(0, "cpu") == expected
+    expected = "[|||||||||||||||||||||||||||||||||||||          75%]"
+    assert formatter.draw_meter(75, "cpu") == expected
+    expected = "[||||||||||||||||||||||||||||||||||||||||||||||100%]"
+    assert formatter.draw_meter(100, "cpu") == expected
+
+
+def test_format_note(simple_stats):
+    formatter = ClassicOutput(simple_stats)
+    note = "A simple note."
+    expected = f"  * {note}\n\n"
+    assert formatter.format_note(note) == expected
+    note = "A simple note:"
+    url = "https://mysite.ext"
+    expected = f"  * {note}\n      {url}\n\n"
+    assert formatter.format_note(note, url) == expected
+
+def test_output_metadata(simple_stats):
+    formatter = ClassicOutput(simple_stats)
+    expected = """
+           Job ID: 10920562
+    NetID/Account: aturing/physics
+         Job Name: 9
+            State: COMPLETED
+            Nodes: 1
+        CPU Cores: 40
+       CPU Memory: 10GB (250MB per CPU-core)
+    QOS/Partition: tiger-short/serial
+          Cluster: tiger
+       Start Time: Tue Oct 29, 2024 at 10:35 AM
+         Run Time: 00:33:49
+       Time Limit: 1-00:00:00
+    """
+    actual = formatter.output_metadata()
+    for e, a in zip(expected.split("\n"), [""] + actual.split("\n")):
+        # avoid timezone complications
+        if "Start Time" not in e:
+            assert e.strip() == a.strip()

@@ -27,6 +27,10 @@ class BaseFormatter(ABC):
     def output(self, no_color: bool=True) -> str:
         pass
 
+    @abstractmethod
+    def output_metadata(self) -> str:
+        pass
+
     @staticmethod
     def human_bytes(size: int, decimal_places=1) -> str:
         size = float(size)
@@ -55,7 +59,7 @@ class BaseFormatter(ABC):
         return "%s%02d:%02d" % (hour, minutes, seconds)
 
     @staticmethod
-    def human_datetime(seconds_since_epoch):
+    def human_datetime(seconds_since_epoch: int) -> str:
        fmt = "%a %b %-d, %Y at %-I:%M %p"
        return datetime.datetime.fromtimestamp(seconds_since_epoch).strftime(fmt)
 
@@ -114,7 +118,7 @@ class BaseFormatter(ABC):
             return max(1, mem_with_safety)
         return mem_suggested
 
-    def time_limit_formatted(self):
+    def time_limit_formatted(self) -> str:
         self.js.time_eff_violation = False
         clr = self.txt_normal
         if self.js.state == "COMPLETED" and self.js.timelimitraw > 0:
@@ -128,7 +132,7 @@ class BaseFormatter(ABC):
         hs = self.human_seconds(SECONDS_PER_MINUTE * self.js.timelimitraw)
         return f"     Time Limit: {clr}{hs}{self.txt_normal}"
 
-    def draw_meter(self, efficiency, hardware, util=False):
+    def draw_meter(self, efficiency:int, hardware:str, util: bool=False) -> str:
         bars = efficiency // 2
         if bars < 0:
             bars = 0
@@ -187,8 +191,9 @@ class BaseFormatter(ABC):
         return f"{styling}{note}{self.txt_normal}{newlines}"
 
     def job_notes(self):
+        """Process the notes in config.py."""
         s = ""
-        # compute several quantities which can then referenced in notes
+        # compute several quantities which can later be referenced in notes
         total_used, total, total_cores = self.js.cpu_mem_total__used_alloc_cores
         cores_per_node = int(self.js.ncpus) / int(self.js.nnodes)
         gb_per_core_used = total_used / total_cores / 1024**3 if total_cores != 0 else 0
@@ -201,8 +206,10 @@ class BaseFormatter(ABC):
         zero_gpu = False  # unused
         zero_cpu = False  # unused
         gpu_show = True   # unused
-        # low GPU utilization
-        interactive_job = "sys/dashboard/sys/" in self.js.jobname or self.js.jobname == "interactive"
+        # interactive job
+        cond1 = bool("sys/dashboard/sys/" in self.js.jobname)
+        cond2 = bool(self.js.jobname == "interactive")
+        interactive_job = bool(cond1 or cond2)
         # low cpu utilization
         somewhat = " " if self.js.cpu_efficiency < c.CPU_UTIL_RED else " somewhat "
         ceff = self.js.cpu_efficiency if self.js.cpu_efficiency > 0 else "less than 1"
@@ -212,8 +219,10 @@ class BaseFormatter(ABC):
         approx = " approximately " if self.js.cpu_efficiency != round(eff_if_serial) else " "
         # next four lines needed for excess CPU memory note
         gb_per_core = total / total_cores / 1024**3 if total_cores != 0 else 0
-        opening = f"only used {self.js.cpu_memory_efficiency}%" if self.js.cpu_memory_efficiency >= 1 \
-                                                         else "used less than 1%"
+        if self.js.cpu_memory_efficiency >= 1:
+            opening = f"only used {self.js.cpu_memory_efficiency}%"
+        else:
+            opening = "used less than 1%"
         if self.js.cluster in c.CORES_PER_NODE:
             cpn = c.CORES_PER_NODE[self.js.cluster]
         else:
@@ -241,11 +250,33 @@ class BaseFormatter(ABC):
 class ClassicOutput(BaseFormatter):
     """Classic output formatter for the job report."""
 
-    def __init__(self, js: Jobstats):
+    def __init__(self, js: Jobstats, width: int=80) -> None:
         super().__init__(js)
         self.txt_bold   = ""
         self.txt_red    = ""
         self.txt_normal = ""
+        self.width = width
+
+    def output_metadata(self) -> str:
+        meta = f"         Job ID: {self.txt_bold}{self.js.jobid}{self.txt_normal}\n"
+        meta += f"  NetID/Account: {self.js.user}/{self.js.account}\n"
+        meta += f"       Job Name: {self.js.jobname}\n"
+        if self.js.state in ("OUT_OF_MEMORY", "TIMEOUT"):
+            meta += f"          State: {self.txt_bold}{self.txt_red}{self.js.state}{self.txt_normal}\n"
+        else:
+            meta += f"          State: {self.js.state}\n"
+        meta += f"          Nodes: {self.js.nnodes}\n"
+        meta += f"      CPU Cores: {self.js.ncpus}\n"
+        meta += self.cpu_memory_formatted() + "\n"
+        if self.js.gpus:
+            meta += f"           GPUs: {self.js.gpus}\n"
+        meta += f"  QOS/Partition: {self.js.qos}/{self.js.partition}\n"
+        meta += f"        Cluster: {self.js.cluster}\n"
+        meta += f"     Start Time: {self.human_datetime(self.js.start)}\n"
+        in_progress = " (in progress)" if self.js.state == "RUNNING" else ""
+        meta += f"       Run Time: {self.human_seconds(self.js.diff)}{in_progress}\n"
+        meta += self.time_limit_formatted() + "\n"
+        return meta
 
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
@@ -257,33 +288,17 @@ class ClassicOutput(BaseFormatter):
         #                               JOB METADATA                           #
         ########################################################################
         report = "\n"
-        report += 80 * "=" + "\n"
-        report += "                              Slurm Job Statistics\n"
-        report += 80 * "=" + "\n"
-        report += f"         Job ID: {self.txt_bold}{self.js.jobid}{self.txt_normal}\n"
-        report += f"  NetID/Account: {self.js.user}/{self.js.account}\n"
-        report += f"       Job Name: {self.js.jobname}\n"
-        if self.js.state in ("OUT_OF_MEMORY", "TIMEOUT"):
-            report += f"          State: {self.txt_bold}{self.txt_red}{self.js.state}{self.txt_normal}\n"
-        else:
-            report += f"          State: {self.js.state}\n"
-        report += f"          Nodes: {self.js.nnodes}\n"
-        report += f"      CPU Cores: {self.js.ncpus}\n"
-        report += self.cpu_memory_formatted() + "\n"
-        if self.js.gpus:
-            report += f"           GPUs: {self.js.gpus}\n"
-        report += f"  QOS/Partition: {self.js.qos}/{self.js.partition}\n"
-        report += f"        Cluster: {self.js.cluster}\n"
-        report += f"     Start Time: {self.human_datetime(self.js.start)}\n"
-        in_progress = " (in progress)" if self.js.state == "RUNNING" else ""
-        report += f"       Run Time: {self.human_seconds(self.js.diff)}{in_progress}\n"
-        report += self.time_limit_formatted() + "\n"
+        report += self.width * "=" + "\n"
+        report += "Slurm Job Statistics".center(self.width) + "\n"
+        report += self.width * "=" + "\n"
+        report += self.output_metadata()
         report += "\n"
-        report += f"                              {self.txt_bold}Overall Utilization{self.txt_normal}\n"
-        report += 80 * "=" + "\n"
+
         ########################################################################
         #                           OVERALL UTILIZATION                        #
         ########################################################################
+        report += f"                              {self.txt_bold}Overall Utilization{self.txt_normal}\n"
+        report += self.width * "=" + "\n"
         # overall CPU time utilization
         if self.js.cpu_util_error_code == 0:
             total_used, total, _ = self.js.cpu_util_total__used_alloc_cores
@@ -343,7 +358,7 @@ class ClassicOutput(BaseFormatter):
         #                          DETAILED UTILIZATION                        #
         ########################################################################
         report += f"                              {self.txt_bold}Detailed Utilization{self.txt_normal}\n"
-        report += 80 * "=" + "\n"
+        report += self.width * "=" + "\n"
         gutter = "  "
         # CPU time utilization
         report += f"{gutter}CPU utilization per node (CPU time used/run time)\n"
@@ -409,13 +424,13 @@ class ClassicOutput(BaseFormatter):
             notes = self.job_notes()
             if notes:
                 report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
-                report += 80 * "=" + "\n"
+                report += self.width * "=" + "\n"
                 report += notes
             return report
         else:
             report += "\n"
             report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
-            report += 80 * "=" + "\n"
+            report += self.width * "=" + "\n"
             if self.js.cpu_util_error_code:
                 report += f"{gutter}* The CPU utilization could not be determined.\n"
             if self.js.cpu_mem_error_code:
