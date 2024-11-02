@@ -1,6 +1,6 @@
 name: docs
 on:
-  push:
+  workflow_dispatch:
     branches:
       - main
 permissions:
