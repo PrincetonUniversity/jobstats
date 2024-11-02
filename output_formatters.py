@@ -31,6 +31,22 @@ class BaseFormatter(ABC):
     def output_metadata(self) -> str:
         pass
 
+    @abstractmethod
+    def output_overall_cpu_util(self) -> str:
+        pass
+
+    @abstractmethod
+    def output_overall_cpu_memory_usage(self) -> str:
+        pass
+
+    @abstractmethod
+    def output_overall_gpu_util(self) -> str:
+        pass
+
+    @abstractmethod
+    def output_overall_gpu_memory_usage(self) -> str:
+        pass
+
     @staticmethod
     def human_bytes(size: int, decimal_places=1) -> str:
         size = float(size)
@@ -258,6 +274,7 @@ class ClassicOutput(BaseFormatter):
         self.width = width
 
     def output_metadata(self) -> str:
+        """Return the job metadata."""
         meta = f"         Job ID: {self.txt_bold}{self.js.jobid}{self.txt_normal}\n"
         meta += f"  NetID/Account: {self.js.user}/{self.js.account}\n"
         meta += f"       Job Name: {self.js.jobname}\n"
@@ -278,6 +295,70 @@ class ClassicOutput(BaseFormatter):
         meta += self.time_limit_formatted() + "\n"
         return meta
 
+    def output_overall_cpu_util(self) -> str:
+        """Return the overall CPU utilization."""
+        if self.js.cpu_util_error_code == 0:
+            total_used, total, _ = self.js.cpu_util_total__used_alloc_cores
+            self.js.cpu_efficiency = round(100 * total_used / total)
+            meter = self.draw_meter(self.js.cpu_efficiency, "cpu", util=True)
+            cpu_util = f"  CPU utilization  {meter}\n"
+        elif self.js.cpu_util_error_code == 1:
+            cpu_util = "  CPU utilization  (JSON is malformed)\n"
+        elif self.js.cpu_util_error_code == 2:
+            cpu_util = "  CPU utilization  (Value was erroneously found to be >100%)\n"
+        elif self.js.cpu_util_error_code == 3:
+            cpu_util = "  CPU utilization  (Total CPU time was found to be zero)\n"
+        else:
+            cpu_util = "  CPU utilization  (Something went wrong)\n"
+        return cpu_util
+
+    def output_overall_cpu_memory_usage(self) -> str:
+        """Return the overall CPU memory usage."""
+        if self.js.cpu_mem_error_code == 0:
+            total_used, total, _ = self.js.cpu_mem_total__used_alloc_cores
+            self.js.cpu_memory_efficiency = round(100 * total_used / total)
+            meter = self.draw_meter(self.js.cpu_memory_efficiency, "cpu")
+            cpu_mem = f"  CPU memory usage {meter}\n"
+        elif self.js.cpu_mem_error_code == 1:
+            cpu_mem = "  CPU memory usage (JSON is malformed)\n"
+        elif self.js.cpu_mem_error_code == 2:
+            cpu_mem = "  CPU memory usage (Value was erroneously found to be >100%)\n"
+        elif self.js.cpu_mem_error_code == 3:
+            cpu_mem = "  CPU memory usage (Allocated memory was found to be zero)\n"
+        else:
+            cpu_mem = "  CPU memory usage (Something went wrong)\n"
+        return cpu_mem
+
+    def output_overall_gpu_util(self) -> str:
+        """Return the overall GPU utilization."""
+        if self.js.gpu_util_error_code == 0:
+            overall, overall_gpu_count = self.js.gpu_util_total__util_gpus
+            self.js.gpu_utilization = overall / overall_gpu_count
+            meter = self.draw_meter(round(self.js.gpu_utilization), "gpu", util=True)
+            gpu_util = f"  GPU utilization  {meter}\n"
+        elif self.js.gpu_util_error_code == 1:
+            gpu_util = "  GPU utilization  (Value is unknown)\n"
+        else:
+            gpu_util = "  GPU utilization  (Something went wrong)\n"
+        return gpu_util 
+
+    def output_overall_gpu_memory_usage(self) -> str:
+        """Return the overall GPU memory usage."""
+        if self.js.gpu_mem_error_code == 0:
+            overall, overall_total = self.js.gpu_mem_total__used_alloc
+            gpu_memory_usage = round(100 * overall / overall_total)
+            meter = self.draw_meter(gpu_memory_usage, "gpu")
+            gpu_mem = f"  GPU memory usage {meter}\n"
+        elif self.js.gpu_mem_error_code == 1:
+            gpu_mem = "  GPU memory usage (JSON is malformed)\n"
+        elif self.js.gpu_mem_error_code == 2:
+            gpu_mem = "  GPU memory usage (Value was erroneously found to be >100%)\n"
+        elif self.js.gpu_mem_error_code == 3:
+            gpu_mem = "  GPU memory usage (Allocated memory was found to be zero)\n"
+        else:
+            gpu_mem = "  GPU memory usage (Something went wrong)\n"
+        return gpu_mem
+
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
             term = Terminal()
@@ -293,71 +374,28 @@ class ClassicOutput(BaseFormatter):
         report += self.width * "=" + "\n"
         report += self.output_metadata()
         report += "\n"
-
         ########################################################################
         #                           OVERALL UTILIZATION                        #
         ########################################################################
-        report += f"                              {self.txt_bold}Overall Utilization{self.txt_normal}\n"
+        heading = f"{self.txt_bold}Overall Utilization{self.txt_normal}"
+        report += heading.center(self.width) + "\n"
         report += self.width * "=" + "\n"
         # overall CPU time utilization
-        if self.js.cpu_util_error_code == 0:
-            total_used, total, _ = self.js.cpu_util_total__used_alloc_cores
-            self.js.cpu_efficiency = round(100 * total_used / total)
-            meter = self.draw_meter(self.js.cpu_efficiency, "cpu", util=True)
-            report += "  CPU utilization  " + meter + "\n"
-        elif self.js.cpu_util_error_code == 1:
-            report += "  CPU utilization  (JSON is malformed)\n"
-        elif self.js.cpu_util_error_code == 2:
-            report += "  CPU utilization  (Value was erroneously found to be >100%)\n"
-        elif self.js.cpu_util_error_code == 3:
-            report += "  CPU utilization  (Total CPU time was found to be zero)\n"
-        else:
-            report += "  CPU utilization  (Something went wrong)\n"
+        report += self.output_overall_cpu_util()
         # overall CPU memory utilization
-        if self.js.cpu_mem_error_code == 0:
-            total_used, total, _ = self.js.cpu_mem_total__used_alloc_cores
-            self.js.cpu_memory_efficiency = round(100 * total_used / total)
-            meter = self.draw_meter(self.js.cpu_memory_efficiency, "cpu")
-            report += "  CPU memory usage " + meter + "\n"
-        elif self.js.cpu_mem_error_code == 1:
-            report += "  CPU memory usage (JSON is malformed)\n"
-        elif self.js.cpu_mem_error_code == 2:
-            report += "  CPU memory usage (Value was erroneously found to be >100%)\n"
-        elif self.js.cpu_mem_error_code == 3:
-            report += "  CPU memory usage (Allocated memory was found to be zero)\n"
-        else:
-            report += "  CPU memory usage (Something went wrong)\n"
+        report += self.output_overall_cpu_memory_usage()
         # GPUs
         if self.js.gpus:
             # overall GPU utilization
-            if self.js.gpu_util_error_code == 0:
-                overall, overall_gpu_count = self.js.gpu_util_total__util_gpus
-                self.js.gpu_utilization = overall / overall_gpu_count
-                meter = self.draw_meter(round(self.js.gpu_utilization), "gpu", util=True)
-                report += "  GPU utilization  " + meter + "\n"
-            elif self.js.gpu_util_error_code == 1:
-                report += "  GPU utilization  (Value is unknown)\n"
-            else:
-                report += "  GPU utilization  (Something went wrong)\n"
+            report += self.output_overall_gpu_util()
             # overall GPU memory usage
-            if self.js.gpu_mem_error_code == 0:
-                overall, overall_total = self.js.gpu_mem_total__used_alloc
-                gpu_memory_usage = round(100 * overall / overall_total)
-                report += "  GPU memory usage " + self.draw_meter(gpu_memory_usage, "gpu") + "\n"
-            elif self.js.gpu_mem_error_code == 1:
-                report += "  GPU memory usage (JSON is malformed)\n"
-            elif self.js.gpu_mem_error_code == 2:
-                report += "  GPU memory usage (Value was erroneously found to be >100%)\n"
-            elif self.js.gpu_mem_error_code == 3:
-                report += "  GPU memory usage (Allocated memory was found to be zero)\n"
-            else:
-                report += "  GPU memory usage (Something went wrong)\n"
+            report += self.output_overall_gpu_memory_usage()
         report += "\n"
-
         ########################################################################
         #                          DETAILED UTILIZATION                        #
         ########################################################################
-        report += f"                              {self.txt_bold}Detailed Utilization{self.txt_normal}\n"
+        heading = f"{self.txt_bold}Detailed Utilization{self.txt_normal}"
+        report += heading.center(self.width) + "\n"
         report += self.width * "=" + "\n"
         gutter = "  "
         # CPU time utilization
@@ -419,17 +457,18 @@ class ClassicOutput(BaseFormatter):
         gpu_errors = False
         if self.js.gpus:
             gpu_errors = bool(self.js.gpu_util_error_code > 0 or self.js.gpu_mem_error_code > 0)
+        heading = f"{self.txt_bold}Notes{self.txt_normal}"
         if self.js.cpu_util_error_code == 0 and self.js.cpu_mem_error_code == 0 and not gpu_errors:
             report += "\n"
             notes = self.job_notes()
             if notes:
-                report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
+                report += heading.center(self.width) + "\n"
                 report += self.width * "=" + "\n"
                 report += notes
             return report
         else:
             report += "\n"
-            report += f"                                     {self.txt_bold}Notes{self.txt_normal}\n"
+            report += heading.center(self.width) + "\n"
             report += self.width * "=" + "\n"
             if self.js.cpu_util_error_code:
                 report += f"{gutter}* The CPU utilization could not be determined.\n"

@@ -8,9 +8,6 @@ import pytest
 def simple_stats(mocker):
     cols = ('JobIDRaw|Start|End|Cluster|AllocTRES|AdminComment|User|Account|'
             'State|NNodes|NCPUS|ReqMem|QOS|Partition|TimelimitRaw|JobName\n')
-    ss64 = ('JS1:H4sIADelIWcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
-            '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
-            'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
     ss64 = ('JS1:H4sIAPdcJmcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
             '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
             'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
@@ -111,6 +108,7 @@ def test_format_note(simple_stats):
     expected = f"  * {note}\n      {url}\n\n"
     assert formatter.format_note(note, url) == expected
 
+
 def test_output_metadata(simple_stats):
     formatter = ClassicOutput(simple_stats)
     expected = """
@@ -128,7 +126,25 @@ def test_output_metadata(simple_stats):
        Time Limit: 1-00:00:00
     """
     actual = formatter.output_metadata()
-    for e, a in zip(expected.split("\n"), [""] + actual.split("\n")):
-        # avoid timezone complications
-        if "Start Time" not in e:
-            assert e.strip() == a.strip()
+    for a, e in zip([""] + actual.split("\n"), expected.split("\n")):
+        # avoid time zone complications
+        if "Start Time" not in a:
+            assert a.strip() == e.strip()
+
+
+def test_output_overall_cpu_util(simple_stats):
+    formatter = ClassicOutput(simple_stats)
+    assert formatter.js.cpu_util_error_code == 0
+    actual = formatter.output_overall_cpu_util()
+    expected = "  CPU utilization  "
+    expected += "[|||||||||||||||||||||||||||||||||||||||||||||||98%]\n"
+    assert actual == expected
+
+
+def test_output_overall_cpu_memory_usage(simple_stats):
+    formatter = ClassicOutput(simple_stats)
+    assert formatter.js.cpu_mem_error_code == 0
+    actual = formatter.output_overall_cpu_memory_usage()
+    expected = "  CPU memory usage "
+    expected += "[||||||||||||||||||||||||||                     52%]\n"
+    assert actual == expected
