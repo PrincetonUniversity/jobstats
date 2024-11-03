@@ -82,7 +82,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 # Users of the Jobstats Platform
 
 - Brown University - Center for Computation and Visualization
-- Free University of Berlin
+- Free University of Berlin - High-Performance Computing
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - Yale University - Center for Research Computing
