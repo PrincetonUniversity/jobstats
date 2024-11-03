@@ -6,10 +6,11 @@ nav:
   - What is Jobstats?: index.md
   - Jobstats: jobstats.md
   - Setup:
-    - Overall: setup/setup.md
-    - Prometheous: setup/prometheus.md
+    - setup/index.md
+    - Prometheus: setup/prometheus.md
     - Grafana: setup/grafana.md
     - Open OnDemand: setup/ood.md
+    - smail: setup/smail.md
   - Configuration File: configuration.md
   - Installation: installation.md
   - jobstats: using_jobstats.md
