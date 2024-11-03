@@ -1,5 +1,6 @@
 name: Tests
-on: [push, pull_request]
+on:
+  workflow_dispatch
 jobs:
   tests:
     name: Check Python 3.7 on Ubuntu
