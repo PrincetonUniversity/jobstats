@@ -15,6 +15,7 @@ nav:
   - Installation: installation.md
   - jobstats: using_jobstats.md
   - Custom Notes: notes.md
+  - Developers: developers.md
   - External Tools: external_tools.md
   - Publications: publications.md
 theme:
