@@ -6,7 +6,7 @@ Jobstats is a free and open-source job monitoring platform designed for CPU and 
 
 The main advantages of Jobstats are:
 
-- GPU utilization and memory usage for each allocated GPu
+- GPU utilization and memory usage for each allocated GPU
 - automatically cancel jobs with 0% GPU utilization
 - accurate CPU memory usage for single and multi-node jobs
 - graphical interface for inspecting job metrics versus time
