@@ -3,20 +3,24 @@ site_url: https://princetonuniversity.github.io/jobstats/
 repo_url: "https://github.com/PrincetonUniversity/jobstats"
 repo_name: PrincetonUniversity/jobstats
 nav:
-  - What is Jobstats?: what_is.md
+  - What is Jobstats?: index.md
   - Jobstats: jobstats.md
-  - Setup: setup.md
+  - Setup:
+    - Overall: setup/setup.md
+    - Prometheous: setup/prometheus.md
+    - Grafana: setup/grafana.md
+    - Open OnDemand: setup/ood.md
   - Configuration File: configuration.md
   - Installation: installation.md
   - jobstats: using_jobstats.md
   - Custom Notes: notes.md
   - External Tools: external_tools.md
   - Publications: publications.md
-  
 theme:
   name: material
   features:
     - navigation.footer
+    - navigation.expand
   palette:
     # light mode
     - scheme: default
