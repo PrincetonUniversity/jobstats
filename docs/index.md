@@ -1,6 +1,6 @@
 # What is Jobstats?
 
-Jobstats is a free and open-source job monitoring platform designed for CPU and GPU clusters that use the Slurm workload manager. It was released in 2023 under the GNU GPL v2 license.
+Jobstats is a free and open-source job monitoring platform designed for CPU and GPU clusters that use the Slurm workload manager. It was released in 2023 under the GNU GPL v2 license. Visit the [Jobstats GitHub repository](https://github.com/PrincetonUniversity/jobstats).
 
 ## What are the main benefits of Jobstats over other platforms?
 
@@ -17,7 +17,11 @@ The main advantages of Jobstats are:
 
 ## How does Jobstats work?
 
-Jobstats is composed of data exporters, Prometheus database, Grafana visualization interface, and the Slurm database. Measurements made on the compute nodes are stored in the time-series Prometheus database. Job efficiency reports are generate from this data and Slurm.
+Job and node statistics are exposed by four different Prometheus exporters (Node, cgroups, NVIDIA, GPFS):
+
+![Schematic diagram](jobstats_schematics.png)
+
+The exporters serve to make data available to the Prometheus database. Users interact with the Prometheus and Slurm data via the web interface (i.e., Grafana) and external tools (e.g., `gpudash`).
 
 ## Which institutions are using Jobstats?
 
@@ -96,6 +100,31 @@ $ jobstats 39798795
   * For additional job metrics including metrics plotted against time:
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
 ```
+
+### What data does Jobstats make available?
+
+Job-level metrics:
+
+- CPU Utilization
+- CPU Memory Utilization
+- GPU Utilization
+- GPU Memory Utilization
+- GPU Power Usage
+- GPU Temperature
+
+Node-level metrics:
+
+- CPU Percentage Utilization
+- Total Memory Utilization
+- Mean Frequency Over All CPUs
+- NFS Statistics
+- Local Disc R/W
+- GPFS Bandwidth Statistics
+- Local Disc IOPS
+- GPFS Operations per Second Statistics
+- Infiniband Throughput
+- Infiniband Packet Rate
+- Infiniband Errors
 
 ## Other Job Monitoring Platforms
 

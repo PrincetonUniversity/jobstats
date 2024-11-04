@@ -1,6 +1,6 @@
-# Developers
+# Contributions
 
-Contributions are welcome. To work with the code, build a Conda environment:
+Contributions to the Jobstats platform and its tools are welcome. To work with the code, build a Conda environment:
 
 ```
 $ conda create --name jobstats-dev requests blessed pytest-mock mkdocs-material -c conda-forge
