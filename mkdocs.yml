@@ -28,7 +28,7 @@ theme:
   name: material
   features:
     - navigation.footer
-    - navigation.expand
+   #- navigation.expand
   palette:
     # light mode
     - scheme: default

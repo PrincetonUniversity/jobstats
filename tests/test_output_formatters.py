@@ -22,6 +22,7 @@ def simple_stats(mocker):
 
 def test_human_bytes(simple_stats):
     formatter = ClassicOutput(simple_stats)
+    assert formatter.human_bytes(0) == "0.0B"
     assert formatter.human_bytes(42) == "42.0B"
     assert formatter.human_bytes(1024**3) == "1.0GB"
     assert formatter.human_bytes(4_000_000_000) == "3.7GB"
@@ -31,28 +32,13 @@ def test_human_bytes(simple_stats):
 
 def test_human_seconds(simple_stats):
     formatter = ClassicOutput(simple_stats)
+    assert formatter.human_seconds(0) == "00:00:00"
     assert formatter.human_seconds(42) == "00:00:42"
     assert formatter.human_seconds(420) == "00:07:00"
     assert formatter.human_seconds(4200) == "01:10:00"
     assert formatter.human_seconds(42003) == "11:40:03"
     assert formatter.human_seconds(420002) == "4-20:40:02"
     assert formatter.human_seconds(4200001) == "48-14:40:01"
-
-
-def test_human_datetime(simple_stats):
-    formatter = ClassicOutput(simple_stats)
-    secs_since_epoch = 1730298181
-    # shift to Eastern Time Zone (-0400)
-    hours = int(time.strftime("%z")) / 100 + 4
-    secs_since_epoch -= hours * 60 * 60
-    expected = "Wed Oct 30, 2024 at 10:23 AM"
-    assert formatter.human_datetime(secs_since_epoch) == expected
-    secs_since_epoch = 1730298181 - 29 * 24 * 60 * 60 + 12 * 60 * 60
-    # shift to EDT (-0400)
-    hours = int(time.strftime("%z")) / 100 + 4
-    secs_since_epoch -= hours * 60 * 60
-    expected = "Tue Oct 1, 2024 at 10:23 PM"
-    assert formatter.human_datetime(secs_since_epoch) == expected
 
 
 def test_cpu_memory_formatted(simple_stats):

@@ -132,5 +132,6 @@ Consider these alternatives to Jobstats:
 
 - [XDMod (SUPReMM)](https://supremm.xdmod.org/7.0/supremm-architecture.html)
 - [LLload](https://dl.acm.org/doi/10.1145/3626203.3670565)
+- [jobperf](https://dl.acm.org/doi/10.1145/3626203.3670608)
 - [TACC Stats](https://tacc.utexas.edu/research/tacc-research/tacc-stats/)
 - [REMORA](https://docs.tacc.utexas.edu/software/remora/)
