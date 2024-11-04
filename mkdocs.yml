@@ -4,19 +4,25 @@ repo_url: "https://github.com/PrincetonUniversity/jobstats"
 repo_name: PrincetonUniversity/jobstats
 nav:
   - What is Jobstats?: index.md
-  - Jobstats: jobstats.md
   - Setup:
-    - setup/index.md
-    - Prometheus: setup/prometheus.md
-    - Grafana: setup/grafana.md
+    - Overview:      setup/overview.md
+    - cgroup plugin: setup/cgroups.md
+    - exporters:     setup/exporters.md
+    - GPU nodes:     setup/gpu_node_scripts.md
+    - Job summaries: setup/summaries.md
+    - Prometheus:    setup/prometheus.md
+    - Grafana:       setup/grafana.md
     - Open OnDemand: setup/ood.md
-    - smail: setup/smail.md
+    - jobstats:      setup/using_jobstats.md
+    - smail:         setup/smail.md
   - Configuration File: configuration.md
-  - Installation: installation.md
-  - jobstats: using_jobstats.md
   - Custom Notes: notes.md
-  - Contributions: developers.md
-  - External Tools: external_tools.md
+  - Contributions: contributions.md
+  - External Tools:
+    - gpudash:             tools/gpudash.md
+    - reportseff:          tools/reportseff.md
+    - defense shield:      tools/job_defense_shield.md
+    - utilization reports: tools/utilization_reports.md
   - Publications: publications.md
 theme:
   name: material
