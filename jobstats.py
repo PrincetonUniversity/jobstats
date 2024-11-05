@@ -302,18 +302,19 @@ class Jobstats:
         self.cpu_util_error_code = 0
         self.cpu_util__node_used_alloc_cores = []
         for n in sp_node:
-            try:
+            d = sp_node[n]
+            if 'total_time' in d and 'cpus' in d:
                 used  = sp_node[n]['total_time']
                 cores = sp_node[n]['cpus']
-            except Exception:
-                self.cpu_util_error_code = 1
-                break
-            else:
                 alloc = self.diff * cores
                 total += alloc
                 total_used += used
                 total_cores += cores
                 self.cpu_util__node_used_alloc_cores.append((n, used, alloc, cores))
+            else:
+                self.cpu_util_error_code = 1
+                self.cpu_util__node_used_alloc_cores.append((n, None, None, None))
+                break
         if self.cpu_util_error_code == 0:
             if total_used > total:
                 self.cpu_util_error_code = 2
@@ -328,18 +329,19 @@ class Jobstats:
         self.cpu_mem_error_code = 0
         self.cpu_mem__node_used_alloc_cores = []
         for n in sp_node:
-            try:
+            d = sp_node[n]
+            if 'used_memory' in d and 'total_memory' in d and 'cpus' in d:
                 used  = sp_node[n]['used_memory']
                 alloc = sp_node[n]['total_memory']
                 cores = sp_node[n]['cpus']
-            except Exception:
-                self.cpu_mem_error_code = 1
-                break
-            else:
                 total += alloc
                 total_used += used
                 total_cores += cores
                 self.cpu_mem__node_used_alloc_cores.append((n, used, alloc, cores))
+            else:
+                self.cpu_mem_error_code = 1
+                self.cpu_mem__node_used_alloc_cores.append((n, None, None, None))
+                break
         if self.cpu_mem_error_code == 0:
             if total_used > total:
                 self.cpu_mem_error_code = 2
@@ -369,14 +371,14 @@ class Jobstats:
                     break
             self.gpu_util_total__util_gpus = (overall, overall_gpu_count)
 
-            # gpu memory usage
+            # gpu memory
             overall = 0
             overall_total = 0
             self.gpu_mem_error_code = 0
             self.gpu_mem__node_used_total_index = []
             for n in sp_node:
                 d = sp_node[n]
-                if 'gpu_total_memory' in d and 'gpu_total_memory' in d:
+                if 'gpu_used_memory' in d and 'gpu_total_memory' in d:
                     gpus = list(d['gpu_total_memory'].keys())
                     gpus.sort()
                     for g in gpus:
@@ -395,7 +397,6 @@ class Jobstats:
                 if overall_total == 0:
                     self.gpu_mem_error_code == 3
             self.gpu_mem_total__used_alloc = (overall, overall_total)
-
 
     def __str__(self, compact=False):
         js_data = {'nodes': self.sp_node, 'total_time': self.diff, 'gpus': self.gpus}

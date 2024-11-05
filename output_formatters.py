@@ -380,15 +380,10 @@ class ClassicOutput(BaseFormatter):
         heading = f"{self.txt_bold}Overall Utilization{self.txt_normal}"
         report += heading.center(self.width) + "\n"
         report += self.width * "=" + "\n"
-        # overall CPU time utilization
         report += self.output_overall_cpu_util()
-        # overall CPU memory utilization
         report += self.output_overall_cpu_memory_usage()
-        # GPUs
         if self.js.gpus:
-            # overall GPU utilization
             report += self.output_overall_gpu_util()
-            # overall GPU memory usage
             report += self.output_overall_gpu_memory_usage()
         report += "\n"
         ########################################################################
