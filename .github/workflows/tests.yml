@@ -3,13 +3,17 @@ on:
   workflow_dispatch
 jobs:
   tests:
-    name: Check Python 3.7 on Ubuntu
-    runs-on: ubuntu-22.04
+    name: Check Python ${{ matrix.python-version }} on Ubuntu
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.12"]
     steps:
       - uses: actions/checkout@v4
+      - name: Setup Python ${{ matrix.python-version }}
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.7"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install package
         run: pip install requests blessed pytest pytest-cov pytest-mock
