@@ -4,7 +4,7 @@
 
 Jobstats is a free and open-source job monitoring platform designed for CPU and GPU clusters that use the Slurm workload manager.
 
-The `jobstats` command provides users with a Slurm job efficiency report:
+The `jobstats` command provides users with a job efficiency report:
 
 ```
 $ jobstats 39798795

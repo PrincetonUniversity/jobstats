@@ -1,3 +1,3 @@
-# Open OnDemand JobStats Helper
+# Open OnDemand Jobstats Helper
 
-ood-jobstats-helper subdirectory contains an Open OnDemand app that, given a job id, uses sacct to generate a full Grafana URL with job's jobid, start and end times.
+`ood-jobstats-helper` directory in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/ood-jobstats-helper" target="_blank">Jobstats GitHub repository</a>. contains an Open OnDemand app that, given a `jobid`, uses `sacct` to generate a full Grafana URL with the `jobid`, start and end times.

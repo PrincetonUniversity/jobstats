@@ -1,16 +1,10 @@
 # Grafana
 
-Follow the directions at [grafana.com](https://grafana.com/).
+The four exporters lead to a wealth of data in the Prometheus database. To visualize this data, the Grafana visualization toolkit is used. To setup Grafana follow the directions at <a href="https://grafana.com" target="_blank">grafana.com</a>.
 
-Grafana dashboard json that uses all of the exporters is included in the grafana subdirectory. It expects one parameter, jobid. As it may not be easy to find the time range we also use an ondemand job stats helper that generates the correct time range given a jobid, documented in the next section.
+Grafana dashboard JSON file that uses all of the exporters is included in the `grafana` subdirectory in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/grafana" target="_blank">Jobstats GitHub repository</a>. It expects one parameter, `jobid`. As it may not be easy to find the time range of the job, we also use an OnDemand helper that generates the correct time range given a `jobid` (see the [next section](ood.md)).
 
-The following image illustrates what the dashboard looks like in use:
-
-<center><img src="https://tigress-web.princeton.edu/~jdh4/jobstats_grafana.png"></center>
-
-Eleven of the seventeen metrics abovearenode-level. This means that if multiple jobs are running on the node then it will not be possible to disentangle thedata.Tousethesemetricstotroubleshoot jobs, the job should allocate the entire node. The complete Grafana interface for the Jobstats platform is composed of plots of the time history of the seventeen quantities above. An example of the Grafana dashboard and the needed code are available in the Jobstats GitHub repository [17]. This graphical interface is used for detailed investigations such as troubleshooting failed jobs, identifying jobs with CPU memory leaks, intermittent GPUusage, load imbalance, and for understanding the anomalous behavior of system hardware. While the Grafana interface is an essential component of the Jobstats platform, for quick inspections of job behavior, the jobstats command is used. This tool and four others are discussed in Section 3.
-
-The four exporters lead to a wealth of data in the Prometheus database. To visualize this data, the Grafana visualization toolkit [24] is used. The following job-level metrics are available in both Grafana and the jobstats command:
+The following job-level metrics are available in both Grafana and the `jobstats` command:
 
 - CPU Utilization
 - CPU Memory Utilization
@@ -36,8 +30,8 @@ Finally, the following additional node-level metrics are exposed only in Grafana
 - Infiniband Packet Rate
 - Infiniband Errors
 
-Eleven of the seventeen metrics above are node-level. This means that if multiple jobs are running on the node then it will not be possible to disentangle the data. To use the metrics to troubleshoot jobs, the job should allocate the entire node.
+Eleven of the seventeen metrics above are node-level. This means that if multiple jobs are running on the node then it will not be possible to disentangle the data.To use these metrics to troubleshoot jobs, the job should allocate the entire node. The complete Grafana interface for the Jobstats platform is composed of plots of the time history of the seventeen quantities above. This graphical interface is used for detailed investigations such as troubleshooting failed jobs, identifying jobs with CPU memory leaks, intermittent GPU usage, load imbalance, and for understanding the anomalous behavior of system hardware.
 
-The complete Grafana interface for the Jobstats platform is composed of plots of the time history of the seventeen quantities above. An example of the Grafana dashboard and the needed code are available in the Jobstats GitHub repository [17]. This graphical interface is used for detailed investigations such as troubleshooting failed jobs, identifying jobs with CPU memory leaks, intermittent GPUusage, load imbalance, and for understanding the anomalous behavior of system hardware.
+The following image illustrates what the dashboard looks like in use:
 
-While the Grafana interface is an essential component of the Jobstats platform, for quick inspections of job behavior, the jobstats command is used. This tool and four others are discussed in Section 3.
+<center><img src="https://tigress-web.princeton.edu/~jdh4/grafana_dashboard_single.jpg"></center>

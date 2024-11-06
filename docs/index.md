@@ -6,22 +6,22 @@ Jobstats is a free and open-source job monitoring platform designed for CPU and 
 
 The main advantages of Jobstats are:
 
-- GPU utilization and memory usage for each allocated GPU
+- utilization and memory usage for each allocated GPU
 - automatically cancel jobs with 0% GPU utilization
-- accurate CPU memory usage for single and multi-node jobs
+- accurate CPU memory usage for jobs of any size
 - graphical interface for inspecting job metrics versus time
-- custom job efficiency emails with job-specific notes
+- efficiency reports contain job-specific notes to guide users
 - automated emails to users for instances of underutilization
 - periodic reports on usage and efficiency for users and group leaders
 - all of the above features work with Open OnDemand jobs
 
 ## How does Jobstats work?
 
-Job and node statistics are exposed by four different Prometheus exporters (Node, cgroups, NVIDIA, GPFS):
+A schematic diagram of the components of the Jobstats platform and the external tools is shown below:
 
 ![Schematic diagram](jobstats_schematics.png)
 
-The exporters serve to make data available to the Prometheus database. Users interact with the Prometheus and Slurm data via the web interface (i.e., Grafana) and external tools (e.g., `gpudash`).
+A compute node with two sockets is shown in the upper left. The dotted line around the node indicates the three node-level exporters, namely, Node, cgroups and NVIDIA. A GPFS server is shown in the upper right with its cluster-level GPFS exporter. The exporters serve to make data available to the Prometheus database. Users interact with the Prometheus and Slurm data via the web interface (i.e., Grafana) and external tools (e.g., `jobstats`).
 
 ## Which institutions are using Jobstats?
 
@@ -32,7 +32,7 @@ Jobstats is used by these institutions:
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - Yale University - Center for Research Computing
-- and many more
+- and more
 
 ## What does a Jobstats efficiency report look like?
 
@@ -98,10 +98,10 @@ $ jobstats 39798795
       https://researchcomputing.princeton.edu/support/knowledge-base/memory
 
   * For additional job metrics including metrics plotted against time:
-    https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
+    https://mydella.princeton.edu/pun/sys/jobstats
 ```
 
-### What data does Jobstats make available?
+## Which metrics does Jobstats make available?
 
 Job-level metrics:
 
@@ -126,7 +126,11 @@ Node-level metrics:
 - Infiniband Packet Rate
 - Infiniband Errors
 
-## Other Job Monitoring Platforms
+The following image shows the Grafana dashboard for an example GPU job:
+
+<center><img src="https://tigress-web.princeton.edu/~jdh4/grafana_dashboard_single.jpg"></center>
+
+## Other job monitoring platforms
 
 Consider these alternatives to Jobstats:
 
@@ -135,3 +139,7 @@ Consider these alternatives to Jobstats:
 - [jobperf](https://dl.acm.org/doi/10.1145/3626203.3670608)
 - [TACC Stats](https://tacc.utexas.edu/research/tacc-research/tacc-stats/)
 - [REMORA](https://docs.tacc.utexas.edu/software/remora/)
+
+## Want to use Jobstats at your institution?
+
+Proceed to the next section where we illustrate the [setup of the platform](setup/overview.md).

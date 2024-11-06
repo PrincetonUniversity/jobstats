@@ -6,23 +6,23 @@ nav:
   - What is Jobstats?: index.md
   - Setup:
     - Overview:      setup/overview.md
-    - cgroup plugin: setup/cgroups.md
-    - exporters:     setup/exporters.md
-    - GPU nodes:     setup/gpu_node_scripts.md
+    - CPU Statistics: setup/cgroups.md
+    - GPU Statistics: setup/gpu_node_scripts.md
+    - Node Statistics: setup/node.md
     - Job summaries: setup/summaries.md
     - Prometheus:    setup/prometheus.md
     - Grafana:       setup/grafana.md
     - Open OnDemand: setup/ood.md
     - jobstats:      setup/using_jobstats.md
     - smail:         setup/smail.md
-  - Configuration File: configuration.md
   - Custom Notes: notes.md
-  - Contributions: contributions.md
   - External Tools:
-    - gpudash:             tools/gpudash.md
+    - Job Defense Shield:      tools/job_defense_shield.md
+    - GPU Dashboard:             tools/gpudash.md
+    - Utilization Reports: tools/utilization_reports.md
     - reportseff:          tools/reportseff.md
-    - defense shield:      tools/job_defense_shield.md
-    - utilization reports: tools/utilization_reports.md
+  - Contributions: contributions.md
+  - Support: support.md
   - Publications: publications.md
 theme:
   name: material

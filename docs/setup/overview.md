@@ -10,3 +10,5 @@ Below is an outline of the steps that need to be taken to setup the Jobstats pla
 6. Lastly, configure the Grafana interface and Open OnDemand
 
 A single standard server has proven to be sufficient for a data center with 100,000 CPU-cores and 1000 GPUs.
+
+Proceed to the next section on [cgroup-based job accounting](cgroups.md).
