@@ -1,10 +1,10 @@
 # Prometheus
 
-Prometheus is a monitoring system and time series database. For setup, follow the directions at [prometheus.io](https://prometheus.io/). The four Prometheus exporters required by the Jobstats platform were discussed in the previous setup sections.
+Prometheus is a monitoring system and time series database. For setup, follow the directions at [prometheus.io](https://prometheus.io/). The four Prometheus exporters required by the Jobstats platform were discussed in the previous sections.
 
 ## Basic Prometheus Configuration
 
-What follows is an example of production configuration used for the Tiger cluster that has both regular and GPU nodes:
+What follows is an example of production configuration used for the Tiger cluster that has both CPU and GPU nodes:
 
 ```
 ---
@@ -54,6 +54,4 @@ The `tigernode.json` file looks like:
  ]
 ```
 
-where both `node_exporter` (port 9100) and `cgroup_exporter` (port 9306) are listed, for all of tiger's nodes. The file `tigergpus.json` looks very similar except that it collects data from `nvidia_gpu_prometheus_exporter` on port 9445.
-
-Note the additional label cluster.
+Both `node_exporter` (port 9100) and `cgroup_exporter` (port 9306) are listed for all of the nodes in `tigernode.json`. The file `tigergpus.json` looks very similar except that it collects data from `nvidia_gpu_prometheus_exporter` on port 9445. Note the additional `cluster` label.

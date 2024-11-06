@@ -19,8 +19,7 @@ MIN_MEMORY_USAGE      = 70  # percentage
 MIN_RUNTIME_SECONDS   = 10 * SAMPLING_PERIOD  # seconds
 
 # translate cluster names in Slurm DB to informal names
-CLUSTER_TRANS = {"tiger":"tiger2"}
-#CLUSTER_TRANS = {}  # if no translations then use an empty dictionary
+CLUSTER_TRANS = {}  # if no translations then use an empty dictionary
 CLUSTER_TRANS_INV = dict(zip(CLUSTER_TRANS.values(), CLUSTER_TRANS.keys()))
 
 # maximum number of characters to display in jobname

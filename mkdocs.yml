@@ -5,20 +5,20 @@ repo_name: PrincetonUniversity/jobstats
 nav:
   - What is Jobstats?: index.md
   - Setup:
-    - Overview:      setup/overview.md
-    - CPU Statistics: setup/cgroups.md
-    - GPU Statistics: setup/gpu_node_scripts.md
+    - Overview:        setup/overview.md
+    - CPU Statistics:  setup/cgroups.md
+    - GPU Statistics:  setup/gpu_node_scripts.md
     - Node Statistics: setup/node.md
-    - Job summaries: setup/summaries.md
-    - Prometheus:    setup/prometheus.md
-    - Grafana:       setup/grafana.md
-    - Open OnDemand: setup/ood.md
-    - jobstats:      setup/using_jobstats.md
-    - smail:         setup/smail.md
-  - Custom Notes: notes.md
-  - External Tools:
-    - Job Defense Shield:      tools/job_defense_shield.md
-    - GPU Dashboard:             tools/gpudash.md
+    - Job Summaries:   setup/summaries.md
+    - Prometheus:      setup/prometheus.md
+    - Grafana:         setup/grafana.md
+    - Open OnDemand:   setup/ood.md
+    - jobstats:        setup/jobstats_command.md
+    - Email Reports:   setup/smail.md
+  - Jobstats Tools:
+    - Overview:            tools/overview.md
+    - Job Defense Shield:  tools/job_defense_shield.md
+    - GPU Dashboard:       tools/gpudash.md
     - Utilization Reports: tools/utilization_reports.md
     - reportseff:          tools/reportseff.md
   - Contributions: contributions.md
@@ -28,7 +28,6 @@ theme:
   name: material
   features:
     - navigation.footer
-   #- navigation.expand
   palette:
     # light mode
     - scheme: default
@@ -54,6 +53,10 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
+  # content tabs
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
 
 extra:
   social:

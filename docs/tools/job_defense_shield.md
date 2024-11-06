@@ -1,8 +1,32 @@
 # Job Defense Shield
 
-[job defense shield](https://github.com/PrincetonUniversity/job_defense_shield) - A tool for sending automated email alerts to users  
+High-performance computing clusters often serve a large number of users who posses a range of knowledge and skills. This leads to individuals misusing the resources due to mistakes, misunderstandings, expediency, and related issues. To combat jobs that waste or misuse the resources, a battery of alerts can be configured. While such alerts can be configured in Prometheus, the most flexible and powerful solution is external software.
 
-Below is an example email for automatic job cancellation:
+<a href="https://github.com/PrincetonUniversity/job_defense_shield" target="_blank">Job Defense Shield</a> is a Python code for sending automated email alerts to users and for creating reports for system administrators. As discussed above, summary statistics for each completed job are stored in a compressed format in the `AdminComment` field in the Slurm database. The software described here works by calling the Slurm `sacct` command while requesting several fields including `AdminComment`. The `sacct` output is stored in a `pandas` dataframe for processing.
+
+Automated email alerts to users are available for these cases:
+
+- CPU or GPU jobs with 0% utilization (see email below)
+- Heavy users with low mean CPU or GPU efficiency
+- Jobs that allocate excess CPU memory (see email below)
+- Serial jobs that allocate multiple CPU-cores
+- Users that routinely run with excessive time limits
+- Jobs that could have used a smaller number of nodes
+- Jobs that could have used less powerful GPUs
+- Jobs thar ran on specialized nodes but did not need to
+
+All of the instances in the list above can be formulated as a report
+for system administrators. The most popular reports for system
+administrators are:
+
+- A list of users (and their jobs) with the most GPU-hours at 0% utilization
+- A list of the heaviest users with low CPU/GPU utilization
+- A list of users that are over-allocating the most CPU memory
+- A list of users that are over-allocating the most time
+
+The Python code is written using object-oriented programming techniques which makes it easy to create new alerts and reports.
+
+Below is an example email for the automatic cancellation of a GPU job with 0% utilization:
 
 ```
 Hi Alan,
@@ -44,13 +68,16 @@ allocating CPU memory with Slurm, please see:
 Replying to this automated email will open a support ticket with Research
 Computing. 
 ```
-Automated email alerts to users are available for these cases:
 
-- CPU or GPU jobs with 0% utilization
-- Contacting the top users with low mean CPU or GPU efficiency
-- Jobs that allocate excess CPU memory (see email above)
-- Serial jobs that allocate multiple CPU-cores
-- Users that routinely run with excessive time limits
-- Jobs that could have used a smaller number of nodes
-- Jobs that could have used less powerful GPUs
-- Custom email alerts are supported via the object-oriented design of the software
+
+The software has a `check` mode that shows on which days a given user received an alert of a given type. Users that appear to be ignoring the email alerts can be contacted directly. Emails to users are most effective when sent sparingly. For this reason, there is a command-line parameter to specify the amount of time that must pass before the user can receive another email of the same nature.
+
+The example below shows how the script is called to notify users in the top N by usage with low CPU or GPU efficiencies over the last week:
+
+```
+$ job_defense_shield --low-xpu-efficiencies --days=7 --email
+```
+
+The default thresholds are 60% and 15% for CPU and GPU utilization, respectively, and N=15.
+
+The installation requirements for Job Defense Shield are Python 3.6+ and version 1.2+ of the Python `pandas` package. The `jobstats` command is also required if one wants to examine actively running jobs such as when looking for jobs with zero GPU utilization. The Python code, example alerts and emails, and instructions are available in the <a href="https://github.com/PrincetonUniversity/job_defense_shield" target="_blank">GitHub repository</a>.

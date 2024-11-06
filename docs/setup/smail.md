@@ -1,33 +1,19 @@
-# smail
+# Procedure for Modifying User Email Reports
 
-Modify `MailProg` in `slurm.conf` to use `jobstats` instead of `seff`.
-
-The `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats`.
-
-To generate email reports using `jobstats` after a job finishes, the following line is needed in `slurm.conf`:
+The `jobstats` command should be configured to replace `smail`, which is the Slurm executable used for sending email reports. To make this change, edit `slurm.conf` as follows:
 
 ```
 MailProg=/usr/local/bin/jobstats_mail.sh
 ```
 
-Here are the key lines in the `jobstats_mail.sh` script:
+The `jobstats_mail.sh` script is available in the `slurm` directory of the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>. This script sets the `content-type` to `text/html` so that the email is sent using a fixed-width font.
+
+As always, to receive an email report, users must include the appropriate Slurm directive in their scripts:
 
 ```
-SEFF=/usr/local/bin/jobstats --no-color $SEFF $jobid | $MAIL-s "$subject" $recipient
+#SBATCH --mail-type=end
 ```
 
-One also needs to set the content-type to text/html so that the email uses a fixed-width font. The full script is available in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>.
+!!! note
+    When the run time of the job is less than the sampling period of the Prometheus exporters (which is typically 30 seconds), `jobstats` will call `seff` to generate the job report.
 
-## Job email script
-
-For completed jobs, the data is taken from a call to `sacct` with several fields including `AdminComment`. For running jobs, the Prometheus database must be queried.
-
-Importantly, the `jobstats` command is also used to replace `smail`, which is the Slurm executable used for sending email reports that are based on `seff`. This means that users receive emails that are the exact output of `jobstats`.
-
-We use `slurm/jobstats_mail.sh` as the Slurm's Mail program, e.g., from `slurm.conf`:
-
-```
-MailProg=/usr/local/bin/jobstats_mail.sh
-```
-
-This will include jobstats information for jobs that have requested email notifications on completion.

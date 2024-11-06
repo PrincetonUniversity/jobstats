@@ -21,7 +21,7 @@ A schematic diagram of the components of the Jobstats platform and the external 
 
 ![Schematic diagram](jobstats_schematics.png)
 
-A compute node with two sockets is shown in the upper left. The dotted line around the node indicates the three node-level exporters, namely, Node, cgroups and NVIDIA. A GPFS server is shown in the upper right with its cluster-level GPFS exporter. The exporters serve to make data available to the Prometheus database. Users interact with the Prometheus and Slurm data via the web interface (i.e., Grafana) and external tools (e.g., `jobstats`).
+A compute node with two sockets is shown in the upper left. The dotted line around the node indicates the three node-level exporters, namely, Node, cgroups and NVIDIA. A GPFS server is shown in the upper right with its cluster-level GPFS exporter. The exporters serve to make data available to the [Prometheus](https://prometheus.io/) database. Users interact with the Prometheus and Slurm data via the web interface (i.e., [Grafana](https://grafana.com/grafana/)) and external tools (e.g., `jobstats`).
 
 ## Which institutions are using Jobstats?
 

@@ -7,9 +7,9 @@ MAIL=/bin/mail
 # The time needed for job to complete and synchronize accounting data with
 # slurmdbd. If you're running slurmctld under systemd control executing
 # `systemctl stop slurmctld` or `systemctl restart slurmctld` may hang for this
-# time. While slurmctld will be down systemd will still waits for all
+# time. While slurmctld will be down systemd will still wait for all
 # descendant processes (in this case sleep executed from smail) to complete.
-# The default value is 5s (half of default MessageTimeout)
+# The default value is 5 seconds (half of default MessageTimeout).
 JOB_COMPLETION_TIME=5
 
 # Get the ClusterName

@@ -1,6 +1,6 @@
 # GPU Job Statistics
 
-GPU metrics (currently only NVIDIA) are collected by the <a href="https://github.com/plazonic/nvidia_gpu_prometheus_exporter" target="_blank">Jobstats GPU exporter</a> which was based on the exporter by Rohit Agarwal [[1]](https://github.com/mindprince/nvidia_gpu_prometheus_exporter). The main local changes were to add the handling of Multi-Instance GPUs (MIG) and two additional gauge metrics: `nvidia_gpu_jobId` and `nvidia_gpu_jobUid`. The table below lists all of the collected GPU fields. Note that the approach described here is not appropriate for clusters that allow for GPU sharing (e.g., sharding).
+GPU metrics (currently only NVIDIA) are collected by the <a href="https://github.com/plazonic/nvidia_gpu_prometheus_exporter" target="_blank">Jobstats GPU exporter</a> which was based on the exporter by Rohit Agarwal [[1]](https://github.com/mindprince/nvidia_gpu_prometheus_exporter). The main local changes were to add the handling of Multi-Instance GPUs (MIG) and two additional gauge metrics: `nvidia_gpu_jobId` and `nvidia_gpu_jobUid`. The table below lists all of the collected GPU fields.
 
 | Name | Description | Type |
 | ---- | ----------- | ---- |
@@ -12,6 +12,10 @@ GPU metrics (currently only NVIDIA) are collected by the <a href="https://github
 | `nvidia_gpu_temperature_celsius`    | Temperature of the GPU device in Celsius | gauge |
 | `nvidia_gpu_jobId` | JobId number of a job currently using this GPU as reported by Slurm | gauge |
 | `nvidia_gpu_jobUid` | UID number of user running jobs on this GPU | gauge |
+
+!!! note
+
+    Note that the approach described here is not appropriate for clusters that allow for GPU sharing (e.g., sharding).
 
 
 # GPU Job Ownership Helper
