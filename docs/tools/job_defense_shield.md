@@ -26,6 +26,8 @@ administrators are:
 
 The Python code is written using object-oriented programming techniques which makes it easy to create new alerts and reports.
 
+## Example Emails
+
 Below is an example email for the automatic cancellation of a GPU job with 0% utilization:
 
 ```
@@ -69,6 +71,7 @@ Replying to this automated email will open a support ticket with Research
 Computing. 
 ```
 
+## Usage
 
 The software has a `check` mode that shows on which days a given user received an alert of a given type. Users that appear to be ignoring the email alerts can be contacted directly. Emails to users are most effective when sent sparingly. For this reason, there is a command-line parameter to specify the amount of time that must pass before the user can receive another email of the same nature.
 
@@ -79,5 +82,7 @@ $ job_defense_shield --low-xpu-efficiencies --days=7 --email
 ```
 
 The default thresholds are 60% and 15% for CPU and GPU utilization, respectively, and N=15.
+
+## Installation
 
 The installation requirements for Job Defense Shield are Python 3.6+ and version 1.2+ of the Python `pandas` package. The `jobstats` command is also required if one wants to examine actively running jobs such as when looking for jobs with zero GPU utilization. The Python code, example alerts and emails, and instructions are available in the <a href="https://github.com/PrincetonUniversity/job_defense_shield" target="_blank">GitHub repository</a>.

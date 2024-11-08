@@ -181,7 +181,7 @@ The note above will be displayed by `jobstats` for all jobs that ran on the `tig
 Much more sophisicated and useful notes can be constructed. For more ideas and examples, see the many notes that appear in `config.py` in the
 <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank">Jobstats GitHub repository</a>.
 
-Notes can contained Slurm directives and URLs. These items are automatically
+Notes can contain Slurm directives and URLs. These items are automatically
 displayed on a separate line with additional indentation.
 
 !!! warning

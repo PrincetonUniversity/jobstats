@@ -19,8 +19,8 @@ nav:
     - Overview:            tools/overview.md
     - Job Defense Shield:  tools/job_defense_shield.md
     - GPU Dashboard:       tools/gpudash.md
-    - Utilization Reports: tools/utilization_reports.md
     - reportseff:          tools/reportseff.md
+    - Utilization Reports: tools/utilization_reports.md
   - Contributions: contributions.md
   - Support: support.md
   - Publications: publications.md
