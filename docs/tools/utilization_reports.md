@@ -18,4 +18,4 @@ $ utilization_reports --report-type=users --months=1 --email
 
 ## Installation
 
-We find a good choice is to send the report once per month. The installation requirements for the software are Python 3.6+ and version 1.2+ of the `pandas` package. The Python code, example reports, and instructions are available at <a href="https://github. com/PrincetonUniversity/monthly_sponsor_reports" target="_blank">https://github.com/PrincetonUniversity/monthly_sponsor_reports</a>.
+We find a good choice is to send the report once per month. The installation requirements for the software are Python 3.6+ and version 1.2+ of the `pandas` package. The Python code, example reports, and instructions are available at <a href="https://github.com/PrincetonUniversity/monthly_sponsor_reports" target="_blank">https://github.com/PrincetonUniversity/monthly_sponsor_reports</a>.
