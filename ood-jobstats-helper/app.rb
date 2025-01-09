@@ -31,7 +31,7 @@ helpers do
     orgid = server[:orgId]
     dashid = server[:dashboard]['uid']
     theme = server[:theme] || 'light'
-    "#{host}/d/#{dashid}/ondemand-clusters/?orgId=#{orgid}&theme=#{theme}"
+    "#{host}/d/#{dashid}/ondemand-clusters/?orgId=#{orgid}&theme=#{theme}&kiosk"
   end
 end
 
