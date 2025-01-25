@@ -12,11 +12,12 @@ Grafana with a compatible dashboard and OnDemand configured to use that dashboar
 For OnDemand 3.1 or later just drop in /var/www/ood/apps/sys and remove Gemfile and Gemfile.lock.
 
 For older versions and/or versions running on RHEL7 you may have to generate gem bundle. E.g. for RHEL7:
-    scl enable rh-ruby30 bash
-    cd /var/www/ood/apps/sys/ood-jobstats-helper
-    rm -rf vendor/bundle Gemfile.lock
-    gem install bundler -v 2.2.22
-    scl enable rh-ruby30 -- bundle install
-
+```
+scl enable rh-ruby30 bash
+cd /var/www/ood/apps/sys/ood-jobstats-helper
+rm -rf vendor/bundle Gemfile.lock
+gem install bundler -v 2.2.22
+scl enable rh-ruby30 -- bundle install
+```
 This will create a Gemfile.lock, a .bundle/config and vendor/bundle directory with dependencies.
 All three ensure that Passenger starts this app with the dependencies installed to vendor/bundle.
