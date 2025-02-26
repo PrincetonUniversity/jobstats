@@ -9,7 +9,7 @@ A summary of individual job statistics is generated at job completion and stored
 EpilogSlurmctld=/usr/local/sbin/slurmctldepilog.sh
 ```
 
-The script is available in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>. For storage efficiency and convenience, the JSON job summary data is gzipped and base64 encoded before being stored in the `AdminComment` field of the Slurm database.
+The script is available in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a> and needs to be installed on the slurmctld server, together with jobstats. For storage efficiency and convenience, the JSON job summary data is gzipped and base64 encoded before being stored in the `AdminComment` field of the Slurm database.
 
 The impact on the database size due to this depends on job sizes. For an institution with 100,000 CPU-cores, for small jobs the `AdminComment` field tends to average under 50 characters per entry with a maximum under 1500 while for large jobs the maximum length is around 5000.
 
