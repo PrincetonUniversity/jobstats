@@ -26,9 +26,9 @@ administrators are:
 
 The Python code is written using object-oriented programming techniques which makes it easy to create new alerts and reports.
 
-# Example Report
+## Example Report
 
-Below is an example report of the users with the most GPU-hours at 0% utilization:
+Below is an example report showing the users with the most GPU-hours at 0% utilization:
 
 ```
 $ job_defense_shield --zero-util-gpu-hours
@@ -43,7 +43,7 @@ $ job_defense_shield --zero-util-gpu-hours
 4  u24074         24         13   62303161,62303182,62303183,62303184+  0     
 ------------------------------------------------------------------------------
    Cluster: della
-Partitions: gpu, pli-c, pli-p, pli, pli-lc
+Partitions: llm
      Start: Wed Feb 12, 2025 at 09:50 AM
        End: Wed Feb 19, 2025 at 09:50 AM
 ```
