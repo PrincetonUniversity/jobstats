@@ -89,5 +89,6 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - University of Queensland - Research Computing Centre
+- University of Virginia - Research Computing
 - Yale University - Center for Research Computing
 - and more
