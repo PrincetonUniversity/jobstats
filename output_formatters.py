@@ -276,7 +276,7 @@ class ClassicOutput(BaseFormatter):
     def output_metadata(self) -> str:
         """Return the job metadata."""
         meta = f"         Job ID: {self.txt_bold}{self.js.jobid}{self.txt_normal}\n"
-        meta += f"  NetID/Account: {self.js.user}/{self.js.account}\n"
+        meta += f"   User/Account: {self.js.user}/{self.js.account}\n"
         meta += f"       Job Name: {self.js.jobname}\n"
         if self.js.state in ("OUT_OF_MEMORY", "TIMEOUT"):
             meta += f"          State: {self.txt_bold}{self.txt_red}{self.js.state}{self.txt_normal}\n"
