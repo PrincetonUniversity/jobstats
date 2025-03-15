@@ -64,7 +64,7 @@ $ jobstats 39798795
   * This job only used 6% of the 256GB of total allocated CPU memory. For
     future jobs, please allocate less memory by using a Slurm directive such
     as --mem-per-cpu=1G or --mem=10G. This will reduce your queue times and
-    make the resources available to other users. For more info:
+    make the resources available to other jobs. For more info:
       https://researchcomputing.princeton.edu/support/knowledge-base/memory
 
   * This job only needed 19% of the requested time which was 4-00:00:00. For
@@ -86,6 +86,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Brown University - Center for Computation and Visualization
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
+- Monash University - e-Research
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - University of Queensland - Research Computing Centre
