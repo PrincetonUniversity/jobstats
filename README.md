@@ -15,7 +15,7 @@ $ jobstats 39798795
                               Slurm Job Statistics
 ================================================================================
          Job ID: 39798795
-  NetID/Account: aturing/math
+   User/Account: aturing/math
        Job Name: sys_logic_ordinals
           State: COMPLETED
           Nodes: 2
