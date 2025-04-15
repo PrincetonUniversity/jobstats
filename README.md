@@ -86,7 +86,9 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Brown University - Center for Computation and Visualization
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
+- Johns Hopkins University - Advanced Research Computing
 - Monash University - e-Research
+- NAVER LABS Europe
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - University of Queensland - Research Computing Centre

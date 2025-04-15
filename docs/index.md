@@ -8,11 +8,11 @@ The main advantages of Jobstats are:
 
 - no action is required by the user 
 - utilization and memory usage for each allocated GPU
-- automatically cancel jobs with 0% GPU utilization
+- automatically cancel jobs with 0% GPU utilization ([more info](https://princetonuniversity.github.io/job_defense_shield/))
 - accurate CPU memory usage for jobs of any size
 - graphical interface for inspecting job metrics versus time
 - efficiency reports contain job-specific notes to guide users
-- automated emails to users for instances of underutilization
+- automated emails to users for instances of underutilization ([more info](https://princetonuniversity.github.io/job_defense_shield/))
 - periodic reports on usage and efficiency for users and group leaders
 - all of the above features work with Open OnDemand jobs
 
@@ -30,10 +30,17 @@ Jobstats is used by these institutions:
 
 - Brown University - Center for Computation and Visualization
 - Free University of Berlin - High-Performance Computing
+- George Mason University - Office of Research Computing
+- Johns Hopkins University - Advanced Research Computing
+- Monash University - e-Research
+- NAVER LABS Europe
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
+- University of Queensland - Research Computing Centre
+- University of Virginia - Research Computing
 - Yale University - Center for Research Computing
 - and more
+
 
 ## What does a Jobstats efficiency report look like?
 
