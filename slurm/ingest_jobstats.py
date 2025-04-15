@@ -5,11 +5,7 @@ import os
 import subprocess
 import sys
 import MySQLdb
-
-# an awkward way to import class in jobstats, but until reorganized as its own module this will do
-# it is then accessible as jobstats.JobStats
-from importlib.machinery import SourceFileLoader
-jobstats = SourceFileLoader('jobstats', '/usr/local/bin/jobstats').load_module()
+from jobstats import Jobstats
 
 DB='slurm_acct_db'
 DEVNULL = open(os.devnull, 'w')
@@ -62,7 +58,7 @@ def process_job(conn, cluster, jobid, details):
     try:
         diff = details['end'] - details['start']
         if diff > 59:
-            stats = jobstats.JobStats(jobid=jobid, jobidraw=jobid, start=details['start'], end=details['end'], gpus=details['gpus'], cluster=cluster)
+            stats = JobStats(jobid=jobid, jobidraw=jobid, start=details['start'], end=details['end'], gpus=details['gpus'], cluster=cluster)
             save_stats = "JS1:%s" % stats.report_job_json(encode=True)
         else:
             save_stats = "JS1:Short"
