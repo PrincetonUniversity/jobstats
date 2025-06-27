@@ -84,6 +84,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 ### Users of the Jobstats Platform
 
 - Brown University - Center for Computation and Visualization
+- Deakin University - Applied Artificial Intelligence Initiative
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
 - Johns Hopkins University - Advanced Research Computing
@@ -95,3 +96,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - University of Virginia - Research Computing
 - Yale University - Center for Research Computing
 - and more
+
+### Contact
+
+One can create a GitHub issue or write direcly to the developers: Josko Plazonic (plazonic@princeton.edu) and Jonathan Halverson (halverson@princeton.edu)
