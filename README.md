@@ -77,6 +77,12 @@ $ jobstats 39798795
     https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
 ```
 
+### News and Updats
+
+- July 2025: Concise Grafana URLs will soon be available via the OOD helper app
+- Mar 2025: [Job Defense Shield](https://princetonuniversity.github.io/job_defense_shield/) is available for sending email alerts, generating reports, and cancelling jobs with 0% GPU utilization
+- Feb 2025: Error handling was added to deal with jobs that were missing metrics
+
 ### Getting Started
 
 Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) in the documentation.
