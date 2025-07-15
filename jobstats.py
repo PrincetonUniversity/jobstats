@@ -9,6 +9,7 @@ import base64
 import gzip
 import syslog
 import config as c
+from db_handler import JobstatsDBHandler
 
 # number of seconds between measurements
 SAMPLING_PERIOD = c.SAMPLING_PERIOD
@@ -146,7 +147,19 @@ class Jobstats:
                 if self.force_recalc:
                     self.data     = None
                 else:
+                    # Try to get AdminComment from Slurm database first
                     self.data     = i.get('AdminComment', None)
+                    
+                    # If no data found and external DB is enabled, try external DB
+                    if (not self.data or self.data == '') and c.EXTERNAL_DB_CONFIG.get("enabled", False):
+                        try:
+                            db_handler = JobstatsDBHandler()
+                            self.data = db_handler.get_jobstats(self.cluster, self.jobidraw)
+                            if self.data:
+                                self.debug_print(f"Retrieved job data from external database for job {self.jobidraw}")
+                        except Exception as e:
+                            self.debug_print(f"Failed to retrieve from external database: {e}")
+                            
                 self.user         = i.get('User', None)
                 self.account      = i.get('Account', None)
                 self.state        = i.get('State', None)
