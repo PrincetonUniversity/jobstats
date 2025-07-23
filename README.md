@@ -98,7 +98,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Johns Hopkins University - Advanced Research Computing
 - Iowa State University - High Performance Computing
 - Monash University - e-Research
-- Norwestern University - Research Computing and Data Services
+- Northwestern University - Research Computing and Data Services
 - NAVER LABS Europe
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
