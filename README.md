@@ -94,8 +94,11 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Deakin University - Applied Artificial Intelligence Initiative
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
+- Harvard University - Research Computing
 - Johns Hopkins University - Advanced Research Computing
+- Iowa State University - High Performance Computing
 - Monash University - e-Research
+- Norwestern University - Research Computing and Data Services
 - NAVER LABS Europe
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
