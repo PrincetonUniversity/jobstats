@@ -79,10 +79,11 @@ $ jobstats 39798795
 
 ### News and Updates
 
-- 08 Jul 2025: Concise Grafana URLs will soon be available via the OOD helper app
-- 06 Jul 2025: Jobstats will be presented at [CaRCC](https://carcc.org) on 7/10 at 1 PM and at [PEARC25](https://pearc.acm.org/pearc25/) on 7/23 at 5:30 PM
+- 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below). 
+- 08 Jul 2025: Concise Grafana URLs will soon be available via the Open OnDemand helper app
+- 06 Jul 2025: Jobstats will be presented at [CaRCC](https://carcc.org) on 7/10 at 1 PM and at [PEARC25](https://pearc.acm.org/pearc25/) on 7/23 at 5:30 PM ([see poster](https://researchcomputing.princeton.edu/document/6246))
 - 01 Jun 2025: [Job Defense Shield](https://princetonuniversity.github.io/job_defense_shield/) is available for sending email alerts, generating reports, and cancelling jobs with 0% GPU utilization
-- 15 Feb 2025: Error handling was added to deal with missing metrics in AdminComment
+- 15 Feb 2025: Error handling was added to deal with missing metrics in `AdminComment`
 
 ### Getting Started
 
@@ -91,6 +92,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 ### Users of the Jobstats Platform
 
 - Brown University - Center for Computation and Visualization
+- Clemson University - Research Computing and Data
 - Deakin University - Applied Artificial Intelligence Initiative
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
@@ -100,6 +102,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Monash University - e-Research
 - Northwestern University - Research Computing and Data Services
 - NAVER LABS Europe
+- Pacific Northwest National Laboratory
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - University of Queensland - Research Computing Centre
