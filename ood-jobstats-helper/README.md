@@ -3,6 +3,22 @@
 A helper OOD app that given jobid provides a link to Grafana dashboard with
 details for that job.
 
+It can be used interactively or it can be used to automatically redirect to
+the appropriate URL by appending /clustername/JOBID or in the case of just
+a single cluster on that OOD instance /JOBID.
+
+For example, if the URL for the app is
+
+https://ood.myinstitution.edu/pun/sys/jobstats
+
+you can use
+
+https://ood.myinstitution.edu/pun/sys/jobstats/myclustername/12345
+
+or in the case of a single cluster on this instance
+
+https://ood.myinstitution.edu/pun/sys/jobstats/12345
+
 ## Prerequisites
 Grafana with a compatible dashboard and OnDemand configured to use that dashboard, e.g. check
 [OnDemand Grafana documentation](https://osc.github.io/ood-documentation/latest/customizations.html#grafana-support)

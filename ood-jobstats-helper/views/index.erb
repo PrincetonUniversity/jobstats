@@ -7,8 +7,11 @@
     <option value="<%= cluster.id %>"><%= cluster.metadata.title || cluster.id.to_s.titleize %></option>
   <% end %>
   </select></p>
-  <p>Enter the JobID to lookup: <input type="text" name="jobid"> <input type="submit"></p>
+  <p>Enter the JobID to lookup: <input type="text" name="jobid" <% if params.key?(:jobid) %>value=<%= params[:jobid] %> <% end %>> <input type="submit"></p>
 </form>
 
-<div id="jobdetails">
+<div id="jobdetails"><%== @jobdetails %>
+</div>
+<div id="joberror" class="alert alert-danger" <%- if @joberror.blank? -%>style="display:none"<%- end -%>>
+<%= @joberror %>
 </div>

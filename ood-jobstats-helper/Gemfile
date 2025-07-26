@@ -1,9 +1,0 @@
-source "https://rubygems.org"
-
-gem "sinatra"
-gem "sinatra-contrib"
-gem "erubi"
-gem 'ood_appkit'
-gem 'ood_core'
-gem 'ood_support'
-gem 'rails'
