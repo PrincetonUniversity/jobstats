@@ -74,7 +74,7 @@ $ jobstats 39798795
       https://researchcomputing.princeton.edu/support/knowledge-base/slurm
 
   * For additional job metrics including metrics plotted against time:
-    https://mydella.princeton.edu/pun/sys/jobstats  (VPN required off-campus)
+      https://mydella.princeton.edu/pun/sys/jobstats/39798795
 ```
 
 ### News and Updates
