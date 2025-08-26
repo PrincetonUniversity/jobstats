@@ -79,7 +79,8 @@ $ jobstats 39798795
 
 ### News and Updates
 
-- 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below). 
+- 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below).
+- 24 Jul 2025: Jobstats wins "Best Poster Award" at [PEARC 2025](https://pearc.acm.org/proceedings-awards/)
 - 08 Jul 2025: Concise Grafana URLs will soon be available via the Open OnDemand helper app
 - 06 Jul 2025: Jobstats will be presented at [CaRCC](https://carcc.org) on 7/10 at 1 PM and at [PEARC25](https://pearc.acm.org/pearc25/) on 7/23 at 5:30 PM ([see poster](https://researchcomputing.princeton.edu/document/6246))
 - 01 Jun 2025: [Job Defense Shield](https://princetonuniversity.github.io/job_defense_shield/) is available for sending email alerts, generating reports, and cancelling jobs with 0% GPU utilization
