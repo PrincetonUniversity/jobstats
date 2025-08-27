@@ -1,4 +1,7 @@
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
 import sys
 from config import EXTERNAL_DB_CONFIG, EXTERNAL_DB_TABLE
 
@@ -9,6 +12,9 @@ class JobstatsDBHandler:
         
     def get_external_connection(self):
         """Get connection to external MariaDB database"""
+        if MySQLdb is None:
+            raise Exception("MySQLdb module not available. Install mysqlclient to use external database functionality.")
+            
         if not self.external_conn:
             try:
                 if EXTERNAL_DB_CONFIG.get("config_file"):

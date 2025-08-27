@@ -2,7 +2,10 @@
 import argparse
 import sys
 import os
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
 
 # Add the parent directory to Python path to import jobstats modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,9 +23,14 @@ def main():
     
     db_handler = JobstatsDBHandler()
     
-    # Only use external DB when enabled
+    # Check if external DB is enabled and available
     if not EXTERNAL_DB_CONFIG.get("enabled", False):
-        print("ERROR: External database is not enabled. This script requires external DB configuration.", file=sys.stderr)
+        print("ERROR: External database is not enabled in config.py", file=sys.stderr)
+        sys.exit(1)
+    
+    # Check if MySQLdb is available
+    if MySQLdb is None:
+        print("ERROR: MySQLdb module not available. Install mysqlclient to use external database functionality.", file=sys.stderr)
         sys.exit(1)
     
     # Save to external database

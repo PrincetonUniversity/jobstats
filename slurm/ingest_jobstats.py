@@ -4,7 +4,10 @@ import argparse
 import os
 import subprocess
 import sys
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
 
 # Add the parent directory to Python path to import jobstats modules
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
