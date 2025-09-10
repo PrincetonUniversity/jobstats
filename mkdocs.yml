@@ -15,6 +15,7 @@ nav:
     - Open OnDemand:   setup/ood.md
     - jobstats:        setup/jobstats_command.md
     - Email Reports:   setup/smail.md
+    - External Database: external-database.md
   - Jobstats Tools:
     - Overview:            tools/overview.md
     - Job Defense Shield:  tools/job_defense_shield.md
