@@ -8,7 +8,7 @@ PROM_SERVER = "http://vigilant2:8480"
 # External MariaDB config used to write intead of writing in slurm db (optional)
 EXTERNAL_DB_TABLE = "job_statistics"
 EXTERNAL_DB_CONFIG = {
-    "enabled": True,  # Set to False to use Slurm DB only
+    "enabled": False,  # Set to True to the external db for storing stats
     "host": "127.0.0.1",
     "port": 3307,
     "database": "jobstats",
