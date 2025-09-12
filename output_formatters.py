@@ -432,6 +432,7 @@ class ClassicOutput(BaseFormatter):
                 for node, util, gpu_index in self.js.gpu_util__node_util_index:
                     msg = ""
                     if util == 0:
+                        util = 0
                         msg = f" {self.txt_bold}{self.txt_red}<-- GPU was not used{self.txt_normal}"
                     report += f"{gutter}    {node} (GPU {gpu_index}): {util}%{msg}\n"
             else:
