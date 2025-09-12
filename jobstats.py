@@ -274,19 +274,25 @@ class Jobstats:
         else:
             self.error("ERROR: Unknown result when running query %s with time %s, full output: %s" %(expanded_query, self.end, j))
 
-    def get_job_stats(self):
+    def get_job_stats(self, *args):
         # query CPU and Memory utilization data
-        self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
-        self.get_data('used_memory', "max_over_time(cgroup_memory_rss_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
-        self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{cluster='%s',jobid='%s',step='',task=''}[%ds])")
-        self.get_data('cpus', "max_over_time(cgroup_cpus{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+        if not args or "total_memory" in args:
+            self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+        if not args or "used_memory" in args:
+            self.get_data('used_memory', "max_over_time(cgroup_memory_rss_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+        if not args or "total_time" in args:
+            self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+        if not args or "cpus" in args:
+            self.get_data('cpus', "max_over_time(cgroup_cpus{cluster='%s',jobid='%s',step='',task=''}[%ds])")
 
         # and now GPUs
         if self.gpus:
-            self.get_data('gpu_total_memory', "max_over_time((nvidia_gpu_memory_total_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
-            self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
-            self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
-
+            if not args or "gpu_total_memory" in args:
+                self.get_data('gpu_total_memory', "max_over_time((nvidia_gpu_memory_total_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
+            if not args or "gpu_used_memory" in args:
+                self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
+            if not args or "gpu_utilization" in args:
+                self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
 
     def parse_stats(self):
         sp_node = self.sp_node
