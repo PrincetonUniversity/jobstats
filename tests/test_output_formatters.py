@@ -99,14 +99,14 @@ def test_output_metadata(simple_stats):
     formatter = ClassicOutput(simple_stats)
     expected = """
            Job ID: 10920562
-    NetID/Account: aturing/physics
+     User/Account: aturing/physics
          Job Name: 9
             State: COMPLETED
             Nodes: 1
         CPU Cores: 40
        CPU Memory: 10GB (250MB per CPU-core)
     QOS/Partition: tiger-short/serial
-          Cluster: tiger
+          Cluster: tiger2
        Start Time: Tue Oct 29, 2024 at 10:35 AM
          Run Time: 00:33:49
        Time Limit: 1-00:00:00

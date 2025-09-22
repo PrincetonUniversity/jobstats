@@ -114,15 +114,15 @@ def gpu_utilization_missing(mocker):
     """A job where the gpu_utilization key is missing in the JSON."""
     cols = ('JobIDRaw|Start|End|Cluster|AllocTRES|AdminComment|User|Account|'
             'State|NNodes|NCPUS|ReqMem|QOS|Partition|TimelimitRaw|JobName\n')
-    ss64 = ('JS1:H4sIAMnXKGcC/1WNWwqDMBQF93K/05Kbk6jNZoqYiwiJEY0fItl7HxSKn8P'
-            'M4Zw05yAb+ZOCxNjfVh7sjA+XXPr4TJLyepBn3aK13BmraN8k/MWjg3XMaNRvUq'
-            'Yk5J12AO6saFj29wG7Wq8FGhijaPxqXV+1b7sLiwAAAA==')
-    data = ('45122291|1674651996|1674709902|della|billing=2621,cpu=1,gres/gp'
-            'u=1,mem=32G,node=1|%s|aturing|ee|TIMEOUT|1|1|32G|gpu-short|mig|'
-            '960|sys/dashboard/sys/jupyter\n' % ss64)
+    ss64 = ('JS1:H4sIAOBg0WgC/12MywqAIBAA/2XPFrtaVv5MRC4RaEbZIcJ/70F06DozzAF'
+            'TsLyCOcCyc122qL6YSN0ghti51rMPyw5G6QqRNKKAbWX7cS0LWZHS4u3j6BkMNd'
+            'iUuRTQz9t1p5T+XtYkYHgsphOwrZPFhwAAAA==')
+    data = ('845136|1758532566|1758551847|della|billing=1,cpu=1,mem=350M,nod'
+            'e=1,gres/gpu=1|%s|aturing|achurch|COMPLETED|1|1|350M|short|cpu|'
+            '1439|onebitdiff_posterior_entropy_nsamples.sh\n' % ss64)
     sacct_bytes = bytes(cols + data, "utf-8")
     mocker.patch("subprocess.check_output", return_value=sacct_bytes)
-    stats = Jobstats(jobid="45122291", prom_server="DUMMY-SERVER")
+    stats = Jobstats(jobid="845136", prom_server="DUMMY-SERVER")
     return stats
 
 

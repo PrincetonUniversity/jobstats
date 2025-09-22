@@ -58,9 +58,31 @@ The `jobstats` command requires a `config.py` configuration file. Use `config.py
 The first entry in `config.py` is for the Prometheus server:
 
 ```python
-# prometheus server address and port
-PROM_SERVER = "http://vigilant2:8480"
+# prometheus server address, port, and retention period
+PROM_SERVER = "http://cluster-stats:8480"
+PROM_RETENTION_DAYS = 365
 ```
+
+`PROM_RETENTION_DAYS` is the number of days that job data will remain the Prometheus database. This is used in deciding whether to display the Grafana URL for a given job as a custom note in the `jobstats` output.
+
+Optionally, one can use an external MariaDB database instead of Slurm DB to store the summary statistics. By default, Slurm DB will be used:
+
+```python
+# external MariaDB config used to write instead of writing in Slurm DB (optional)
+# if using Slurm DB then include the lines below with "enabled": False
+EXTERNAL_DB_TABLE = "job_statistics"
+EXTERNAL_DB_CONFIG = {
+    "enabled": False,  # set to True to use the external db for storing stats
+    "host": "127.0.0.1",
+    "port": 3307,
+    "database": "jobstats",
+    "user": "jobstats",
+    "password": "password",
+#     "config_file": "/path/to/jobstats-db.cnf"
+}
+```
+
+If you wish to use MariaDB then see [External Database](external-database.md).
 
 The number of seconds between measurements by the exporters on the compute nodes:
 
