@@ -10,7 +10,8 @@ import base64
 import gzip
 import syslog
 import config as c
-from db_handler import JobstatsDBHandler
+if c.EXTERNAL_DB_CONFIG.get("enabled", False):
+    from db_handler import JobstatsDBHandler
 
 __version__ = "1.0.0"
 
