@@ -443,7 +443,8 @@ NOTES.append((condition, note, style))
 
 # job ran using 40GB MIG GPU
 MIG_NODES_1 = {"della-l01g3", "della-l01g4", "della-l01g5", "della-l01g6", "della-l01g7",
-               "della-l01g8", "della-l01g9", "della-l01g10", "della-l01g11", "della-l01g12"}
+               "della-l01g8", "della-l01g9", "della-l01g10", "della-l01g11", "della-l01g12",
+               "adroit-h11g2"}
 condition = 'self.js.cluster == "della" and self.js.partition in ("gpu", "gputest") ' \
             'and self.js.is_mig_job()'
 note = ("This job used a 40GB MIG GPU which work well for almost all codes. " \
