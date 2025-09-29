@@ -82,7 +82,7 @@ $ jobstats 39798795
 - 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below)
 - 28 Sep 2025: Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?SUBED1=JOBSTATS&A=1)
 - 27 Aug 2025: Job summary statistics can now be stored in a MariaDB database instead of Slurm DB (contribution by [Anish Chanda](https://github.com/Anish-Chanda) of Iowa State Univ.)
-- 26 Jul 2025: [Open OnDemand helper app](setup/ood.md) now supports direct routing to Grafana dashboard for a given job
+- 26 Jul 2025: [Open OnDemand helper app](https://princetonuniversity.github.io/jobstats/setup/ood/) now supports direct routing to Grafana dashboard for a given job
 - 24 Jul 2025: Jobstats wins "Best Poster Award" at [PEARC 2025](https://pearc.acm.org/proceedings-awards/)
 - 01 Jun 2025: [Job Defense Shield](https://princetonuniversity.github.io/job_defense_shield/) is available for sending email alerts, generating reports, and cancelling jobs with 0% GPU utilization
 
