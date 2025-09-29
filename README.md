@@ -79,12 +79,12 @@ $ jobstats 39798795
 
 ### News and Updates
 
-- 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below).
-- 24 Jul 2025: Jobstats wins "Best Poster Award" at [PEARC 2025](https://pearc.acm.org/proceedings-awards/)
-- 08 Jul 2025: Concise Grafana URLs will soon be available via the Open OnDemand helper app
-- 06 Jul 2025: Jobstats will be presented at [CaRCC](https://carcc.org) on 7/10 at 1 PM and at [PEARC25](https://pearc.acm.org/pearc25/) on 7/23 at 5:30 PM ([see poster](https://researchcomputing.princeton.edu/document/6246))
+- 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below)
+- 28 Sep 2025: Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?SUBED1=JOBSTATS&A=1)
+- 27 Aug 2025: Job summary statistics can now be stored in a MariDB database instead of Slurm DB (contribution by [Anish Chanda](https://github.com/Anish-Chanda) of Iowa State Univ.)
+- 26 Jul 2025: [Open OnDemand helper app](setup/ood.md) now supports direct routing to Grafana dashboard
+- 24 Jul 2025: Jobstats wins "Best Poster Award" at [PEARC 2025](https://pearc.acm.org/proceedings-awards/) (see 
 - 01 Jun 2025: [Job Defense Shield](https://princetonuniversity.github.io/job_defense_shield/) is available for sending email alerts, generating reports, and cancelling jobs with 0% GPU utilization
-- 15 Feb 2025: Error handling was added to deal with missing metrics in `AdminComment`
 
 ### Getting Started
 
@@ -92,6 +92,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 
 ### Users of the Jobstats Platform
 
+- American Museum of Natural History
 - Brown University - Center for Computation and Visualization
 - Clemson University - Research Computing and Data
 - Deakin University - Applied Artificial Intelligence Initiative
@@ -109,7 +110,11 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - University of Queensland - Research Computing Centre
 - University of Virginia - Research Computing
 - Yale University - Center for Research Computing
-- and more
+- and many more
+
+### Join the Mailing List
+
+Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?SUBED1=JOBSTATS&A=1) to receive updates and other news.
 
 ### Contact
 

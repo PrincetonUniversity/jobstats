@@ -1,10 +1,10 @@
 # Prometheus
 
-Prometheus is a monitoring system and time series database. For setup, follow the directions at [prometheus.io](https://prometheus.io/). The four Prometheus exporters required by the Jobstats platform were discussed in the previous sections.
+Prometheus is a monitoring system and time series database. For setup, follow the directions at [prometheus.io](https://prometheus.io/). The Prometheus exporters required for the Jobstats platform were discussed in the previous sections.
 
 ## Basic Prometheus Configuration
 
-What follows is an example of production configuration used for the Tiger cluster that has both CPU and GPU nodes:
+Below is an example of the production configuration for the Tiger cluster that has both CPU and GPU nodes:
 
 ```
 ---

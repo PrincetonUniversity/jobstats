@@ -6,8 +6,8 @@
 PROM_SERVER = "http://cluster-stats:8480"
 PROM_RETENTION_DAYS = 365
 
-# external MariaDB config used to write instead of writing in Slurm DB (optional)
-# if using Slurm DB then include the lines below with "enabled": False
+# if using Slurm database then include the lines below with "enabled": False
+# if using MariaDB then set "enabled": True and uncomment "config_file"
 EXTERNAL_DB_TABLE = "job_statistics"
 EXTERNAL_DB_CONFIG = {
     "enabled": False,  # set to True to use the external db for storing stats

@@ -1,12 +1,12 @@
 # External Database Configuration
 
-This document describes how to configure jobstats to use an external MariaDB/MySQL database instead of storing job statistics in the Slurm database's AdminComment field.
+This section describes how to configure Jobstats to use an external MariaDB/MySQL database instead of storing job summary statistics in the `AdminComment field of the Slurm database.
 
 ## Overview
 
-By default, jobstats stores job statistics in the Slurm database by updating the `admin_comment` field in the job table. This feature allows you to store jobstats in a separate external MariaDB/MySQL database instead, which can be useful for:
+By default, Jobstats stores job statistics in the Slurm database by updating the `AdminComment` field in the job table. The feature described here allows for storing the statistics in a separate external MariaDB/MySQL database instead. This is useful for:
 
-- Separating jobstats data from the Slurm database
+- Separating Jobstats data from the Slurm database
 - Easier data analysis and reporting
 - Database backup and maintenance flexibility
 
@@ -14,7 +14,7 @@ By default, jobstats stores job statistics in the Slurm database by updating the
 
 ### 1. Database Setup
 
-First, create a MariaDB/MySQL database and table to store the jobstats:
+First, create a MariaDB/MySQL database and table to store the job statistics:
 
 ```sql
 CREATE DATABASE jobstats;
@@ -62,7 +62,7 @@ EXTERNAL_DB_CONFIG = {
 
 #### Using MySQL Configuration File (Recommended)
 
-For better security, you can use a MySQL configuration file instead of hardcoding credentials:
+For better security, one can use a MySQL configuration file instead of hardcoding the credentials:
 
 ```python
 EXTERNAL_DB_CONFIG = {
@@ -99,41 +99,44 @@ Update your `slurmctldepilog.sh` script. The script will automatically detect th
 ### Storage Behavior
 
 - **External DB enabled**: Job statistics are stored only in the external database
-- **External DB disabled**: Job statistics are stored in Slurm's AdminComment field (default behavior)
+- **External DB disabled**: Job statistics are stored in `AdminComment` in Slurm DB (default behavior)
 
 ### Epilog Script Logic
 
 The `slurmctldepilog.sh` script uses the following conditional logic:
 
-1. **If `/usr/local/bin/store_jobstats.py` exists:**
-   - Store jobstats in external database only
-   - Log success/failure for the attempt
+&nbsp;&nbsp;&nbsp;&nbsp;If `/usr/local/bin/store_jobstats.py` exists:
 
-2. **If `/usr/local/bin/store_jobstats.py` does NOT exist:**
-   - Use traditional Slurm AdminComment storage (maintains backward compatibility)
+- store jobstats in external database only
+- log success/failure for the attempt
+
+&nbsp;&nbsp;&nbsp;&nbsp;If `/usr/local/bin/store_jobstats.py` does NOT exist:
+
+- use traditional Slurm `AdminComment` storage (maintains backward compatibility)
 
 This ensures that:
-- Systems without external DB setup continue to work normally
-- Systems with external DB use only the external database (no fallback)
+
+- systems without external DB setup continue to work normally  
+- systems with external DB use only the external database (no fallback)
 
 ### Data Retrieval
 
 When using the `jobstats` command:
 
-- First checks Slurm AdminComment field for compatibility with existing data
-- If no data found and external DB is enabled → Retrieve from external database
+- the Slurm `AdminComment` field is checked for compatibility with existing data
+- if no data found and external DB is enabled then retrieve from external database
 
 ## Migration
 
-### From Slurm AdminComment to External DB
+From Slurm `AdminComment` to External DB:
 
 1. Set up the external database and configure `config.py`
-2. Install `store_jobstats.py` script
+2. Install the `store_jobstats.py` script
 3. Future jobs will automatically use the external database
 
 ## Troubleshooting
 
-### Common Issues
+Common issues:
 
 1. **MySQLdb import error**: Install `mysqlclient` package
 2. **Connection failed**: Check database credentials and network connectivity

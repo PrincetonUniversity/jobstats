@@ -1,6 +1,6 @@
 # Setup Overview
 
-Below is an outline of the steps that need to be taken to setup the Jobstats platform for a Slurm cluster:
+Below is an outline of the setup of the Jobstats platform for a Slurm cluster:
 
 1. Switch to cgroup-based job accounting from Linux process accounting 
 2. Setup the exporters: cgroup, node, GPU (on the nodes) and, optionally, GPFS (centrally)
@@ -9,6 +9,6 @@ Below is an outline of the steps that need to be taken to setup the Jobstats pla
 5. Setup the `slurmctldepilog.sh` script for long-term job summary retention
 6. Lastly, configure the Grafana interface and Open OnDemand
 
-A single standard server has proven to be sufficient for a data center with 100,000 CPU-cores and 1000 GPUs.
+A single standard server has proven to be sufficient for a data center with 150,000 CPU-cores and 1000 GPUs.
 
 Proceed to the next section on [cgroup-based job accounting](cgroups.md).

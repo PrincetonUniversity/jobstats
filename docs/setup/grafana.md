@@ -1,6 +1,6 @@
 # Grafana
 
-The four exporters lead to a wealth of data in the Prometheus database. To visualize this data, the Grafana visualization toolkit is used. To setup Grafana follow the directions at <a href="https://grafana.com/grafana/" target="_blank">grafana.com</a>.
+The four exporters lead to a wealth of data in the Prometheus database. To visualize this data, the Grafana visualization toolkit is used. To set up Grafana follow the directions at <a href="https://grafana.com/grafana/" target="_blank">grafana.com</a>.
 
 The Grafana dashboard JSON file, which uses all of the exporters, is included in the `grafana` subdirectory in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/grafana" target="_blank">Jobstats GitHub repository</a>. The dashboard expects one parameter, `jobid`. As it may not be easy to find the time range of the job, we also use an OnDemand helper that generates the correct time range given a `jobid` (see the [next section](ood.md)).
 
@@ -38,4 +38,4 @@ The complete Grafana interface for the Jobstats platform is composed of plots of
 
 The following image illustrates what the dashboard looks like in use:
 
-<center><img src="https://tigress-web.princeton.edu/~jdh4/grafana_dashboard_single.jpg"></center>
+![Grafana dashboard](../grafana_dashboard_single.jpg)

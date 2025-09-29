@@ -10,6 +10,7 @@ The main advantages of Jobstats are:
 - utilization and memory usage for each allocated GPU
 - automatically cancel jobs with 0% GPU utilization ([more info](https://princetonuniversity.github.io/job_defense_shield/))
 - accurate CPU memory usage for jobs of any size
+- can be used for completed and actively running jobs
 - graphical interface for inspecting job metrics versus time
 - efficiency reports contain job-specific notes to guide users
 - automated emails to users for instances of underutilization ([more info](https://princetonuniversity.github.io/job_defense_shield/))
@@ -28,19 +29,25 @@ A compute node with two sockets is shown in the upper left. The dotted line arou
 
 Jobstats is used by these institutions:
 
+- American Museum of Natural History
 - Brown University - Center for Computation and Visualization
+- Clemson University - Research Computing and Data
+- Deakin University - Applied Artificial Intelligence Initiative
 - Free University of Berlin - High-Performance Computing
 - George Mason University - Office of Research Computing
+- Harvard University - Research Computing
 - Johns Hopkins University - Advanced Research Computing
+- Iowa State University - High Performance Computing
 - Monash University - e-Research
+- Northwestern University - Research Computing and Data Services
 - NAVER LABS Europe
+- Pacific Northwest National Laboratory
 - Princeton University - Computer Science Department
 - Princeton University - Research Computing
 - University of Queensland - Research Computing Centre
 - University of Virginia - Research Computing
 - Yale University - Center for Research Computing
-- and more
-
+- and many more
 
 ## What does a Jobstats efficiency report look like?
 
@@ -53,7 +60,7 @@ $ jobstats 39798795
                               Slurm Job Statistics
 ================================================================================
          Job ID: 39798795
-  NetID/Account: aturing/math
+   User/Account: aturing/math
        Job Name: sys_logic_ordinals
           State: COMPLETED
           Nodes: 2
@@ -105,8 +112,8 @@ $ jobstats 39798795
     make the resources available to other users. For more info:
       https://researchcomputing.princeton.edu/support/knowledge-base/memory
 
-  * For additional job metrics including metrics plotted against time:
-    https://mydella.princeton.edu/pun/sys/jobstats
+  * See the URL below for various job metrics plotted as a function of time:
+      https://mydella.princeton.edu/pun/sys/jobstats/39798795
 ```
 
 ## Which metrics does Jobstats make available?
@@ -136,17 +143,18 @@ Node-level metrics:
 
 The following image shows the Grafana dashboard for an example GPU job:
 
-<center><img src="https://tigress-web.princeton.edu/~jdh4/grafana_dashboard_single.jpg"></center>
+![Grafana dashboard](grafana_dashboard_single.jpg)
 
 ## Other job monitoring platforms
 
 Consider these alternatives to Jobstats:
 
+- [REMORA](https://docs.tacc.utexas.edu/software/remora/)
 - [XDMod (SUPReMM)](https://supremm.xdmod.org/7.0/supremm-architecture.html)
+- [HPCPerfStats](https://github.com/TACC/HPCPerfStats)
 - [LLload](https://dl.acm.org/doi/10.1145/3626203.3670565)
 - [jobperf](https://dl.acm.org/doi/10.1145/3626203.3670608)
-- [TACC Stats](https://tacc.utexas.edu/research/tacc-research/tacc-stats/)
-- [REMORA](https://docs.tacc.utexas.edu/software/remora/)
+- [Performance Co-Pilot](https://pcp.io)
 
 ## Want to use Jobstats at your institution?
 
