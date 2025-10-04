@@ -41,7 +41,8 @@ class Jobstats:
                  prom_server=None,
                  debug=False,
                  debug_syslog=False,
-                 force_recalc=False):
+                 force_recalc=False,
+                 json_or_base64=False):
         self.cluster = cluster
         self.prom_server = prom_server
         self.debug = debug
@@ -101,6 +102,8 @@ class Jobstats:
             # call prometheus to get detailed statistics (if long enough)
             if self.diff >= 2 * SAMPLING_PERIOD:
                 self.get_job_stats()
+        if len(self.sp_node) == 0 and json_or_base64:
+            return
         self.parse_stats()
 
     def nodes(self):

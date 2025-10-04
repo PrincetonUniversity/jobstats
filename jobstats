@@ -34,7 +34,8 @@ if __name__ == "__main__":
                          prom_server=PROM_SERVER,
                          debug=args.debug,
                          debug_syslog=args.syslog,
-                         force_recalc=args.force)
+                         force_recalc=args.force,
+                         json_or_base64 = args.json or args.base64)
         if args.json or args.base64:
             print(stats.report_job_json(args.base64))
         else:
