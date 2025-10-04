@@ -13,7 +13,7 @@ The script is available in the <a href="https://github.com/PrincetonUniversity/j
 
 The impact on the database size due to this depends on job sizes. For an institution with 100,000 CPU-cores, for small jobs the `AdminComment` field tends to average under 50 characters per entry with a maximum under 1500 while for large jobs the maximum length is around 5000.
 
-For processing old jobs where the `slurmctld` epilog script did not run or for jobs where it failed, there is a per cluster ingest Jobstats service. This is a Python-based script running on the `slurmdbd` host as a `systemd` timer and service, acting to query and modify the Slurm database directly. The script (`ingest_jobstats.py`) and `systemd` timer and service scripts are in the `slurm` directory of the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>.
+For processing old jobs where the `slurmctld` epilog script did not run or for jobs where it failed, there is a per cluster ingest Jobstats service. This is a combination of a Python-based script `jobs_with_no_data.py` that returns a list of recent jobs with an empty AdminComment and a bash script `ingest_jobstats` that uses that utility to process those jobs and set AdminComment. Since the `jobs_with_no_data.py` needs db access it is easiest to run this on the `slurmdbd` host, either as a cron or a `systemd` timer and service. These scripts (`ingest_jobstats` and 'jobs_with_no_data.py') and `systemd` timer and service units are in the `slurm` directory of the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>.
 
 Below is an example job summary for a GPU job:
 
