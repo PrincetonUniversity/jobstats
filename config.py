@@ -25,8 +25,12 @@ SAMPLING_PERIOD = 30
 # threshold values for red versus black text and notes
 GPU_UTIL_RED   = 15  # percentage
 GPU_UTIL_BLACK = 25  # percentage
+GPU_MEM_UTIL_RED = 0 # percentage
+GPU_MEM_UTIL_BLACK = 0 # percentage
 CPU_UTIL_RED   = 65  # percentage
 CPU_UTIL_BLACK = 80  # percentage
+CPU_MEM_UTIL_RED = 50 # percentage
+CPU_MEM_UTIL_BLACK = 80 # percentage
 TIME_EFFICIENCY_RED   = 10  # percentage
 TIME_EFFICIENCY_BLACK = 60  # percentage
 MIN_MEMORY_USAGE      = 70  # percentage
