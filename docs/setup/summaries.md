@@ -46,7 +46,10 @@ $ jobstats 12345678 -j
 The following pipeline shows how the summary statistics are recovered from an `AdminComment` entry in the database:
 
 ```
-$ sacct -j 823722 -n -o admincomment%250 | sed 's/JS1://' | tr -d ' ' | base64 -d | gzip -d | jq
+$ sacct -j 823722 -n -o admincomment%250 | sed 's/JS1://' | tr -d ' ' \
+  | base64 -d \
+  | gzip -d \
+  | jq
 {
   "nodes": {
     "della-l01g2": {
