@@ -79,3 +79,120 @@ $ wget https://raw.githubusercontent.com/jdh4/saccta/refs/heads/main/gpu_usage.p
 ```
 
 The script `gpu_usage.py` illustrates how to get the GPU utilization per job. The other functions in `efficiency.py` can be used to get the other metrics (e.g., `cpu_memory_usage`). See also the source code for [Job Defense Shield](https://github.com/PrincetonUniversity/job_defense_shield) where `efficiency.py` is used.
+
+## Analyzing the Prometheus Data
+
+The summary statistics capture a small fraction of the total data associated with each job. To work with several of the metrics, one must query the Prometheus server.
+
+Here is an example of getting the mean power usage per GPU for a job that used 4 GPUs:
+
+```
+$ export SLURM_TIME_FORMAT=%s
+$ sacct -j 1191148 -X -o start,end
+              Start                 End 
+------------------- ------------------- 
+         1759675685          1759679604
+```
+
+The run time of the job is `1759679604 - 1759675685 = 3919` seconds.
+
+The Python script below can be used to obtain the mean power per GPU:
+
+```python
+import json
+import requests
+
+params = {'query':'avg_over_time((nvidia_gpu_power_usage_milliwatts{cluster="della"} and nvidia_gpu_jobId == 1191148)[3919s:])',
+          'time':1759679604}
+response = requests.get('http://vigilant2:8480/api/v1/query', params)
+data = response.json()
+
+print(json.dumps(data, indent=2))
+```
+
+The output is:
+
+```
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {
+          "cluster": "della",
+          "instance": "della-l02g8:9445",
+          "job": "Della GPU Nodes",
+          "jobid": "1191148",
+          "minor_number": "1",
+          "name": "NVIDIA A100 80GB PCIe",
+          "ordinal": "1",
+          "service": "compute",
+          "userid": "331233",
+          "uuid": "GPU-e8ba89df-0d52-4693-7098-1b38647e1462"
+        },
+        "value": [
+          1759679595,
+          "136074.7816091954"
+        ]
+      },
+      {
+        "metric": {
+          "cluster": "della",
+          "instance": "della-l02g8:9445",
+          "job": "Della GPU Nodes",
+          "jobid": "1191148",
+          "minor_number": "3",
+          "name": "NVIDIA A100 80GB PCIe",
+          "ordinal": "3",
+          "service": "compute",
+          "userid": "331233",
+          "uuid": "GPU-cd73f312-e09f-6884-cf10-00982b08d58a"
+        },
+        "value": [
+          1759679595,
+          "126442.79310344828"
+        ]
+      },
+      {
+        "metric": {
+          "cluster": "della",
+          "instance": "della-l02g8:9445",
+          "job": "Della GPU Nodes",
+          "jobid": "1191148",
+          "minor_number": "0",
+          "name": "NVIDIA A100 80GB PCIe",
+          "ordinal": "0",
+          "service": "compute",
+          "userid": "331233",
+          "uuid": "GPU-207d45af-87b6-798b-b87c-ad7c9e7f6c35"
+        },
+        "value": [
+          1759679595,
+          "130576.59770114943"
+        ]
+      },
+      {
+        "metric": {
+          "cluster": "della",
+          "instance": "della-l02g8:9445",
+          "job": "Della GPU Nodes",
+          "jobid": "1191148",
+          "minor_number": "2",
+          "name": "NVIDIA A100 80GB PCIe",
+          "ordinal": "2",
+          "service": "compute",
+          "userid": "331233",
+          "uuid": "GPU-aa72d60c-a2bd-d330-9ad2-61d0b2750c0b"
+        },
+        "value": [
+          1759679595,
+          "127405.17624521072"
+        ]
+      }
+    ]
+  }
+}
+```
+
+There are four entries like `"value": [1759679595, "127405.17624521072"]` which give the power in milliWatts (e.g., 127405 mW or 127 W).
