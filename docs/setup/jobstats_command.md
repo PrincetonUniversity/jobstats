@@ -118,6 +118,18 @@ TIME_EFFICIENCY_BLACK = 60  # percentage
 For instance, if the overal GPU utilization is less than 15% then it will be displayed in bold red text. Search
 the conditions in the example notes in `config.py` to see how the other values are used.
 
+The following optional settings can be added:
+
+```
+# optional settings
+GPU_MEM_UTIL_RED = 25    # percentage
+GPU_MEM_UTIL_BLACK = 50  # percentage
+CPU_MEM_UTIL_RED = 50    # percentage
+CPU_MEM_UTIL_BLACK = 80  # percentage
+```
+
+The optional settings above are useful for institutions that calculate job priority based on the memory utilization of previous jobs.
+
 The following threshold can be used to trigger notes about excessive CPU memory usage:
 
 ```python

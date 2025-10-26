@@ -73,7 +73,7 @@ $ jobstats 39798795
     scheduler to work more effectively for all users. For more info:
       https://researchcomputing.princeton.edu/support/knowledge-base/slurm
 
-  * For additional job metrics including metrics plotted against time:
+  * See the URL below for various job metrics plotted as a function of time:
       https://mydella.princeton.edu/pun/sys/jobstats/39798795
 ```
 
