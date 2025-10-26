@@ -164,7 +164,9 @@ class BaseFormatter(ABC):
         clr1 = ""
         clr2 = ""
         if (efficiency < c.CPU_UTIL_RED and hardware == "cpu" and util and (not self.js.gpus)) or \
-           (efficiency < c.GPU_UTIL_RED and hardware == "gpu" and util):
+           (efficiency < c.CPU_MEM_UTIL_RED and hardware == "cpumem" and util) or \
+           (efficiency < c.GPU_UTIL_RED and hardware == "gpu" and util) or \
+           (efficiency < c.GPU_MEM_UTIL_RED and hardware == "gpumem" and util):
             clr1 = f"{self.txt_red}"
             clr2 = f"{self.txt_bold}{self.txt_red}"
         return f"{self.txt_bold}[{self.txt_normal}" + clr1 + bars * "|" + spaces * " " + clr2 + \
@@ -328,7 +330,7 @@ class ClassicOutput(BaseFormatter):
         if self.js.cpu_mem_error_code == 0:
             total_used, total, _ = self.js.cpu_mem_total__used_alloc_cores
             self.js.cpu_memory_efficiency = round(100 * total_used / total)
-            meter = self.draw_meter(self.js.cpu_memory_efficiency, "cpu")
+            meter = self.draw_meter(self.js.cpu_memory_efficiency, "cpumem",util=True)
             cpu_mem = f"  CPU memory usage {meter}\n"
         elif self.js.cpu_mem_error_code == 1:
             cpu_mem = "  CPU memory usage (JSON is malformed)\n"
@@ -372,7 +374,7 @@ class ClassicOutput(BaseFormatter):
         if self.js.gpu_mem_error_code == 0:
             overall, overall_total = self.js.gpu_mem_total__used_alloc
             gpu_memory_usage = round(100 * overall / overall_total)
-            meter = self.draw_meter(gpu_memory_usage, "gpu")
+            meter = self.draw_meter(gpu_memory_usage, "gpumem", util=True)
             gpu_mem = f"  GPU memory usage {meter}\n"
         elif self.js.gpu_mem_error_code == 1:
             gpu_mem = "  GPU memory usage (JSON is malformed)\n"
