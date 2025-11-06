@@ -1,19 +1,39 @@
-This is a helper app that looks up start and end times for a job and generates a
-Grafana URL with those times (and jobid), for easier job visualization.
+## OOD Jobstats Helper
+
+A helper OOD app that given jobid provides a link to Grafana dashboard with
+details for that job.
+
+It can be used interactively or it can be used to automatically redirect to
+the appropriate URL by appending /clustername/JOBID or in the case of just
+a single cluster on that OOD instance /JOBID.
+
+For example, if the URL for the app is
+
+https://ood.myinstitution.edu/pun/sys/jobstats
+
+you can use
+
+https://ood.myinstitution.edu/pun/sys/jobstats/myclustername/12345
+
+or in the case of a single cluster on this instance
+
+https://ood.myinstitution.edu/pun/sys/jobstats/12345
+
+## Prerequisites
+Grafana with a compatible dashboard and OnDemand configured to use that dashboard, e.g. check
+[OnDemand Grafana documentation](https://osc.github.io/ood-documentation/latest/customizations.html#grafana-support)
 
 ## Install
 
-For OnDemand 1.8 or later, the gemset provided with OnDemand is sufficient to run this app.
+For OnDemand 3.1 or later just drop in /var/www/ood/apps/sys and remove Gemfile and Gemfile.lock.
 
-For OnDemand 1.7 or earlier, first run these commands after loading the ondemand scl:
-
-    bin/bundle install --path vendor/bundle
-
+For older versions and/or versions running on RHEL7 you may have to generate gem bundle. E.g. for RHEL7:
+```
+scl enable rh-ruby30 bash
+cd /var/www/ood/apps/sys/ood-jobstats-helper
+rm -rf vendor/bundle Gemfile.lock
+gem install bundler -v 2.2.22
+scl enable rh-ruby30 -- bundle install
+```
 This will create a Gemfile.lock, a .bundle/config and vendor/bundle directory with dependencies.
 All three ensure that Passenger starts this app with the dependencies installed to vendor/bundle.
-
-## Configuration
-
-The app expects Open Ondemand to be configured with a grafana server and it will use that URL
-when generating the job stats URL. Panels from Jobstats grafana dashboard should/can be used
-in Ondemands job listing.

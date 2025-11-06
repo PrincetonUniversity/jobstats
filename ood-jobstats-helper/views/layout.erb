@@ -36,6 +36,7 @@
   color: rgba(255,255,255,0.75);
 }
 
+.thead-light { background: #e9ecef ;}
 </style>
 </head>
 <body>
@@ -106,8 +107,15 @@ $(document).ready(function() {
                 console.log(data.success);
                 
                 if(data){
-                    //$('#jobdetails').replaceWith(data); //put the data into #jobdetails element of the DOM
-                    $('#jobdetails').html(data); //put the data into #jobdetails element of the DOM
+                    if(data.includes("ERROR")) {
+                      $('#jobdetails').html(""); //put the data into #jobdetails element of the DOM
+                      $('#joberror').html(data);
+                      $('#joberror').show();
+                    } else {
+                      $('#jobdetails').html(data); //put the data into #jobdetails element of the DOM
+                      $('#joberror').html("");
+                      $('#joberror').hide();
+                    }
                 } else {
                     $('#jobdetails').html("ERROR");
                 }

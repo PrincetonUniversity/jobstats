@@ -1,0 +1,55 @@
+#!/bin/bash
+help() {
+	echo "${0} -c CLUSTER [-d days] [-n maxjobs] [-v]"
+	echo "Check for jobs with no AdminComment set and try to fix it."
+	echo "It requires -c cluster option and can also accept number of days to look back with -d option and be verbose."
+	echo "E.g. ${0} -c speedy -d 100"
+}
+CLUSTER=""
+DAYS=""
+VERBOSE=""
+MAXJOBS=""
+while getopts "c:d:n:hv" opt; do
+	case $opt in
+		c)
+			CLUSTER="$OPTARG"
+			;;
+		d)
+			DAYS="-d $OPTARG"
+			;;
+		n)
+			MAXJOBS="-n $OPTARG"
+			;;
+		v)
+			VERBOSE=true
+			;;
+		h)
+			help
+			exit 0
+			;;
+	esac
+done
+
+if [ -z "$CLUSTER" ]; then
+	echo "Please specify a cluster with -c option."
+	exit 1
+fi
+
+for i in $(/usr/local/sbin/jobs_with_no_data.py -c $CLUSTER $DAYS $MAXJOBS); do
+	STATS="`jobstats -f -b $i`"
+	ERR=$?
+	if [ $ERR = 0 ]; then
+		if [[ $STATS =~ ^(Short|None|H4s) ]]; then
+			OUT="`sacctmgr -i update job where jobid=$i set AdminComment=JS1:$STATS 2>&1`"
+			if [ $? != 0 ]; then
+				echo "Job ${i}: Errored out when storing AdminComment with $OUT" >&2
+			elif [ -n $VERBOSE ]; then
+				echo "Job ${i}: Successfully updated job with output ${STATS}"
+			fi
+		else
+			echo "Job ${i}: Apparent success but invalid output $STATS" >&2
+		fi
+	else
+		echo "Job ${i}: Failed to process with error $ERR and output $STATS" >&2
+	fi
+done

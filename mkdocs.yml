@@ -1,0 +1,68 @@
+site_name: "Jobstats"
+site_url: https://princetonuniversity.github.io/jobstats/
+repo_url: "https://github.com/PrincetonUniversity/jobstats"
+repo_name: PrincetonUniversity/jobstats
+nav:
+  - What is Jobstats?: index.md
+  - Setup:
+    - Overview:        setup/overview.md
+    - CPU Statistics:  setup/cgroups.md
+    - GPU Statistics:  setup/gpu_node_scripts.md
+    - Node Statistics: setup/node.md
+    - Job Summaries:   setup/summaries.md
+    - Prometheus:      setup/prometheus.md
+    - Grafana:         setup/grafana.md
+    - Open OnDemand:   setup/ood.md
+    - jobstats:        setup/jobstats_command.md
+    - Email Reports:   setup/smail.md
+    - External Database: setup/external-database.md
+  - Jobstats Tools:
+    - Overview:            tools/overview.md
+    - Job Defense Shield:  tools/job_defense_shield.md
+    - GPU Dashboard:       tools/gpudash.md
+    - reportseff:          tools/reportseff.md
+    - Utilization Reports: tools/utilization_reports.md
+  - Contributions: contributions.md
+  - Support: support.md
+  - Publications: publications.md
+theme:
+  name: material
+  features:
+    - navigation.footer
+  palette:
+    # light mode
+    - scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Light mode
+      primary: orange
+      accent: blue
+    # dark mode
+    - scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Dark mode
+      primary: orange
+      accent: deep purple
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  # content tabs
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/PrincetonUniversity/jobstats
+  generator: false
+
+copyright: "&copy;2024 Princeton University. All rights reserved."

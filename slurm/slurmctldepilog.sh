@@ -15,9 +15,24 @@ ERR=$?
 if [ $ERR = 0 ]; then
 	if [[ $STATS =~ ^(Short|None|H4s) ]]; then
 		logger "SlurmctldEpilog[$INTERNAL_JOBID]: Success with output $STATS"
-		OUT="`sacctmgr -i update job where jobid=$INTERNAL_JOBID set AdminComment=JS1:$STATS 2>&1`"
-		if [ $? != 0 ]; then
-			logger "SlurmctldEpilog[$INTERNAL_JOBID]: Errored out when storing AdminComment with $OUT"
+
+		# Check if external database storage is configured
+		if [ -f "/usr/local/bin/store_jobstats.py" ]; then
+			# Use external database storage only
+			OUT="`/usr/local/bin/store_jobstats.py --cluster=${SLURM_CLUSTER_NAME:-unknown} --jobid=$INTERNAL_JOBID --stats="JS1:$STATS" 2>&1`"
+			if [ $? != 0 ]; then
+				logger "SlurmctldEpilog[$INTERNAL_JOBID]: External storage failed with $OUT"
+			else
+				logger "SlurmctldEpilog[$INTERNAL_JOBID]: Successfully stored with external database"
+			fi
+		else
+			# No external storage configured, use AdminComment in slurm db
+			OUT="`sacctmgr -i update job where jobid=$INTERNAL_JOBID set AdminComment=JS1:$STATS 2>&1`"
+			if [ $? != 0 ]; then
+				logger "SlurmctldEpilog[$INTERNAL_JOBID]: Errored out when storing AdminComment with $OUT"
+			else
+				logger "SlurmctldEpilog[$INTERNAL_JOBID]: Successfully stored in AdminComment"
+			fi
 		fi
 	else
 		logger "SlurmctldEpilog[$INTERNAL_JOBID]: Apparent success but invalid output $STATS"
