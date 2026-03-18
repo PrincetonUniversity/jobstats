@@ -54,4 +54,4 @@ The `tigernode.json` file looks like:
  ]
 ```
 
-Both `node_exporter` (port 9100) and `cgroup_exporter` (port 9306) are listed for all of the nodes in `tigernode.json`. The file `tigergpus.json` looks very similar except that it collects data from `nvidia_gpu_prometheus_exporter` on port 9445. Note the additional `cluster` label.
+Both `node_exporter` (port 9100) and `cgroup_exporter` (port 9306) are listed for all of the nodes in `tigernode.json`. The file `tigergpus.json` looks very similar except that it collects data from `nvidia_gpu_prometheus_exporter` on port 9445. Note the additional `cluster` label, it should match the `ClusterName` from the Slurm config.
