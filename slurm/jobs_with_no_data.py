@@ -7,6 +7,13 @@ import sys
 import MySQLdb
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config as c
+
+# Only import db_handler if external db is enabled
+if c.EXTERNAL_DB_CONFIG.get("enabled", False):
+    from db_handler import JobstatsDBHandler
+
 DB='slurm_acct_db'
 DEVNULL = open(os.devnull, 'w')
 
@@ -27,22 +34,40 @@ def get_jobs_to_process(conn, cluster, num, days):
         time_end = 0
     else:
         time_end = int(time.time() - 24*days*60*60)
-    running_jobs = get_current_jobs(cluster)
+    running_jobs = set(get_current_jobs(cluster))
+    
+    external_db_enabled = c.EXTERNAL_DB_CONFIG.get("enabled", False)
+    existing_jobs = set()
+    
+    if external_db_enabled:
+        db_handler = JobstatsDBHandler()
+        ext_conn = db_handler.get_external_connection()
+        ext_cur = ext_conn.cursor()
+        ext_cur.execute(f"SELECT jobid FROM {c.EXTERNAL_DB_TABLE} WHERE cluster = %s", (cluster,))
+        existing_jobs = set([str(row[0]) for row in ext_cur.fetchall()])
+        
     cur = conn.cursor()
     cur.execute(f"select id_job,id_array_job,id_array_task from {cluster}_job_table where admin_comment IS NULL and time_start > 0 and time_end > {time_end} ORDER BY id_job DESC LIMIT {num}")
+
     jobs = []
     for id_job,id_array_job,id_array_task in cur.fetchall():
-        if id_job in running_jobs:
+        if str(id_job) in running_jobs:
             continue
         # An array job looks like id_job=2666514, id_array_job=2666501, id_array_task=9
         # Non array job looke like id_job=2666518, id_array_job=0, id_array_task=4294967294
         if id_array_job != 0:
             if id_array_task == 4294967294:
                 warn(f"Ignoring array job {id_job}, array job id {id_array_job} with array task = {id_array_task}")
-            else:
-                jobs.append(f"{id_array_job}_{id_array_task}")
+                continue
+            job_id_str = f"{id_array_job}_{id_array_task}"
         else:
-            jobs.append(id_job)
+            job_id_str = str(id_job)
+
+        if external_db_enabled and job_id_str in existing_jobs:
+            continue
+
+        jobs.append(job_id_str)
+            
     return jobs
 
 def run_processing(cluster, num, days):
