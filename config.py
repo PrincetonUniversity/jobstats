@@ -8,7 +8,6 @@ PROM_RETENTION_DAYS = 365
 
 # if using Slurm database then include the lines below with "enabled": False
 # if using MariaDB then set "enabled": True and uncomment "config_file"
-EXTERNAL_DB_TABLE = "job_statistics"
 EXTERNAL_DB_CONFIG = {
     "enabled": False,  # set to True to use the external db for storing stats
     "host": "127.0.0.1",
