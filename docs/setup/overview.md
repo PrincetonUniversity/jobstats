@@ -2,7 +2,7 @@
 
 Below is an outline of the setup of the Jobstats platform for a Slurm cluster:
 
-1. Switch to cgroup-based job accounting from Linux process accounting 
+1. Switch to cgroup-based job accounting from Linux process accounting and make sure AccountingStorageTRES in slurm.conf includes gres/gpu option
 2. Setup the exporters: cgroup, node, GPU (on the nodes) and, optionally, GPFS (centrally)
 3. Setup the `prolog.d` and `epilog.d` scripts on the GPU nodes
 4. Setup the Prometheus server and configure it to scrape the data from the compute nodes
