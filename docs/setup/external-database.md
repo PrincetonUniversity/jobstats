@@ -158,6 +158,14 @@ When using the `jobstats` command:
 - the Slurm `AdminComment` field is checked for compatibility with existing data
 - if no data found and external DB is enabled then retrieve from external database
 
+### Catching Up Missing Data
+
+If you need to catch up on storing statistics for past jobs or if the epilog fails, you can run the `ingest_jobstats` script.
+
+When an external database is enabled:
+- `jobs_with_no_data.py` will query your external database to determine which jobs still need data, rather than checking the Slurm database's `AdminComment`.
+- `ingest_jobstats` will automatically use `store_jobstats.py` if it exists in `/usr/local/bin/` to write the missing data to the external database.
+
 ## Migration
 
 From Slurm `AdminComment` to External DB:
