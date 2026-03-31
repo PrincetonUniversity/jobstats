@@ -102,6 +102,7 @@ Begin with [What is Jobstats?](https://princetonuniversity.github.io/jobstats/) 
 - Johns Hopkins University - Advanced Research Computing
 - Iowa State University - High Performance Computing
 - Monash University - e-Research
+- Massachusetts Institute of Technology - Research Computing
 - Northwestern University - Research Computing and Data Services
 - NAVER LABS Europe
 - Pacific Northwest National Laboratory
