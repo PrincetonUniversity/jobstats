@@ -38,6 +38,7 @@ Jobstats is used by these institutions:
 - Harvard University - Research Computing
 - Johns Hopkins University - Advanced Research Computing
 - Iowa State University - High Performance Computing
+- Massachusetts Institute of Technology - Research Computing
 - Monash University - e-Research
 - Northwestern University - Research Computing and Data Services
 - NAVER LABS Europe
