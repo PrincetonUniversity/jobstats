@@ -1,6 +1,6 @@
 # External Database Configuration
 
-This section describes how to configure Jobstats to use an external MariaDB/MySQL database instead of storing job summary statistics in the `AdminComment field of the Slurm database.
+This section describes how to configure Jobstats to use an external MariaDB/MySQL database instead of storing job summary statistics in the `AdminComment` field of the Slurm database.
 
 ## Overview
 
