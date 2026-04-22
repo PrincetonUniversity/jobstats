@@ -25,7 +25,7 @@ USE jobstats;
 CREATE TABLE job_summary (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cluster VARCHAR(40) NOT NULL,
-    jobid BIGINT NOT NULL,
+    jobid VARCHAR(50) NOT NULL,
     admin_comment LONGTEXT,
     total_time DOUBLE DEFAULT NULL,
     gpus INT DEFAULT NULL,

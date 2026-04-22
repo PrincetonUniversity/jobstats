@@ -28,7 +28,7 @@ The necessary software can be installed as follows:
     (.venv) $ pip3 install requests blessed
     ``` 
 
-The four files needed to run the `jobstats` command are available in the <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank">Jobstats GitHub repository</a>.
+The files needed to run the `jobstats` command are available in the <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank">Jobstats GitHub repository</a>.
 
 First, store the files in a path such as:
 
@@ -38,6 +38,8 @@ config.py
 jobstats
 jobstats.py
 output_formatters.py
+db_handler.py
+store_jobstats.py
 ```
 
 Then create a symlink in `/usr/local/bin` pointing to the executable:
@@ -78,7 +80,6 @@ Job summary statistics can be stored in the Slurm database or one can use an ext
 ```python
 # if using Slurm database then include the lines below with "enabled": False
 # if using MariaDB then set "enabled": True
-EXTERNAL_DB_TABLE = "job_statistics"
 EXTERNAL_DB_CONFIG = {
     "enabled": False,  # set to True to use the external db for storing stats
     "host": "127.0.0.1",
@@ -90,7 +91,17 @@ EXTERNAL_DB_CONFIG = {
 }
 ```
 
-If you wish to use MariaDB then see [External Database](external-database.md).
+If you wish to use MariaDB then see [External Database](external-database.md). That page is the authoritative setup guide for schema creation, `store_jobstats.py` installation, and external DB behavior.
+
+If you use external MariaDB storage then also install `store_jobstats.py` in `/usr/local/bin`:
+
+```bash
+$ ln -s /usr/local/jobstats/store_jobstats.py /usr/local/bin/store_jobstats.py
+```
+
+When external DB is enabled, `store_jobstats.py` writes only to the external database. It does not fall back to writing `AdminComment` in the Slurm database.
+
+For complete external database deployment instructions, continue with [External Database](external-database.md).
 
 The number of seconds between measurements by the exporters on the compute nodes:
 
