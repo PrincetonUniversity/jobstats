@@ -28,7 +28,7 @@ The necessary software can be installed as follows:
     (.venv) $ pip3 install requests blessed
     ``` 
 
-The files needed to run the `jobstats` command are available in the <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank">Jobstats GitHub repository</a>.
+The core files needed to run the `jobstats` command are available in the <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank">Jobstats GitHub repository</a>.
 
 First, store the files in a path such as:
 
@@ -38,6 +38,11 @@ config.py
 jobstats
 jobstats.py
 output_formatters.py
+```
+
+If you are using external MariaDB storage, also install:
+
+```
 db_handler.py
 store_jobstats.py
 ```
