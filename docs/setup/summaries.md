@@ -15,6 +15,8 @@ The impact on the database size due to this depends on job sizes. For an institu
 
 For processing old jobs where the `slurmctld` epilog script did not run or for jobs where it failed, there is a per cluster ingest Jobstats service. This is a combination of a Python-based script `jobs_with_no_data.py` that returns a list of recent jobs with an empty AdminComment and a bash script `ingest_jobstats` that uses that utility to process those jobs and set AdminComment. Since the `jobs_with_no_data.py` needs db access it is easiest to run this on the `slurmdbd` host, either as a cron or a `systemd` timer and service. These scripts (`ingest_jobstats` and 'jobs_with_no_data.py') and `systemd` timer and service units are in the `slurm` directory of the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>.
 
+When external MariaDB storage is enabled, `ingest_jobstats` skips `AdminComment` backfill instead of writing into the Slurm database. This preserves the external-only storage behavior used by `store_jobstats.py`. Backfilling missed historical jobs into the external database is not currently supported by `ingest_jobstats`.
+
 Below is an example job summary for a GPU job:
 
 ```
