@@ -79,6 +79,7 @@ $ jobstats 39798795
 
 ### News and Updates
 
+- 23 Apr 2026: Presentation on Jobstats at NCAR ([see slides](https://researchcomputing.princeton.edu/document/6811))
 - 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below)
 - 28 Sep 2025: Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?SUBED1=JOBSTATS&A=1)
 - 27 Aug 2025: Job summary statistics can now be stored in a MariaDB database instead of Slurm DB (contribution by [Anish Chanda](https://github.com/Anish-Chanda) of Iowa State Univ.)
