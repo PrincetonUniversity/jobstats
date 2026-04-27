@@ -19,7 +19,7 @@ if [ $ERR = 0 ]; then
 		# Check if external database storage is configured
 		if [ -f "/usr/local/bin/store_jobstats.py" ]; then
 			# Use external database storage only
-			OUT="`/usr/local/bin/store_jobstats.py --cluster=${SLURM_CLUSTER_NAME:-unknown} --jobid=$INTERNAL_JOBID --stats="JS1:$STATS" 2>&1`"
+			OUT="`/usr/local/bin/store_jobstats.py --cluster=${SLURM_CLUSTER_NAME:-unknown} --jobid=$SLURM_JOB_ID --stats="JS1:$STATS" 2>&1`"
 			if [ $? != 0 ]; then
 				logger "SlurmctldEpilog[$INTERNAL_JOBID]: External storage failed with $OUT"
 			else

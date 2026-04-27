@@ -25,7 +25,7 @@ USE jobstats;
 CREATE TABLE job_summary (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cluster VARCHAR(40) NOT NULL,
-    jobid BIGINT NOT NULL,
+    jobid VARCHAR(50) NOT NULL,
     admin_comment LONGTEXT,
     total_time DOUBLE DEFAULT NULL,
     gpus INT DEFAULT NULL,
@@ -166,6 +166,10 @@ From Slurm `AdminComment` to External DB:
 2. Install the `store_jobstats.py` script
 3. Future jobs will automatically use the external database
 
+## Current Limitation
+
+When external database storage is enabled, `ingest_jobstats` does not backfill missed historical jobs into the external database. It exits without writing `AdminComment` in the Slurm database so that external-only storage remains consistent. At present, only the `slurmctld` epilog path writes new completions into the external database.
+
 ## Structured Schema Benefits
 
 The new schema splits job statistics into explicit columns and related tables, enabling:
@@ -224,4 +228,3 @@ CREATE TABLE job_statistics (
 ```
 
 This schema stored all job metrics in a compressed blob in the `admin_comment` field. The new structured schema decodes and stores metrics in explicit columns for easier querying. The `admin_comment` field is retained in `job_summary` for backward compatibility.
-

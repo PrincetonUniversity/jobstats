@@ -1,7 +1,20 @@
 #!/bin/bash
+
+external_db_enabled() {
+	local store_script jobstats_dir
+
+	store_script=$(readlink -f /usr/local/bin/store_jobstats.py 2>/dev/null) || return 1
+	jobstats_dir=$(dirname "$store_script")
+
+	JOBSTATS_DIR="$jobstats_dir" \
+		python3 -I -c 'import os, sys; sys.path.insert(0, os.environ["JOBSTATS_DIR"]); from config import EXTERNAL_DB_CONFIG; sys.exit(0 if EXTERNAL_DB_CONFIG.get("enabled", False) else 1)' \
+		>/dev/null 2>&1
+}
+
 help() {
 	echo "${0} -c CLUSTER [-d days] [-n maxjobs] [-v]"
 	echo "Check for jobs with no AdminComment set and try to fix it."
+	echo "When external DB storage is enabled, AdminComment backfill is skipped."
 	echo "It requires -c cluster option and can also accept number of days to look back with -d option and be verbose."
 	echo "E.g. ${0} -c speedy -d 100"
 }
@@ -33,6 +46,11 @@ done
 if [ -z "$CLUSTER" ]; then
 	echo "Please specify a cluster with -c option."
 	exit 1
+fi
+
+if external_db_enabled; then
+	echo "External database is enabled; skipping AdminComment backfill for cluster ${CLUSTER}."
+	exit 0
 fi
 
 for i in $(/usr/local/sbin/jobs_with_no_data.py -c $CLUSTER $DAYS $MAXJOBS); do
