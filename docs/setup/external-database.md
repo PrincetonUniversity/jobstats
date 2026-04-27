@@ -166,9 +166,9 @@ From Slurm `AdminComment` to External DB:
 2. Install the `store_jobstats.py` script
 3. Future jobs will automatically use the external database
 
-## Current Limitation
+## Ingest and Backfill
 
-When external database storage is enabled, `ingest_jobstats` does not backfill missed historical jobs into the external database. It exits without writing `AdminComment` in the Slurm database so that external-only storage remains consistent. At present, only the `slurmctld` epilog path writes new completions into the external database.
+When external database storage is enabled, `ingest_jobstats` backfills missing rows into the external database instead of writing `AdminComment` in the Slurm database. It does this by comparing completed jobs from Slurm accounting with the rows already present in `job_summary`, then processing only the jobs that are missing from the external database.
 
 ## Structured Schema Benefits
 

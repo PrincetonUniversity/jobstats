@@ -1,20 +1,25 @@
 #!/bin/bash
 
+jobstats_dir() {
+	if [ -n "$JOBSTATS_DIR" ]; then
+		echo "$JOBSTATS_DIR"
+	else
+		echo "/usr/local/jobstats"
+	fi
+}
+
 external_db_enabled() {
-	local store_script jobstats_dir
+	local runtime_dir
+	runtime_dir=$(jobstats_dir)
 
-	store_script=$(readlink -f /usr/local/bin/store_jobstats.py 2>/dev/null) || return 1
-	jobstats_dir=$(dirname "$store_script")
-
-	JOBSTATS_DIR="$jobstats_dir" \
+	JOBSTATS_DIR="$runtime_dir" \
 		python3 -I -c 'import os, sys; sys.path.insert(0, os.environ["JOBSTATS_DIR"]); from config import EXTERNAL_DB_CONFIG; sys.exit(0 if EXTERNAL_DB_CONFIG.get("enabled", False) else 1)' \
 		>/dev/null 2>&1
 }
 
 help() {
 	echo "${0} -c CLUSTER [-d days] [-n maxjobs] [-v]"
-	echo "Check for jobs with no AdminComment set and try to fix it."
-	echo "When external DB storage is enabled, AdminComment backfill is skipped."
+	echo "Check for jobs with missing stored Jobstats data and try to fix it."
 	echo "It requires -c cluster option and can also accept number of days to look back with -d option and be verbose."
 	echo "E.g. ${0} -c speedy -d 100"
 }
@@ -48,21 +53,34 @@ if [ -z "$CLUSTER" ]; then
 	exit 1
 fi
 
+USE_EXTERNAL=false
 if external_db_enabled; then
-	echo "External database is enabled; skipping AdminComment backfill for cluster ${CLUSTER}."
-	exit 0
+	USE_EXTERNAL=true
+	if [ ! -x "/usr/local/bin/store_jobstats.py" ]; then
+		echo "External database is enabled but /usr/local/bin/store_jobstats.py is not installed." >&2
+		exit 1
+	fi
 fi
 
 for i in $(/usr/local/sbin/jobs_with_no_data.py -c $CLUSTER $DAYS $MAXJOBS); do
-	STATS="`jobstats -f -b $i`"
+	STATS="`jobstats -f -b -c $CLUSTER $i`"
 	ERR=$?
 	if [ $ERR = 0 ]; then
 		if [[ $STATS =~ ^(Short|None|H4s) ]]; then
-			OUT="`sacctmgr -i update job where jobid=$i set AdminComment=JS1:$STATS 2>&1`"
-			if [ $? != 0 ]; then
-				echo "Job ${i}: Errored out when storing AdminComment with $OUT" >&2
-			elif [ -n $VERBOSE ]; then
-				echo "Job ${i}: Successfully updated job with output ${STATS}"
+			if [ "$USE_EXTERNAL" = true ]; then
+				OUT="`/usr/local/bin/store_jobstats.py --cluster=$CLUSTER --jobid=$i --stats="JS1:$STATS" 2>&1`"
+				if [ $? != 0 ]; then
+					echo "Job ${i}: Errored out when storing external database row with $OUT" >&2
+				elif [ -n "$VERBOSE" ]; then
+					echo "Job ${i}: Successfully stored in external database with output ${STATS}"
+				fi
+			else
+				OUT="`sacctmgr -i update job where jobid=$i set AdminComment=JS1:$STATS 2>&1`"
+				if [ $? != 0 ]; then
+					echo "Job ${i}: Errored out when storing AdminComment with $OUT" >&2
+				elif [ -n "$VERBOSE" ]; then
+					echo "Job ${i}: Successfully updated job with output ${STATS}"
+				fi
 			fi
 		else
 			echo "Job ${i}: Apparent success but invalid output $STATS" >&2
