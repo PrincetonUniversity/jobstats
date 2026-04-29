@@ -139,6 +139,8 @@ class BaseFormatter(ABC):
     def time_limit_formatted(self) -> str:
         self.js.time_eff_violation = False
         clr = self.txt_normal
+        if self.js.timelimitraw == "UNLIMITED":
+            return f"     Time Limit: {clr}UNLIMITED{self.txt_normal}"
         if self.js.state == "COMPLETED" and self.js.timelimitraw > 0:
             self.js.time_efficiency = round(100 * self.js.diff / (SECONDS_PER_MINUTE * self.js.timelimitraw))
             if self.js.time_efficiency > 100:
