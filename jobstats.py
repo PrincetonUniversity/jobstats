@@ -253,7 +253,7 @@ class Jobstats:
 
         # currently running jobs will have Unknown as time
         if self.end == 'Unknown':
-            self.end = time.time()
+            self.end = int(time.time())
         else:
             if self.end.isnumeric():
                 self.end = int(self.end)
