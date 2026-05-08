@@ -390,9 +390,9 @@ class Jobstats:
                     self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
             if not args or "gpu_utilization" in args:
                 if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_utilization', "avg_over_time(nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
+                    self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}',jobid='{jobid}'}} * 100))[{diff}s:])")
                 else:
-                    self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
+                    self.get_data('gpu_utilization', "avg_over_time(((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}'}} * 100)) and nvidia_gpu_jobId == {jobid})[{diff}s:])")
 
     def parse_stats(self):
         sp_node = self.sp_node
