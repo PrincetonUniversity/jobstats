@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 import subprocess
 import sys
 import time
@@ -239,10 +240,10 @@ class Jobstats:
                 self.error(msg)
 
         self.gpus = 0
-        if self.tres is not None and 'gres/gpu=' in self.tres and 'gres/gpu=0,' not in self.tres:
-            for part in self.tres.split(","):
-                if "gres/gpu=" in part:
-                    self.gpus = int(part.split("=")[-1])
+        if self.tres is not None:
+            # Match both untyped (gres/gpu=N) and typed (gres/gpu:TYPE=N) GPU allocations
+            gpu_matches = re.findall(r'gres/gpu(?::[^=,]+)?=(\d+)', self.tres)
+            self.gpus = sum(int(n) for n in gpu_matches)
  
         if self.timelimitraw.isnumeric():
             self.timelimitraw = int(self.timelimitraw)
