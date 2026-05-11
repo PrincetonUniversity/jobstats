@@ -115,11 +115,15 @@ password = your_password
 
 ### 4. Script Installation
 
-Copy the `store_jobstats.py` script to `/usr/local/bin/` on your Slurm controller:
+The `store_jobstats.py` script must be installed alongside the other Jobstats
+modules (`db_handler.py`, `config.py`) so that it can import them. Install it
+into the same directory and create a symlink in `/usr/local/bin/` so it is
+available on the `PATH`:
 
 ```bash
-sudo cp store_jobstats.py /usr/local/bin/
-sudo chmod +x /usr/local/bin/store_jobstats.py
+sudo cp store_jobstats.py /usr/local/jobstats/
+sudo chmod +x /usr/local/jobstats/store_jobstats.py
+sudo ln -s /usr/local/jobstats/store_jobstats.py /usr/local/bin/store_jobstats.py
 ```
 
 ### 5. Slurm Configuration
