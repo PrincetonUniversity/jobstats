@@ -136,6 +136,39 @@ Update your `slurmctldepilog.sh` script. The script will automatically detect th
 
 - **External DB enabled**: Job statistics are stored only in the external database
 - **External DB disabled**: Job statistics are stored in `AdminComment` in Slurm DB (default behavior)
+- **External DB enabled with `mirror_to_admin_comment: True`**: Job statistics are stored in the external database AND mirrored to `AdminComment` (see below)
+
+#### Mirroring to AdminComment for sacct-based tools
+
+Some tools, most notably [`reportseff`](https://github.com/troycomi/reportseff),
+read multi-node and GPU efficiency information directly from the Slurm
+`AdminComment` field as it is populated by Jobstats. When the external database
+is enabled, `AdminComment` is left empty by default and these tools cannot
+display GPU/multi-node statistics.
+
+To keep these tools working, set `mirror_to_admin_comment` in `EXTERNAL_DB_CONFIG`:
+
+```python
+EXTERNAL_DB_CONFIG = {
+    "enabled": True,
+    "database": "jobstats",
+    "config_file": "/etc/jobstats/mysql.cnf",
+    "mirror_to_admin_comment": True,
+}
+```
+
+When this flag is true, `store_jobstats.py` will, after a successful write to
+the external database, also invoke
+`sacctmgr -i update job where jobid=<jobid> set AdminComment=<stats>` to
+mirror the same payload to `AdminComment`. The mirroring step is best-effort:
+failures are logged to stderr but do not fail the script since the external
+DB write has already succeeded.
+
+| `enabled` | `mirror_to_admin_comment` | External DB | AdminComment |
+|---|---|---|---|
+| `False` | (any)   | not written | written by epilog (default behavior) |
+| `True`  | `False` | written     | not written (current behavior, unchanged) |
+| `True`  | `True`  | written     | written (mirrored, for `sacct`-based tools) |
 
 ### Epilog Script Logic
 
