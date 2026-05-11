@@ -7,8 +7,9 @@ try:
 except ImportError:
     MySQLdb = None
 
-# Add the parent directory to Python path to import jobstats modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# realpath resolve the script's real location when invoked through a symlink
+# (e.g. /usr/local/bin/store_jobstats.py -> /usr/local/jobstats/store_jobstats.py).
+sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 from db_handler import JobstatsDBHandler
 from config import EXTERNAL_DB_CONFIG
