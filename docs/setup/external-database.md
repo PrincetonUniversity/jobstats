@@ -21,11 +21,11 @@ CREATE DATABASE jobstats;
 USE jobstats;
 
 -- Main job summary table
--- Note: cluster VARCHAR(40) respects Slurm's 40-character cluster name limit
+-- jobid stores the raw numeric Slurm job ID (JobIDRaw / SLURM_JOB_ID)
 CREATE TABLE job_summary (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     cluster VARCHAR(40) NOT NULL,
-    jobid VARCHAR(50) NOT NULL,
+    jobid BIGINT NOT NULL,
     admin_comment LONGTEXT,
     total_time DOUBLE DEFAULT NULL,
     gpus INT DEFAULT NULL,
@@ -170,6 +170,25 @@ From Slurm `AdminComment` to External DB:
 2. Install the `store_jobstats.py` script
 3. Future jobs will automatically use the external database
 
+From earlier structured external DB installs using `VARCHAR(50)` for `job_summary.jobid`:
+
+1. Confirm all stored job IDs are raw numeric Slurm IDs:
+
+```sql
+SELECT cluster, jobid
+FROM job_summary
+WHERE jobid REGEXP '[^0-9]';
+```
+
+2. If the query returns no rows, migrate the column to `BIGINT`:
+
+```sql
+ALTER TABLE job_summary
+MODIFY jobid BIGINT NOT NULL;
+```
+
+3. If the query returns rows, clean those rows first before applying the schema change.
+
 ## Ingest and Backfill
 
 When external database storage is enabled, `ingest_jobstats` backfills missing rows into the external database instead of writing `AdminComment` in the Slurm database. It does this by comparing completed jobs from Slurm accounting with the rows already present in `job_summary`, then processing only the jobs that are missing from the external database.
@@ -230,5 +249,7 @@ CREATE TABLE job_statistics (
     UNIQUE KEY unique_cluster_job (cluster, jobid)
 );
 ```
+
+This legacy schema used `VARCHAR(50)` for `jobid` because older versions could store non-raw identifiers such as array-style job IDs. The current structured schema uses `BIGINT` because it stores raw numeric Slurm job IDs.
 
 This schema stored all job metrics in a compressed blob in the `admin_comment` field. The new structured schema decodes and stores metrics in explicit columns for easier querying. The `admin_comment` field is retained in `job_summary` for backward compatibility.
