@@ -14,10 +14,26 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))
 from db_handler import JobstatsDBHandler
 from config import EXTERNAL_DB_CONFIG
 
+
+def parse_jobid(value):
+    """Parse a raw numeric Slurm job ID for external DB storage."""
+    jobid = value.strip()
+    if not jobid or not jobid.isdigit():
+        raise argparse.ArgumentTypeError(
+            f"Job ID must be a raw numeric Slurm job ID, got {value!r}"
+        )
+    return int(jobid)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Store jobstats to external and/or Slurm database")
     parser.add_argument("--cluster", required=True, help="Cluster name")
-    parser.add_argument("--jobid", required=True, help="Job ID")
+    parser.add_argument(
+        "--jobid",
+        required=True,
+        type=parse_jobid,
+        help="Raw Slurm job ID",
+    )
     parser.add_argument("--stats", required=True, help="Job statistics")
     
     args = parser.parse_args()

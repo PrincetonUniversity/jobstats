@@ -17,6 +17,16 @@ class JobstatsDBHandler:
     def __init__(self):
         self.external_db_enabled = EXTERNAL_DB_CONFIG.get("enabled", False)
         self.external_conn = None
+
+    def _normalize_external_jobid(self, jobid):
+        """Return a raw Slurm job ID as an integer for external DB queries."""
+        jobid_str = str(jobid).strip()
+        if not jobid_str or not jobid_str.isdigit():
+            raise ValueError(
+                "External database job IDs must be raw numeric Slurm job IDs, "
+                f"got {jobid!r}"
+            )
+        return int(jobid_str)
         
     def get_external_connection(self):
         """Get connection to external MariaDB database"""
@@ -49,6 +59,7 @@ class JobstatsDBHandler:
             return None
             
         try:
+            normalized_jobid = self._normalize_external_jobid(jobid)
             conn = self.get_external_connection()
             cur = conn.cursor()
             
@@ -60,7 +71,7 @@ class JobstatsDBHandler:
             LIMIT 1
             """
             
-            cur.execute(query, (cluster, jobid))
+            cur.execute(query, (cluster, normalized_jobid))
             result = cur.fetchone()
             
             if result:
@@ -119,6 +130,7 @@ class JobstatsDBHandler:
     
     def _save_to_external_db(self, cluster, jobid, stats):
         """Save to external MariaDB database with structured tables"""
+        normalized_jobid = self._normalize_external_jobid(jobid)
         conn = self.get_external_connection()
         
         try:
@@ -146,13 +158,16 @@ class JobstatsDBHandler:
             gpus = VALUES(gpus),
             updated_at = NOW()
             """
-            cur.execute(summary_query, (cluster, jobid, stats, total_time, gpus))
+            cur.execute(summary_query, (cluster, normalized_jobid, stats, total_time, gpus))
             
             # Get the job_summary_id
             summary_id = cur.lastrowid
             if summary_id == 0:
                 # Row was updated, not inserted; fetch the ID
-                cur.execute(f"SELECT id FROM {EXTERNAL_DB_SUMMARY_TABLE} WHERE cluster = %s AND jobid = %s", (cluster, jobid))
+                cur.execute(
+                    f"SELECT id FROM {EXTERNAL_DB_SUMMARY_TABLE} WHERE cluster = %s AND jobid = %s",
+                    (cluster, normalized_jobid),
+                )
                 result = cur.fetchone()
                 if result:
                     summary_id = result[0]
