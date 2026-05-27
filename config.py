@@ -6,6 +6,10 @@
 PROM_SERVER = "http://cluster-stats:8480"
 PROM_RETENTION_DAYS = 365
 
+# Set to true if GPU stats have jobid label as opposed to using nvidia_gpu_jobId
+# this is available as of version 0.2.2 Sept 2025 in https://github.com/plazonic/nvidia_gpu_prometheus_exporter/
+GPU_EXPORTER_JOBID = True
+
 # if using Slurm database then include the lines below with "enabled": False
 # if using MariaDB then set "enabled": True and uncomment "config_file"
 EXTERNAL_DB_CONFIG = {
