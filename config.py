@@ -12,6 +12,10 @@ GPU_EXPORTER_JOBID = True
 
 # if using Slurm database then include the lines below with "enabled": False
 # if using MariaDB then set "enabled": True and uncomment "config_file"
+# Set "mirror_to_admin_comment": True to additionally write the JS1: payload
+# to the Slurm AdminComment field (sacctmgr). This preserves compatibility
+# with sacct-based tools such as reportseff which read GPU/multi-node
+# efficiency from AdminComment.
 EXTERNAL_DB_CONFIG = {
     "enabled": False,  # set to True to use the external db for storing stats
     "host": "127.0.0.1",
@@ -19,7 +23,8 @@ EXTERNAL_DB_CONFIG = {
     "database": "jobstats",
     "user": "jobstats",
     "password": "password",
-#     "config_file": "/path/to/jobstats-db.cnf"
+#     "config_file": "/path/to/jobstats-db.cnf",
+#     "mirror_to_admin_comment": False,  # also write JS1 payload to AdminComment via sacctmgr
 }
 
 # number of seconds between measurements
