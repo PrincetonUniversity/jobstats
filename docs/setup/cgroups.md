@@ -75,3 +75,10 @@ This is the data most often retrieved and parsed for overall job efficiency whic
 ```
 
 The `--config.paths /slurm` has to match the path used by Slurm under the top cgroup directory. This is usually a path that is something like `/sys/fs/cgroup/memory/slurm`.
+
+## Slurm 26.05 or newer
+As of version 26.05 slurm will now use SLUID instead of job_JOBID in cgroupv2 directory structure. E.g.
+```
+/sys/fs/cgroup/system.slice/slurmstepd.scope/s8FXKTA79XAR00/step_batch
+```
+If you upgrade to this or a newer version of slurm you will need a current version of <a href="https://github.com/plazonic/cgroup_exporter" target="_blank">cgroup exporter</a> - version v0.3.1 or newer or source code as of June 4th, 2026 or newer. This version will collect SLUID as the jobid on these new versions of slurm. The current version of jobstats has also been changed to handle this change transparently.
