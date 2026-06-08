@@ -32,11 +32,15 @@ os.environ['SLURM_TIME_FORMAT'] = "%s"
 
 # class that gets and holds per job prometheus statistics
 class Jobstats:
+    slurm_version = None
+    sluid_available = False
+
     # initialize basic job stats, can be called either with those stats
     # provided and if not it will fetch them
     def __init__(self,
                  jobid=None,
                  jobidraw=None,
+                 sluid=None,
                  start=None,
                  end=None,
                  gpus=None,
@@ -46,6 +50,10 @@ class Jobstats:
                  debug_syslog=False,
                  force_recalc=False,
                  json_or_base64=False):
+        if self.slurm_version == None:
+            self.slurm_version = subprocess.check_output(["sacct", "-V"], stderr=DEVNULL).decode("utf-8").split()[1]
+            if int(self.slurm_version.split(".")[0]) > 25:
+                self.sluid_available = True
         self.cluster = cluster
         self.prom_server = prom_server
         self.debug = debug
@@ -80,6 +88,7 @@ class Jobstats:
         #    self.cluster = c.CLUSTER_TRANS_INV[self.cluster]
         self.debug_print("jobid=%s, " \
                          "jobidraw=%s, " \
+                         "sluid=%s, " \
                          "start=%s, " \
                          "end=%s, " \
                          "gpus=%s, " \
@@ -88,6 +97,7 @@ class Jobstats:
                          "data=%s, " \
                          "timelimitraw=%s" % (self.jobid,
                                               self.jobidraw,
+                                              self.sluid,
                                               self.start,
                                               self.end,
                                               self.gpus,
@@ -152,6 +162,8 @@ class Jobstats:
                   "partition",
                   "timelimitraw",
                   "jobname"]
+        if self.sluid_available:
+            fields.insert(-1, "sluid")
         # jobname must be the last field to handle "|" chars later on
         assert fields[-1] == "jobname"
         fields = ",".join(fields)
@@ -165,6 +177,7 @@ class Jobstats:
             sacct_output = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8").split('\n')
             for i in csv.DictReader(sacct_output, delimiter='|'):
                 self.jobidraw     = i.get('JobIDRaw', None)
+                self.sluid        = i.get('SLUID', None)
                 self.start        = i.get('Start', None)
                 self.end          = i.get('End', None)
                 self.cluster      = i.get('Cluster', None)
@@ -196,6 +209,7 @@ class Jobstats:
                 self.partition    = i.get('Partition', None)
                 self.jobname      = i.get('JobName', None)
                 self.debug_print('jobidraw=%s, ' \
+                                 'sluid=%s, ' \
                                  'start=%s, ' \
                                  'end=%s, ' \
                                  'cluster=%s, ' \
@@ -211,6 +225,7 @@ class Jobstats:
                                  'qos=%s, ' \
                                  'partition=%s, ' \
                                  'jobname=%s' % (self.jobidraw,
+                                                 self.sluid,
                                                  self.start,
                                                  self.end,
                                                  self.cluster,
@@ -242,10 +257,10 @@ class Jobstats:
                 self.error(msg)
 
         self.gpus = 0
-        if self.tres is not None:
-            # Match both untyped (gres/gpu=N) and typed (gres/gpu:TYPE=N) GPU allocations
-            gpu_matches = re.findall(r'gres/gpu(?::[^=,]+)?=(\d+)', self.tres)
-            self.gpus = sum(int(n) for n in gpu_matches)
+        if self.tres is not None and 'gres/gpu=' in self.tres and 'gres/gpu=0,' not in self.tres:
+            for part in self.tres.split(","):
+                if "gres/gpu=" in part:
+                    self.gpus = int(part.split("=")[-1])
  
         if self.timelimitraw.isnumeric():
             self.timelimitraw = int(self.timelimitraw)
@@ -256,7 +271,7 @@ class Jobstats:
 
         # currently running jobs will have Unknown as time
         if self.end == 'Unknown':
-            self.end = int(time.time())
+            self.end = time.time()
         else:
             if self.end.isnumeric():
                 self.end = int(self.end)
@@ -308,7 +323,7 @@ class Jobstats:
                 else:
                     self.sp_node[node][n] = v
 
-    def get_data(self, where, query):
+    def get_data(self, where, query, query_sluid=False):
         # run a query against prometheus
         def __run_query(q, start=None, end=None, time=None, step=2*SAMPLING_PERIOD):
             params = { 'query': q, }
@@ -325,6 +340,8 @@ class Jobstats:
             return response.json()
         
         expanded_query = query % (self.cluster, self.jobidraw, self.diff)
+        if query_sluid and self.sluid != None:
+            expanded_query += " or " + query % (self.cluster, self.sluid, self.diff)
         self.debug_print("query=%s, time=%s" % (expanded_query,self.end))
         try:
             j = __run_query(expanded_query, time=self.end)
@@ -345,13 +362,13 @@ class Jobstats:
     def get_job_stats(self, *args):
         # query CPU and Memory utilization data
         if not args or "total_memory" in args:
-            self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+            self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
         if not args or "used_memory" in args:
-            self.get_data('used_memory', "max_over_time(cgroup_memory_rss_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+            self.get_data('used_memory', "max_over_time(cgroup_memory_rss_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
         if not args or "total_time" in args:
-            self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+            self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
         if not args or "cpus" in args:
-            self.get_data('cpus', "max_over_time(cgroup_cpus{cluster='%s',jobid='%s',step='',task=''}[%ds])")
+            self.get_data('cpus', "max_over_time(cgroup_cpus{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
 
         # and now GPUs
         if self.gpus:
