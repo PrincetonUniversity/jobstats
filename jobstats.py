@@ -49,6 +49,7 @@ class Jobstats:
                  debug=False,
                  debug_syslog=False,
                  force_recalc=False,
+                 batch_script=False,
                  json_or_base64=False):
         if self.slurm_version == None:
             self.slurm_version = subprocess.check_output(["sacct", "-V"], stderr=DEVNULL).decode("utf-8").split()[1]
@@ -59,6 +60,7 @@ class Jobstats:
         self.debug = debug
         self.debug_syslog = debug_syslog
         self.force_recalc = force_recalc
+        self.batch_script = batch_script
         self.sp_node = {}
         # translate cluster name
         if self.cluster in c.CLUSTER_TRANS:
@@ -118,6 +120,9 @@ class Jobstats:
         if len(self.sp_node) == 0 and json_or_base64:
             return
         self.parse_stats()
+        if self.batch_script:
+            cmd = ["sacct", "-j", f"{self.jobid}", "-B"]
+            self.job_script = subprocess.check_output(cmd, stderr=DEVNULL).decode("utf-8")
 
     def nodes(self):
         return self.sp_node
@@ -194,7 +199,8 @@ class Jobstats:
                             db_handler = JobstatsDBHandler()
                             self.data = db_handler.get_jobstats(self.cluster, self.jobidraw)
                             if self.data:
-                                self.debug_print(f"Retrieved job data from external database for job {self.jobidraw}")
+                                msg = f"Retrieved job data from external database for job {self.jobidraw}"
+                                self.debug_print(mg)
                         except Exception as e:
                             self.debug_print(f"Failed to retrieve from external database: {e}")
                             

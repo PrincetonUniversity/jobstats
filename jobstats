@@ -26,6 +26,8 @@ if __name__ == "__main__":
                     help="Force recalculation without using cached data from the database.")
     parser.add_argument("-n", "--no-color", action='store_true', default=False,
                     help="Output report without colorization.")
+    parser.add_argument("-B", "--batch-script", action='store_true', default=False,
+                    help="Show the Slurm batch script (if available).")
     args = parser.parse_args()
 
     for jobid in args.job:
@@ -35,6 +37,7 @@ if __name__ == "__main__":
                          debug=args.debug,
                          debug_syslog=args.syslog,
                          force_recalc=args.force,
+                         batch_script=args.batch_script,
                          json_or_base64 = args.json or args.base64)
         if args.json or args.base64:
             print(stats.report_job_json(args.base64))

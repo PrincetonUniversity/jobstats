@@ -490,6 +490,18 @@ class ClassicOutput(BaseFormatter):
             else:
                 report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
         ########################################################################
+        #                             BATCH SCRIPT                             #
+        ########################################################################
+        if self.js.batch_script:
+            heading = f"{self.txt_bold}Batch Script{self.txt_normal}"
+            report += "\n" + heading.center(self.width) + "\n"
+            report += self.width * "=" + "\n"
+            lines = self.js.job_script.split("\n")
+            if lines[0].startswith("Batch Script for"):
+                report += "\n".join(lines[2:])
+            else:
+                report += self.js.job_script
+        ########################################################################
         #                              JOB NOTES                               #
         ########################################################################
         gpu_errors = False
