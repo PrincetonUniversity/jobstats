@@ -2,20 +2,20 @@
 
 When all four exporters are used, the Prometheus database stores 17 metrics every N seconds for each job. It is recommended to retain this detailed data for several months or longer. This data can be visualized using the [Grafana dashboard](grafana.md). After some amount of time, it makes sense to purge the detailed data while keeping only a summary (i.e., CPU/GPU utilization and memory usage per node). The summary data can also be used in place of the detailed data when generating efficiency reports.
 
-A summary of individual job statistics is generated at job completion and stored in the Slurm database (or [MariaDB](external-database.md)) in the `AdminComment` field. This is done by a `slurmctld` epilog script that runs at job completion. For example, in `slurm.conf`:
+A summary of individual job statistics is generated at job completion and stored in the Slurm database (or [MariaDB/MySQL](external-database.md)) in the `AdminComment` field. This is done by a `slurmctld` epilog script that runs at job completion. For example, in `slurm.conf`:
 
 
 ```
 EpilogSlurmctld=/usr/local/sbin/slurmctldepilog.sh
 ```
 
-The script is available in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a> and needs to be installed on the `slurmctld` server along with Jobstats. For storage efficiency and convenience, the JSON job summary data is gzipped and base64 encoded before being stored in the `AdminComment` field of the Slurm database (or [MariaDB](external-database.md)).
+The script is available in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a> and needs to be installed on the `slurmctld` server along with Jobstats. For storage efficiency and convenience, the JSON job summary data is gzipped and base64 encoded before being stored in the `AdminComment` field of the Slurm database (or [MariaDB/MySQL](external-database.md)).
 
 The impact on the database size due to this depends on job sizes. For an institution with 100,000 CPU-cores, for small jobs the `AdminComment` field tends to average under 50 characters per entry with a maximum under 1500 while for large jobs the maximum length is around 5000.
 
 For processing old jobs where the `slurmctld` epilog script did not run or for jobs where it failed, there is a per cluster ingest Jobstats service. This is a combination of a Python-based script `jobs_with_no_data.py` that returns a list of recent jobs with missing stored Jobstats data and a bash script `ingest_jobstats` that uses that utility to process those jobs. Since `jobs_with_no_data.py` needs database access it is easiest to run this on the `slurmdbd` host, either as a cron or a `systemd` timer and service. These scripts (`ingest_jobstats` and `jobs_with_no_data.py`) and `systemd` timer and service units are in the `slurm` directory of the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/slurm" target="_blank">Jobstats GitHub repository</a>.
 
-When using Slurm `AdminComment` storage, the ingest service updates `AdminComment` for completed jobs that are missing summary data. When using external MariaDB storage, the ingest service compares completed jobs in Slurm accounting against the `job_summary` table and writes missing rows to the external database using `store_jobstats.py`.
+When using Slurm `AdminComment` storage, the ingest service updates `AdminComment` for completed jobs that are missing summary data. When using external MariaDB/MySQL storage, the ingest service compares completed jobs in Slurm accounting against the `job_summary` table and writes missing rows to the external database using `store_jobstats.py`.
 
 Below is an example job summary for a GPU job:
 
@@ -48,7 +48,7 @@ $ jobstats 12345678 -j
 The following pipeline shows how the summary statistics are recovered from an `AdminComment` entry in the database:
 
 ```
-$ sacct -j 823722 -n -o admincomment%250 | sed 's/JS1://' | tr -d ' ' \
+$ sacct -j 823722 -n -P -o admincomment | sed 's/JS1://' | tr -d ' ' \
   | base64 -d \
   | gzip -d \
   | jq
@@ -79,8 +79,9 @@ Only completed jobs have entries in the database.
 The Python code below can be used to work with the summary statistics in `AdminComment`:
 
 ```bash
-$ wget https://raw.githubusercontent.com/PrincetonUniversity/job_defense_shield/refs/heads/main/src/job_defense_shield/efficiency.py
+$ wget https://raw.githubusercontent.com/PrincetonUniversity/job_defense_shield/refs/heads/main/scripts/mig_calculator_for_jobstats.ipynb
 $ wget https://raw.githubusercontent.com/jdh4/saccta/refs/heads/main/gpu_usage.py
+$ wget https://raw.githubusercontent.com/PrincetonUniversity/job_defense_shield/refs/heads/main/src/job_defense_shield/efficiency.py
 ```
 
 The script `gpu_usage.py` illustrates how to get the GPU utilization per job. The other functions in `efficiency.py` can be used to get the other metrics (e.g., `cpu_memory_usage`). See also the source code for [Job Defense Shield](https://github.com/PrincetonUniversity/job_defense_shield) where `efficiency.py` is used.
@@ -107,9 +108,10 @@ The Python script below can be used to obtain the mean power per GPU:
 import json
 import requests
 
-params = {'query':'avg_over_time((nvidia_gpu_power_usage_milliwatts{cluster="della"} and nvidia_gpu_jobId == 1191148)[3919s:])',
-          'time':1759679604}
-response = requests.get('http://vigilant2:8480/api/v1/query', params)
+q = 'avg_over_time(nvidia_gpu_power_usage_milliwatts{{cluster="della", jobid="1191148"}}[3919s:])'
+params = {'query': q,
+          'time': 1759679604}
+response = requests.get('http://cluster-stats:8480/api/v1/query', params)
 data = response.json()
 
 print(json.dumps(data, indent=2))
@@ -201,3 +203,9 @@ The output is:
 ```
 
 There are four entries like `"value": [1759679595, "127405.17624521072"]` which give the power in milliWatts (e.g., 127405 mW or 127 W).
+
+If you are using `GPU_EXPORTER_JOBID = False` in `config.py` then use the following substitution:
+
+```python
+q = 'avg_over_time((nvidia_gpu_power_usage_milliwatts{cluster="della"} and nvidia_gpu_jobId == 1191148)[3919s:])'
+```

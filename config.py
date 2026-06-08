@@ -6,13 +6,14 @@
 PROM_SERVER = "http://cluster-stats:8480"
 PROM_RETENTION_DAYS = 365
 
-# Set to true if GPU stats have jobid label as opposed to using nvidia_gpu_jobId
-# this is available as of version 0.2.2 Sept 2025 in https://github.com/plazonic/nvidia_gpu_prometheus_exporter/
+# Set to True if GPU stats have jobid label as opposed to using nvidia_gpu_jobId
+# This is available as of version 0.2.2 Sept 2025 in the repo
+# https://github.com/plazonic/nvidia_gpu_prometheus_exporter/
 GPU_EXPORTER_JOBID = True
 
-# if using Slurm database then include the lines below with "enabled": False
-# if using MariaDB then set "enabled": True and uncomment "config_file"
-# Set "mirror_to_admin_comment": True to additionally write the JS1: payload
+# If using Slurm database then include the lines below with "enabled": False
+# If using MariaDB/MySQL then set "enabled": True
+# Set "mirror_to_admin_comment": True to additionally write the JS1 payload
 # to the Slurm AdminComment field (sacctmgr). This preserves compatibility
 # with sacct-based tools such as reportseff which read GPU/multi-node
 # efficiency from AdminComment.
@@ -455,7 +456,7 @@ MIG_NODES_1 = {"della-l01g3", "della-l01g4", "della-l01g5", "della-l01g6", "dell
                "adroit-h11g2"}
 condition = 'self.js.cluster == "della" and self.js.partition in ("gpu", "gputest") ' \
             'and self.js.is_mig_job()'
-note = ("This job used a 40GB MIG GPU which work well for almost all codes. " \
+note = ("This job used a 40GB MIG GPU which works well for almost all codes. " \
         "A 40GB MIG GPU has half the compute power of a full A100 GPU. If " \
         "a full A100 is needed or if you suspect that MIG is causing problems " \
         "then see \"nomig\" on this webpage:",

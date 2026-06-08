@@ -5,7 +5,7 @@ CISL Seminar, National Center for Atmospheric Research (NCAR)
 Virtual Event (April 23, 2026)  
 Slides: [PDF](https://researchcomputing.princeton.edu/document/6811)
 
-**Combating Underutilization with the Jobstats Job Monitoring Platform**  
+**Combating Underutilization with the Jobstats Job Monitoring Platform ("Best Poster" of PEARC 2025)**  
 PEARC 2025, Columbus, Ohio (July 23, 2025)  
 Poster: [PDF](https://researchcomputing.princeton.edu/document/6246) &nbsp; | &nbsp; ACM: [HTML](https://doi.org/10.1145/3708035.3736035)
 

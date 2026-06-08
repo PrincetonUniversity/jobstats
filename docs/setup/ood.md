@@ -2,7 +2,7 @@
 
 See the `ood-jobstats-helper` directory in the <a href="https://github.com/PrincetonUniversity/jobstats/tree/main/ood-jobstats-helper" target="_blank">Jobstats GitHub repository</a>. This directory contains an Open OnDemand app that, given a `jobid`, uses `sacct` to generate a full Grafana URL with the `jobid`, start time and end time.
 
-As of July 2025, the Open OnDemand helper app supports noninteractive redirect to the Grafana dashboard for a given `jobid`. This makes it possible to add notes such as the following to the `jobstats` output:
+As of July 2025, the Open OnDemand helper app supports non-interactive redirect to the Grafana dashboard for a given `jobid`. This makes it possible to add notes such as the following to the `jobstats` output:
 
 ```
 * See the URL below for various job metrics plotted as a function of time:

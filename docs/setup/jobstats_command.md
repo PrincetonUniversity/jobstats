@@ -1,10 +1,10 @@
 # The `jobstats` command
 
-The last step in setting up the Jobstats platform is installing the `jobstats` command. This command generates the job efficiency report. For completed jobs, the data is available in the Slurm (or MariaDB) database. For actively running jobs, the Prometheus database must be queried to obtain the data needed to generate the report.
+The last step in setting up the Jobstats platform is installing the `jobstats` command. This command generates the job efficiency report. For completed jobs, the data is available in the Slurm (or MariaDB/MySQL) database. For actively running jobs, the Prometheus database must be queried to obtain the data needed to generate the report.
 
 ## Installation
 
-The installation requirements for `jobstats` are Python 3.6+, [Requests 2.20+](https://pypi.org/project/requests/) and (optionally) [blessed 1.17+](https://pypi.org/project/blessed/) which can be used for coloring and styling text. If MariaDB is used instead of the Slurm database then `mysqlclient` will be needed.
+The installation requirements for `jobstats` are Python 3.6+, [Requests 2.20+](https://pypi.org/project/requests/) and (optionally) [blessed 1.17+](https://pypi.org/project/blessed/) which can be used for coloring and styling text. If MariaDB/MySQL is used instead of the Slurm database then `mysqlclient` will be needed.
 
 The necessary software can be installed as follows:
 
@@ -17,7 +17,7 @@ The necessary software can be installed as follows:
 === "conda"
 
     ```bash
-    $ conda create --name js-env python=3.7 requests blessed -c conda-forge
+    $ conda create --name js-env python=3.12 requests blessed -c conda-forge
     ```
 
 === "pip"
@@ -40,7 +40,7 @@ jobstats.py
 output_formatters.py
 ```
 
-If you are using external MariaDB storage, also install:
+If you are using external MariaDB/MySQL storage, also install:
 
 ```
 db_handler.py
@@ -80,25 +80,29 @@ PROM_RETENTION_DAYS = 365
 
 `PROM_RETENTION_DAYS` is the number of days that job data will remain the Prometheus database. This is used in deciding whether to display the Grafana URL for a given job as a custom note in the `jobstats` output.
 
-Job summary statistics can be stored in the Slurm database or one can use an external MariaDB database. By default, Slurm DB will be used:
+Set `GPU_EXPORTER_JOBID` to `True` if GPU statistics have a `jobid` label as opposed to using `nvidia_gpu_jobId`.
+That is, use `True` if you are using version 0.2.2 (Sept 2025) or later of the [Jobstats GPU exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/).
 
 ```python
-# if using Slurm database then include the lines below with "enabled": False
-# if using MariaDB then set "enabled": True
+GPU_EXPORTER_JOBID = True
+```
+
+Job summary statistics can be stored in the Slurm database or one can use an external MariaDB/MySQL database. By default, Slurm DB will be used:
+
+```python
 EXTERNAL_DB_CONFIG = {
     "enabled": False,  # set to True to use the external db for storing stats
     "host": "127.0.0.1",
     "port": 3307,
     "database": "jobstats",
     "user": "jobstats",
-    "password": "password",
-#     "config_file": "/path/to/jobstats-db.cnf"
+    "password": "password"
 }
 ```
 
-If you wish to use MariaDB then see [External Database](external-database.md). That page is the authoritative setup guide for schema creation, `store_jobstats.py` installation, and external DB behavior.
+If you wish to use MariaDB/MySQL then see [External Database](external-database.md). That page is the authoritative setup guide for schema creation, `store_jobstats.py` installation, and external DB behavior. It also explains `mirror_to_admin_comment`.
 
-If you use external MariaDB storage then also install `store_jobstats.py` in `/usr/local/bin`:
+If you use external MariaDB/MySQL storage then also install `store_jobstats.py` in `/usr/local/bin`:
 
 ```bash
 $ ln -s /usr/local/jobstats/store_jobstats.py /usr/local/bin/store_jobstats.py
