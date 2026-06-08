@@ -1,21 +1,48 @@
+import os
 import time
 from jobstats import Jobstats
 from output_formatters import ClassicOutput
 import pytest
 
 
+DEVNULL = open(os.devnull, 'w')
+SLURM_VERSION = "25.11.5"
+
+fields = ["jobidraw",
+          "start",
+          "end",
+          "cluster",
+          "alloctres",
+          "admincomment",
+          "user",
+          "account",
+          "state",
+          "nnodes",
+          "ncpus",
+          "reqmem",
+          "qos",
+          "partition",
+          "timelimitraw",
+          "jobname"]
+fields = ",".join(fields)
+
 @pytest.fixture
 def simple_stats(mocker):
-    cols = ('JobIDRaw|Start|End|Cluster|AllocTRES|AdminComment|User|Account|'
-            'State|NNodes|NCPUS|ReqMem|QOS|Partition|TimelimitRaw|JobName\n')
-    ss64 = ('JS1:H4sIAPdcJmcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
-            '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
-            'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
-    data = ('10920562|1730212549|1730214578|tiger2|billing=40,cpu=40,mem=10G,no'
-            'de=1|%s|aturing|physics|COMPLETED|1|40|10G|tiger-short|serial|144'
-            '0|9\n' % ss64)
-    sacct_bytes = bytes(cols + data, "utf-8")
-    mocker.patch("subprocess.check_output", return_value=sacct_bytes)
+    def side_effect(mylist, stderr=DEVNULL):
+        cols = ('JobIDRaw|Start|End|Cluster|AllocTRES|AdminComment|User|Account|'
+                'State|NNodes|NCPUS|ReqMem|QOS|Partition|TimelimitRaw|JobName\n')
+        ss64 = ('JS1:H4sIAPdcJmcC/1WNQQqDMBBF7zLrtEzG0ZhcphQzqGBM0bgQyd0bUii4fe8'
+                '//gVr9LKDuyDNo2yPibpBr00FMb2XV5AQtxOcRtMY1j0xKjh28X/TdsRMhRfxa9'
+                'IcBJyxbPsnKRg+R3lgzPk+ICSrYKwW8xcnjeJ8iwAAAA==')
+        data = ('10920562|1730212549|1730214578|tiger2|billing=40,cpu=40,mem=10G,no'
+                'de=1|%s|aturing|physics|COMPLETED|1|40|10G|tiger-short|serial|144'
+                '0|9\n' % ss64)
+        sacct_bytes = bytes(cols + data, "utf-8")
+        if mylist == ["sacct", "-V"]:
+            return bytes(f"slurm {SLURM_VERSION}\n", "utf-8")
+        elif mylist == ["sacct", "-P", "-X", "-o", fields, "-j", "10920562"]:
+            return sacct_bytes
+    mocker.patch("subprocess.check_output", side_effect=side_effect)
     stats = Jobstats(jobid="10920562", prom_server="DUMMY-SERVER")
     return stats
 
