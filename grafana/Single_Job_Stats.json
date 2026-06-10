@@ -364,7 +364,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "label_replace(nvidia_gpu_duty_cycle and nvidia_gpu_jobId == $JobID, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
+              "expr": "label_replace(nvidia_gpu_duty_cycle{jobid=\"$JobID\"}, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
               "instant": false,
               "interval": "",
               "legendFormat": "{{shostname}} GPU {{minor_number}}",
@@ -473,7 +473,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "label_replace(nvidia_gpu_memory_used_bytes and nvidia_gpu_jobId == $JobID, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
+              "expr": "label_replace(nvidia_gpu_memory_used_bytes{jobid=\"$JobID\"}, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
               "instant": false,
               "interval": "",
               "legendFormat": "{{shostname}} GPU {{minor_number}}",
@@ -580,7 +580,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "label_replace(nvidia_gpu_temperature_celsius and nvidia_gpu_jobId == $JobID, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
+              "expr": "label_replace(nvidia_gpu_temperature_celsius{jobid=\"$JobID\"}, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
               "instant": false,
               "interval": "",
               "legendFormat": "{{shostname}} GPU {{minor_number}}",
@@ -687,7 +687,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "label_replace(nvidia_gpu_power_usage_milliwatts and nvidia_gpu_jobId == $JobID, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
+              "expr": "label_replace(nvidia_gpu_power_usage_milliwatts{jobid=\"$JobID\"}, \"shostname\", \"$1\", \"instance\", \"(.*):.*\")",
               "instant": false,
               "interval": "",
               "legendFormat": "{{shostname}} GPU {{minor_number}}",
