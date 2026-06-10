@@ -309,12 +309,12 @@ class Jobstats:
         if 'data' in d:
             j = d['data']['result']
             for i in j:
-                node=i['metric']['instance'].split(':')[0]
+                node = i['metric']['instance'].split(':')[0]
                 minor = i['metric'].get('minor_number', None)
                 if 'value' in i:
-                    v=i['value'][1]
+                    v = i['value'][1]
                 if 'values' in i:
-                    v=i['values'][0][0]
+                    v = i['values'][0][0]
                 # trim unneeded precision
                 if '.' in v:
                     v = round(float(v), 1)
@@ -348,7 +348,7 @@ class Jobstats:
         expanded_query = query % (self.cluster, self.jobidraw, self.diff)
         if query_sluid and self.sluid != None:
             expanded_query += " or " + query % (self.cluster, self.sluid, self.diff)
-        self.debug_print("query=%s, time=%s" % (expanded_query,self.end))
+        self.debug_print("query=%s, time=%s" % (expanded_query, self.end))
         try:
             j = __run_query(expanded_query, time=self.end)
         except Exception as e:
@@ -396,7 +396,6 @@ class Jobstats:
 
     def parse_stats(self):
         sp_node = self.sp_node
-
         if len(sp_node) == 0:
             if self.diff < SAMPLING_PERIOD:
                 cmd = ["seff", f"{self.jobid}"]

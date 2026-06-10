@@ -150,7 +150,7 @@ CPU_MEM_UTIL_BLACK = 80  # percentage
 
 The optional settings above are useful for institutions that calculate job priority based on the memory utilization of previous jobs.
 
-The following threshold can be used to trigger notes about excessive CPU memory usage:
+The following threshold can be used to trigger notes about excessive CPU memory allocation:
 
 ```python
 MIN_MEMORY_USAGE = 70  # percentage
