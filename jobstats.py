@@ -345,10 +345,10 @@ class Jobstats:
             response = requests.get('{0}/api/v1/{1}'.format(self.prom_server, qstr), params)
             return response.json()
         
-        expanded_query = query % (self.cluster, self.jobidraw, self.diff)
+        expanded_query = query.format(cluster=self.cluster, jobid=self.jobidraw, diff=int(self.diff))
         if query_sluid and self.sluid != None:
-            expanded_query += " or " + query % (self.cluster, self.sluid, self.diff)
-        self.debug_print("query=%s, time=%s" % (expanded_query, self.end))
+            expanded_query += " or " + query.format(cluster=self.cluster, jobid=self.sluid, diff=int(self.diff))
+        self.debug_print("query=%s, time=%s" % (expanded_query,self.end))
         try:
             j = __run_query(expanded_query, time=self.end)
         except Exception as e:
@@ -368,31 +368,31 @@ class Jobstats:
     def get_job_stats(self, *args):
         # query CPU and Memory utilization data
         if not args or "total_memory" in args:
-            self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
+            self.get_data('total_memory', "max_over_time(cgroup_memory_total_bytes{{cluster='{cluster}',jobid='{jobid}',step='',task=''}}[{diff}s])", True)
         if not args or "used_memory" in args:
-            self.get_data('used_memory', "max_over_time(cgroup_memory_rss_bytes{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
+            self.get_data('used_memory', "max_over_time(((cgroup_memory_rss_bytes{{cluster='{cluster}',jobid='{jobid}',step='',task=''}}+cgroup_memory_shmem_bytes{{cluster='{cluster}',jobid='{jobid}',step='',task=''}}) or 1*cgroup_memory_rss_bytes{{cluster='{cluster}',jobid='{jobid}',step='',task=''}})[{diff}s:])", True)
         if not args or "total_time" in args:
-            self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
+            self.get_data('total_time', "max_over_time(cgroup_cpu_total_seconds{{cluster='{cluster}',jobid='{jobid}',step='',task=''}}[{diff}s])", True)
         if not args or "cpus" in args:
-            self.get_data('cpus', "max_over_time(cgroup_cpus{cluster='%s',jobid='%s',step='',task=''}[%ds])", True)
+            self.get_data('cpus', "max_over_time(cgroup_cpus{{cluster='{cluster}',jobid='{jobid}',step='',task=''}}[{diff}s])", True)
 
         # and now GPUs
         if self.gpus:
             if not args or "gpu_total_memory" in args:
                 if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_total_memory', "max_over_time(nvidia_gpu_memory_total_bytes{cluster='%s',jobid='%s'}[%ds:])")
+                    self.get_data('gpu_total_memory', "max_over_time(nvidia_gpu_memory_total_bytes{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_total_memory', "max_over_time((nvidia_gpu_memory_total_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
+                    self.get_data('gpu_total_memory', "max_over_time((nvidia_gpu_memory_total_bytes{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
             if not args or "gpu_used_memory" in args:
                 if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_used_memory', "max_over_time(nvidia_gpu_memory_used_bytes{cluster='%s',jobid='%s'}[%ds:])")
+                    self.get_data('gpu_used_memory', "max_over_time(nvidia_gpu_memory_used_bytes{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
+                    self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
             if not args or "gpu_utilization" in args:
                 if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_utilization', "avg_over_time(nvidia_gpu_duty_cycle{cluster='%s',jobid='%s'}[%ds:])")
+                    self.get_data('gpu_utilization', "avg_over_time(nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{cluster='%s'} and nvidia_gpu_jobId == %s)[%ds:])")
+                    self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
 
     def parse_stats(self):
         sp_node = self.sp_node
