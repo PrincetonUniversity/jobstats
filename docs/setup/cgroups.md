@@ -81,4 +81,6 @@ As of version 26.05 slurm will now use SLUID instead of job_JOBID in cgroupv2 di
 ```
 /sys/fs/cgroup/system.slice/slurmstepd.scope/s8FXKTA79XAR00/step_batch
 ```
-If you upgrade to this or a newer version of slurm you will need a current version of <a href="https://github.com/plazonic/cgroup_exporter" target="_blank">cgroup exporter</a> - version v0.3.1 or newer or source code as of June 4th, 2026 or newer. This version will collect SLUID as the jobid on these new versions of slurm. The current version of jobstats has also been changed to handle this change transparently.
+To continue collecting data correctly you have two options. The preferred one would be to upgrade to version 26.05.2 or newer where you can set option `CgroupJobIdPaths=yes`to revert back to using jobid's in cgroup directories - there is no downside to this choice.
+
+Alternatively you can use the current version of <a href="https://github.com/plazonic/cgroup_exporter" target="_blank">cgroup exporter</a> - version v0.3.1 or newer or source code as of June 4th, 2026 or newer. This version will collect SLUID as the jobid on these new versions of slurm. The current version of jobstats has also been changed to handle this change transparently.
