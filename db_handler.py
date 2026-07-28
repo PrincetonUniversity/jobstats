@@ -2,10 +2,11 @@ try:
     import MySQLdb
 except ImportError:
     MySQLdb = None
-import sys
-import json
 import base64
 import gzip
+import json
+import sys
+
 from config import EXTERNAL_DB_CONFIG
 
 # table names for structured external database schema

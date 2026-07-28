@@ -1,5 +1,9 @@
 # Publications and Presentations
 
+**Getting the Most Out of Your GPUs: Automatic Cancellation of Low Efficiency Jobs, GPU Fractionalization, Detailed Metrics, and GPU Sharing**  
+PEARC 2026, Minneapolis, MN (July 29, 2026)  
+Paper: [PDF](https://researchcomputing.princeton.edu/document/6881) &nbsp; | &nbsp; ACM: [HTML](https://dl.acm.org/doi/10.1145/3785462.3815871)
+
 **Job Monitoring and Efficient GPU Cluster Utilization with Jobstats**  
 CISL Seminar, National Center for Atmospheric Research (NCAR)  
 Virtual Event (April 23, 2026)  

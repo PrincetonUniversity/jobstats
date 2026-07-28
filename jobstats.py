@@ -1,6 +1,5 @@
 import csv
 import os
-import re
 import subprocess
 import sys
 import time
@@ -200,7 +199,7 @@ class Jobstats:
                             self.data = db_handler.get_jobstats(self.cluster, self.jobidraw)
                             if self.data:
                                 msg = f"Retrieved job data from external database for job {self.jobidraw}"
-                                self.debug_print(mg)
+                                self.debug_print(msg)
                         except Exception as e:
                             self.debug_print(f"Failed to retrieve from external database: {e}")
                             
@@ -342,7 +341,7 @@ class Jobstats:
                 qstr = 'query'
                 if time:
                     params['time'] = time
-            response = requests.get('{0}/api/v1/{1}'.format(self.prom_server, qstr), params)
+            response = requests.get(f'{self.prom_server}/api/v1/{qstr}', params)
             return response.json()
         
         expanded_query = query.format(cluster=self.cluster, jobid=self.jobidraw, diff=int(self.diff))
@@ -510,9 +509,9 @@ class Jobstats:
                     break
             if self.gpu_mem_error_code == 0:
                 if overall > overall_total:
-                    self.gpu_mem_error_code == 2
+                    self.gpu_mem_error_code = 2
                 if overall_total == 0:
-                    self.gpu_mem_error_code == 3
+                    self.gpu_mem_error_code = 3
             self.gpu_mem_total__used_alloc = (overall, overall_total)
 
     def __str__(self, compact=False):
