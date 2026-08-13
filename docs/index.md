@@ -142,6 +142,16 @@ Node-level metrics:
 - Infiniband Packet Rate
 - Infiniband Errors
 
+Detailed metrics via NVML GPM (Hopper GPUs and later):
+
+- Streaming multiprocessor (SM) utilization
+- Occupancy or ratio of active warps to available warps
+- FP16, FP32, FP64 arithmetic utilization
+- Integer arithmetic utilization
+- Tensor Core utilization
+- NVLink receive and transfer rates
+- PCIe receive and transfer rates
+
 The following image shows the Grafana dashboard for an example GPU job:
 
 ![Grafana dashboard](grafana_dashboard_single.jpg)
@@ -151,7 +161,7 @@ The following image shows the Grafana dashboard for an example GPU job:
 Consider these alternatives to Jobstats:
 
 - [REMORA](https://docs.tacc.utexas.edu/software/remora/)
-- [XDMod (SUPReMM)](https://supremm.xdmod.org/7.0/supremm-architecture.html)
+- [XDMod (SUPReMM)](https://supremm.xdmod.org/11.0/supremm-overview.html)
 - [Meta GPU Cluster Monitoring (GCM)](https://github.com/facebookresearch/gcm)
 - [HPCPerfStats](https://github.com/TACC/HPCPerfStats)
 - [LLload](https://dl.acm.org/doi/10.1145/3626203.3670565)
