@@ -6,9 +6,13 @@
 PROM_SERVER = "http://cluster-stats:8480"
 PROM_RETENTION_DAYS = 365
 
+# number of seconds between measurements
+SAMPLING_PERIOD = 30
+
 # Set to True if GPU stats have jobid label as opposed to using nvidia_gpu_jobId
 # This is available as of version 0.2.2 Sept 2025 in the repo
 # https://github.com/plazonic/nvidia_gpu_prometheus_exporter/
+# Using nvidia_gpu_jobId is not recommended due to poor performance.
 GPU_EXPORTER_JOBID = True
 
 # If using Slurm database then include the lines below with "enabled": False
@@ -28,9 +32,17 @@ EXTERNAL_DB_CONFIG = {
 #     "mirror_to_admin_comment": False,  # also write JS1 payload to AdminComment via sacctmgr
 }
 
-# number of seconds between measurements
-SAMPLING_PERIOD = 30
+# translate cluster names in Slurm DB to informal names
+CLUSTER_TRANS = {}  # if no translations then use an empty dictionary
+CLUSTER_TRANS_INV = dict(zip(CLUSTER_TRANS.values(), CLUSTER_TRANS.keys()))
 
+# maximum number of characters to display in jobname
+MAX_JOBNAME_LEN = 64
+
+
+################################################################################
+##                    T E X T    C O L O R I Z A T I O N                      ##
+################################################################################
 # threshold values for red versus black text and notes
 GPU_UTIL_RED   = 15  # percentage
 GPU_UTIL_BLACK = 25  # percentage
@@ -41,12 +53,44 @@ TIME_EFFICIENCY_BLACK = 60  # percentage
 MIN_MEMORY_USAGE      = 70  # percentage
 MIN_RUNTIME_SECONDS   = 10 * SAMPLING_PERIOD  # seconds
 
-# translate cluster names in Slurm DB to informal names
-CLUSTER_TRANS = {}  # if no translations then use an empty dictionary
-CLUSTER_TRANS_INV = dict(zip(CLUSTER_TRANS.values(), CLUSTER_TRANS.keys()))
 
-# maximum number of characters to display in jobname
-MAX_JOBNAME_LEN = 64
+################################################################################
+##                 D E T A I L E D    G P U    M E T R I C S                  ##
+################################################################################
+GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
+GPU_METRICS = {}
+GPU_METRICS["TC"] = {"metric": "tensor_cores",
+                     "operation": "avg_over_time",
+                     "show_overall": True,
+                     "show_per_gpu": True,
+                     "write_to_db": False,
+                     "long_name": "Tensor Core (TC)"}
+GPU_METRICS["FP16"] = {"metric": "fp16",
+                       "operation": "avg_over_time",
+                       "show_overall": True,
+                       "show_per_gpu": True,
+                       "write_to_db": False}
+GPU_METRICS["FP16 (min)"] = {"metric": "fp16",
+                             "operation": "min_over_time",
+                             "show_overall": True,
+                             "show_per_gpu": True,
+                             "write_to_db": False}
+GPU_METRICS["FP32 (avg)"] = {"metric": "fp32",
+                       "operation": "avg_over_time",
+                       "show_overall": True,
+                       "show_per_gpu": True,
+                       "write_to_db": False}
+GPU_METRICS["FP32 (max)"] = {"metric": "fp32",
+                             "operation": "max_over_time",
+                             "show_overall": True,
+                             "show_per_gpu": True,
+                             "write_to_db": False}
+GPU_METRICS["SM"] = {"metric": "sm",
+                     "operation": "avg_over_time",
+                     "show_overall": True,
+                     "show_per_gpu": True,
+                     "write_to_db": False,
+                     "long_name": "Streaming Multiprocessor (SM)"}
 
 
 ################################################################################

@@ -14,6 +14,11 @@ if c.EXTERNAL_DB_CONFIG.get("enabled", False):
     from db_handler import JobstatsDBHandler
 if not hasattr(c, "GPU_EXPORTER_JOBID"):
     c.GPU_EXPORTER_JOBID = False
+if not hasattr(c, "GPU_METRICS"):
+    c.GPU_METRICS = {}
+if not hasattr(c, "GPU_METRICS_EXPORTER"):
+    c.GPU_METRICS_EXPORTER = "None"
+
 
 __version__ = "1.0.0"
 
@@ -316,7 +321,11 @@ class Jobstats:
                     v = i['values'][0][0]
                 # trim unneeded precision
                 if '.' in v:
-                    v = round(float(v), 1)
+                    x = float(v)
+                    if x >= 0.1:
+                        v = round(x, 1)
+                    else:
+                        v = round(x, 3)
                 else:
                     v = int(v)
                 if node not in self.sp_node:
@@ -347,7 +356,7 @@ class Jobstats:
         expanded_query = query.format(cluster=self.cluster, jobid=self.jobidraw, diff=int(self.diff))
         if query_sluid and self.sluid != None:
             expanded_query += " or " + query.format(cluster=self.cluster, jobid=self.sluid, diff=int(self.diff))
-        self.debug_print("query=%s, time=%s" % (expanded_query,self.end))
+        self.debug_print("query=%s, time=%s" % (expanded_query, self.end))
         try:
             j = __run_query(expanded_query, time=self.end)
         except Exception as e:
@@ -360,9 +369,33 @@ class Jobstats:
                                                                                       self.end,
                                                                                       j["error"]))
         else:
-            self.error("ERROR: Unknown result when running query %s with time %s, full output: %s" % (expanded_query,
+            self.error("ERROR: Unknown result when running query %s with time %s. Full output: %s" % (expanded_query,
                                                                                                       self.end,
                                                                                                       j))
+
+    def gpu_metric_query_string(self, metric: str, op: str) -> str:
+        """Compute the operation on the given quantity for the specified job."""
+        if op not in ("avg_over_time", "max_over_time", "min_over_time"):
+            print(f"WARNING: {op} is not valid. Using avg_over_time().")
+            op = "avg_over_time"
+        metrics = {}
+        if c.GPU_METRICS_EXPORTER == "NVML":
+            metrics["sm"]           = "nvidia_gpu_sm_util_percent"
+            metrics["occupancy"]    = "nvidia_gpu_sm_occupancy_percent"
+            metrics["tensor_cores"] = "nvidia_gpu_any_tensor_util_percent"
+            metrics["fp16"]         = "nvidia_gpu_fp16_util_percent"
+            metrics["fp32"]         = "nvidia_gpu_fp32_util_percent"
+            metrics["fp64"]         = "nvidia_gpu_fp64_util_percent"
+            metrics["integer"]      = "nvidia_gpu_integer_util"
+        elif c.GPU_METRICS_EXPORTER == "DCGM":
+            metrics["tensor_cores"] = "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE"
+            metrics["fp16"]         = "DCGM_FI_PROF_PIPE_FP16_ACTIVE"
+        # TODO error handling
+        metric_full = metrics[metric]
+        if c.GPU_EXPORTER_JOBID:
+            return f"{op}({metric_full}" + "{{cluster='{cluster}', jobid='{jobid}'}}[{diff}s:])"
+        return f"{op}(({metric_full}" + "{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])"
+
 
     def get_job_stats(self, *args):
         # query CPU and Memory utilization data
@@ -392,6 +425,14 @@ class Jobstats:
                     self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}',jobid='{jobid}'}} * 100))[{diff}s:])")
                 else:
                     self.get_data('gpu_utilization', "avg_over_time(((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}'}} * 100)) and nvidia_gpu_jobId == {jobid})[{diff}s:])")
+            # code below is valid for Hopper and later with version 0.2.3+ of nvidia prometheus exporter
+            if (not args or c.GPU_METRICS) and c.GPU_METRICS_EXPORTER != "None":
+                for key, value in c.GPU_METRICS.items():
+                    metric = value["metric"]
+                    operation = value["operation"]
+                    prom_query_str = self.gpu_metric_query_string(metric, operation)
+                    self.get_data(key, prom_query_str)
+                    # keep count on hits in sp_nodes?
 
     def parse_stats(self):
         sp_node = self.sp_node
@@ -488,6 +529,55 @@ class Jobstats:
                         break
             self.gpu_util_total__util_gpus = (overall, overall_gpu_count)
 
+            class DetailedGpuMetric:
+
+                """Data structure to store the detailed GPU metrics."""
+
+                def __init__(self, name: str, settings: dict, is_mig: bool) -> None:
+                    self.name = name
+                    self.metric       = settings["metric"]
+                    self.operation    = settings["operation"]
+                    self.show_overall = settings["show_overall"]
+                    self.show_per_gpu = settings["show_per_gpu"]
+                    self.write_to_db  = settings["write_to_db"]
+                    self.long_name = settings.get("long_name")
+                    ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy")
+                    self.fac = 100 if any(m in self.metric for m in ms) else 1
+                    self.mig = is_mig
+
+                def parse(self, sp_node: dict) -> None:
+                    overall = 0
+                    overall_gpu_count = 0
+                    self.error_code = 0
+                    self.node_util_index = []
+                    for n, d in sp_node.items():
+                        if self.name in d:
+                            gpus = list(d[self.name].keys())
+                            gpus.sort()
+                            for g in gpus:
+                                util = self.fac * d[self.name][g]
+                                overall += util
+                                overall_gpu_count += 1
+                                self.node_util_index.append((n, util, g))
+                        else:
+                            if self.mig:
+                                self.node_util_index.append((n, None, "#"))
+                            else:
+                                self.error_code = 1
+                                self.node_util_index.append((n, None, None))
+                                break
+                    self.total__util_gpus = (overall, overall_gpu_count)
+
+                def __str__(self) -> str:
+                    return f"{self.name}, {self.metric}, {self.operation}, {self.node_util_index}, {self.error_code}"
+
+            self.detailed_gpu_metrics = []
+            for key, value in c.GPU_METRICS.items():
+                gm = DetailedGpuMetric(key, value, self.is_mig_job())
+                # TODO not efficient to loop for metric
+                gm.parse(sp_node)
+                self.detailed_gpu_metrics.append(gm)
+ 
             # gpu memory
             overall = 0
             overall_total = 0

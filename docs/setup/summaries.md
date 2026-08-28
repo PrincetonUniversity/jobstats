@@ -108,7 +108,7 @@ The Python script below can be used to obtain the mean power per GPU:
 import json
 import requests
 
-q = 'avg_over_time(nvidia_gpu_power_usage_milliwatts{{cluster="della", jobid="1191148"}}[3919s:])'
+q = 'avg_over_time(nvidia_gpu_power_usage_milliwatts{cluster="della", jobid="1191148"}[3919s:])'
 params = {'query': q,
           'time': 1759679604}
 response = requests.get('http://cluster-stats:8480/api/v1/query', params)

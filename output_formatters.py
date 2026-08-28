@@ -373,6 +373,33 @@ class ClassicOutput(BaseFormatter):
             gpu_util = "  GPU utilization  (Something went wrong)\n"
         return gpu_util
 
+    def output_overall_detailed_gpu_metric(self, gm) -> str:
+        """Return the overall tensor core utilization."""
+        if gm.error_code == 0:
+            if self.js.is_mig_job():
+                # set utilization to 100 to avoid triggering low utilization notes
+                self.js.metric_utilization = 100
+                metric_util = f"  {gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
+                              "     {gm.name} utilization is unknown for MIG jobs      " \
+                              f"{self.txt_normal}{self.txt_bold}]{self.txt_normal}\n"
+            else:
+                overall, overall_gpu_count = gm.total__util_gpus
+                if overall_gpu_count:
+                    self.js.metric_utilization = overall / overall_gpu_count
+                    meter = self.draw_meter(round(self.js.metric_utilization), hardware="other", util=True)
+                    metric_util = f"   {gm.name} utilization  {meter}\n"
+                else:
+                    # set utilization to 100 to avoid triggering low utilization notes
+                    self.js.metric_utilization = 100
+                    metric_util = f"  {gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
+                                  f"            {gm.name} utilization is unknown            " \
+                                  f"{self.txt_normal}{self.txt_bold}]{self.txt_normal}\n"
+        elif gm.error_code == 1:
+            metric_util = f"  {gm.name} utilization  (Value is unknown)\n"
+        else:
+            metric_util = f"  {gm.name} utilization  (Something went wrong)\n"
+        return metric_util
+
     def output_overall_gpu_memory_usage(self) -> str:
         """Return the overall GPU memory usage."""
         if self.js.gpu_mem_error_code == 0:
@@ -416,6 +443,15 @@ class ClassicOutput(BaseFormatter):
         if self.js.gpus:
             report += self.output_overall_gpu_util()
             report += self.output_overall_gpu_memory_usage()
+            if c.GPU_METRICS:
+                divider = False
+                for gm in self.js.detailed_gpu_metrics:
+                    metric_found_in_prom = bool(gm.total__util_gpus[1])
+                    if metric_found_in_prom and gm.show_overall:
+                        if not divider: 
+                            report += " " + 78 * "─" + "\n"
+                            divider = True
+                        report += self.output_overall_detailed_gpu_metric(gm)
         report += "\n"
         ########################################################################
         #                          DETAILED UTILIZATION                        #
@@ -489,6 +525,23 @@ class ClassicOutput(BaseFormatter):
                     report += f"{gutter}    {node} (GPU {gpu_index}): {hs_used}/{hs_total} ({eff:.1f}%)\n"
             else:
                 report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
+            # loop over detailed GPU metrics
+            # do we save the values so that they can be referenced in the notes?
+            if self.js.gpus and c.GPU_METRICS:
+                for gm in self.js.detailed_gpu_metrics:
+                    metric_found_in_prom = bool(gm.total__util_gpus[1])
+                    if metric_found_in_prom and gm.show_per_gpu:
+                        name = gm.long_name if gm.long_name else gm.name
+                        report += f"\n{gutter}GPU {name} utilization per node\n"
+                        if gm.error_code == 0:
+                            for node, util, gpu_index in gm.node_util_index:
+                                if util is not None:
+                                    report += f"{gutter}    {node} (GPU {gpu_index}): {util:.1f}%\n"
+                                else:
+                                    report += f"{gutter}    An error was encountered ({gm.error_code})\n"
+                        else:
+                            report += f"{gutter}    An error was encountered ({gm.error_code})\n"
+
         ########################################################################
         #                             BATCH SCRIPT                             #
         ########################################################################
