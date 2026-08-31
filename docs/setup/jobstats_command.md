@@ -80,6 +80,15 @@ PROM_RETENTION_DAYS = 365
 
 `PROM_RETENTION_DAYS` is the number of days that job data will remain the Prometheus database. This is used in deciding whether to display the Grafana URL for a given job as a custom note in the `jobstats` output.
 
+The number of seconds between measurements by the exporters on the compute nodes:
+
+```python
+# number of seconds between measurements
+SAMPLING_PERIOD = 30
+```
+
+The value above should match that in the Prometheus configuration, i.e., `scrape_interval: 30s`.
+
 Set `GPU_EXPORTER_JOBID` to `True` if GPU statistics have a `jobid` label as opposed to using `nvidia_gpu_jobId`.
 That is, use `True` if you are using version 0.2.2 (Sept 2025) or later of the [Jobstats GPU exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/).
 
@@ -112,14 +121,25 @@ When external DB is enabled, `store_jobstats.py` writes only to the external dat
 
 For complete external database deployment instructions, continue with [External Database](external-database.md).
 
-The number of seconds between measurements by the exporters on the compute nodes:
+Use `CLUSTER_TRANS` to convert informal cluster names to the name that is used in the Slurm database.
+For instance, if the `tiger` cluster is replaced by the `tiger2` cluster then use:
 
 ```python
-# number of seconds between measurements
-SAMPLING_PERIOD = 30
+CLUSTER_TRANS = {"tiger": "tiger2"}
+CLUSTER_TRANS_INV = dict(zip(CLUSTER_TRANS.values(), CLUSTER_TRANS.keys()))
 ```
 
-The value above should match that in the Prometheus configuration, i.e., `scrape_interval: 30s`.
+This will allow users to specify `tiger` as the cluster while internally the value `tiger2` is used
+when querying the Slurm database.
+
+One can trim long job names:
+
+```python
+# maximum number of characters to display in jobname
+MAX_JOBNAME_LEN = 64
+```
+
+## Text Colorization
 
 One can use the Python `blessed` package to produce bold and colorized text. This
 helps to draw attention to specific lines of the report. This part
@@ -162,23 +182,20 @@ Notes can be suppressed if the run time of the job is less than the following th
 MIN_RUNTIME_SECONDS = 10 * SAMPLING_PERIOD  # seconds
 ```
 
-Use `CLUSTER_TRANS` to convert informal cluster names to the name that is used in the Slurm database.
-For instance, if the `tiger` cluster is replaced by the `tiger2` cluster then use:
+## Detailed GPU Metrics (Optional)
+
+There are fourteen metrics that can be made available via `config.py`. For example:
 
 ```python
-CLUSTER_TRANS = {"tiger":"tiger2"}
-CLUSTER_TRANS_INV = dict(zip(CLUSTER_TRANS.values(), CLUSTER_TRANS.keys()))
+GPU_METRICS["FP16"] = {"metric": "fp16_util_percent",
+                       "operation": "avg_over_time",
+                       "is_percentage": True,
+                       "show_overall": True,
+                       "show_per_gpu": True,
+                       "write_to_db": False}
 ```
 
-This will allow users to specify `tiger` as the cluster while internally the value `tiger2` is used
-when querying the Slurm database.
-
-One can trim long job names:
-
-```python
-# maximum number of characters to display in jobname
-MAX_JOBNAME_LEN = 64
-```
+See [GPU Metrics](detailed_gpu_metrics.md) for details.
 
 ## MIG GPU Nodes (Optional)
 

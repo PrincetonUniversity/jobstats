@@ -2,6 +2,7 @@ import math
 import datetime
 from abc import ABC, abstractmethod
 from textwrap import TextWrapper
+from typing import Dict
 import config as c
 from jobstats import Jobstats
 try:
@@ -373,31 +374,32 @@ class ClassicOutput(BaseFormatter):
             gpu_util = "  GPU utilization  (Something went wrong)\n"
         return gpu_util
 
-    def output_overall_detailed_gpu_metric(self, gm) -> str:
-        """Return the overall tensor core utilization."""
+    def output_overall_detailed_gpu_metric(self, gm, max_len) -> str:
+        """Return the overall utilization of the detailed GPU metric."""
         if gm.error_code == 0:
+            spaces = " " * (max_len - len(gm.name))
             if self.js.is_mig_job():
                 # set utilization to 100 to avoid triggering low utilization notes
                 self.js.metric_utilization = 100
-                metric_util = f"  {gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
+                metric_util = f"{spaces}{gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
                               "     {gm.name} utilization is unknown for MIG jobs      " \
                               f"{self.txt_normal}{self.txt_bold}]{self.txt_normal}\n"
             else:
-                overall, overall_gpu_count = gm.total__util_gpus
+                overall, overall_gpu_count = gm.total__value_gpus
                 if overall_gpu_count:
                     self.js.metric_utilization = overall / overall_gpu_count
                     meter = self.draw_meter(round(self.js.metric_utilization), hardware="other", util=True)
-                    metric_util = f"   {gm.name} utilization  {meter}\n"
+                    metric_util = f"{spaces}{gm.name} utilization  {meter}\n"
                 else:
                     # set utilization to 100 to avoid triggering low utilization notes
                     self.js.metric_utilization = 100
-                    metric_util = f"  {gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
+                    metric_util = f"{spaces}{gm.name} utilization  {self.txt_bold}[{self.txt_normal}" \
                                   f"            {gm.name} utilization is unknown            " \
                                   f"{self.txt_normal}{self.txt_bold}]{self.txt_normal}\n"
         elif gm.error_code == 1:
-            metric_util = f"  {gm.name} utilization  (Value is unknown)\n"
+            metric_util = f"{spaces}{gm.name} utilization  (Value is unknown)\n"
         else:
-            metric_util = f"  {gm.name} utilization  (Something went wrong)\n"
+            metric_util = f"{spaces}{gm.name} utilization  (Something went wrong)\n"
         return metric_util
 
     def output_overall_gpu_memory_usage(self) -> str:
@@ -416,6 +418,33 @@ class ClassicOutput(BaseFormatter):
         else:
             gpu_mem = "  GPU memory usage (Something went wrong)\n"
         return gpu_mem
+
+    def get_max_name_length(self) -> int:
+        """Return the number of characters of the longest metric name."""
+        lengths = [0]
+        for gm in self.js.detailed_gpu_metrics:
+            metric_found_in_prom = bool(gm.total__value_gpus[1])
+            if metric_found_in_prom:
+                lengths.append(len(gm.name))
+        return max(lengths)
+
+    def grid_detailed_gpu_metrics(self) -> str:
+        """Return the grid of metrics as a string. By only allowing for metrics
+           with a zero error code, one can ensure that each list of values has
+           has the same length."""
+        grid = ""
+        # first pass to get width per column
+        for gm in self.js.detailed_gpu_metrics:
+            metric_found_in_prom = bool(gm.total__value_gpus[1])
+            if metric_found_in_prom and gm.show_per_gpu and gm.error_code == 0:
+                name = gm.name
+        # second pass to load the values for each column
+        for gm in self.js.detailed_gpu_metrics:
+            metric_found_in_prom = bool(gm.total__value_gpus[1])
+            if metric_found_in_prom and gm.show_per_gpu and gm.error_code == 0:
+                for node, value, gpu_index in gm.node_value_index:
+                    grid += f"{node} {gpu_index} {value}\n"
+        return grid
 
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
@@ -445,13 +474,14 @@ class ClassicOutput(BaseFormatter):
             report += self.output_overall_gpu_memory_usage()
             if c.GPU_METRICS:
                 divider = False
+                max_len = self.get_max_name_length()
                 for gm in self.js.detailed_gpu_metrics:
-                    metric_found_in_prom = bool(gm.total__util_gpus[1])
+                    metric_found_in_prom = bool(gm.total__value_gpus[1])
                     if metric_found_in_prom and gm.show_overall:
-                        if not divider: 
+                        if not divider:
                             report += " " + 78 * "─" + "\n"
                             divider = True
-                        report += self.output_overall_detailed_gpu_metric(gm)
+                        report += self.output_overall_detailed_gpu_metric(gm, max_len)
         report += "\n"
         ########################################################################
         #                          DETAILED UTILIZATION                        #
@@ -525,22 +555,31 @@ class ClassicOutput(BaseFormatter):
                     report += f"{gutter}    {node} (GPU {gpu_index}): {hs_used}/{hs_total} ({eff:.1f}%)\n"
             else:
                 report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
-            # loop over detailed GPU metrics
-            # do we save the values so that they can be referenced in the notes?
-            if self.js.gpus and c.GPU_METRICS:
-                for gm in self.js.detailed_gpu_metrics:
-                    metric_found_in_prom = bool(gm.total__util_gpus[1])
-                    if metric_found_in_prom and gm.show_per_gpu:
-                        name = gm.long_name if gm.long_name else gm.name
-                        report += f"\n{gutter}GPU {name} utilization per node\n"
-                        if gm.error_code == 0:
-                            for node, util, gpu_index in gm.node_util_index:
-                                if util is not None:
-                                    report += f"{gutter}    {node} (GPU {gpu_index}): {util:.1f}%\n"
-                                else:
-                                    report += f"{gutter}    An error was encountered ({gm.error_code})\n"
-                        else:
-                            report += f"{gutter}    An error was encountered ({gm.error_code})\n"
+            # detailed GPU metrics
+            if c.GPU_METRICS:
+                if len(self.js.detailed_gpu_metrics) > 30:
+                    report += self.grid_detailed_gpu_metrics()
+                else:
+                    for gm in self.js.detailed_gpu_metrics:
+                        metric_found_in_prom = bool(gm.total__value_gpus[1])
+                        if metric_found_in_prom and gm.show_per_gpu:
+                            name = gm.long_name if gm.long_name else gm.name
+                            report += f"\n{gutter}GPU {name} per node\n"
+                            if gm.error_code == 0:
+                                for node, value, gpu_index in gm.node_value_index:
+                                    pct = "%" if gm.is_percentage else ""
+                                    if "power" in gm.metric:
+                                        pct = " W"
+                                    elif "temperature" in gm.metric:
+                                        pct = "\u00B0" + "C"
+                                    if value is not None and gm.is_percentage:
+                                        report += f"{gutter}    {node} (GPU {gpu_index}): {value:.1f}{pct}\n"
+                                    elif value is not None and not gm.is_percentage:
+                                        report += f"{gutter}    {node} (GPU {gpu_index}): {round(value)}{pct}\n"
+                                    else:
+                                        report += f"{gutter}    An error was encountered ({gm.error_code})\n"
+                            else:
+                                report += f"{gutter}    An error was encountered ({gm.error_code})\n"
 
         ########################################################################
         #                             BATCH SCRIPT                             #

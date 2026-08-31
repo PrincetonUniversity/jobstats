@@ -43,7 +43,6 @@ MAX_JOBNAME_LEN = 64
 ################################################################################
 ##                    T E X T    C O L O R I Z A T I O N                      ##
 ################################################################################
-# threshold values for red versus black text and notes
 GPU_UTIL_RED   = 15  # percentage
 GPU_UTIL_BLACK = 25  # percentage
 CPU_UTIL_RED   = 65  # percentage
@@ -59,38 +58,100 @@ MIN_RUNTIME_SECONDS   = 10 * SAMPLING_PERIOD  # seconds
 ################################################################################
 GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
 GPU_METRICS = {}
-GPU_METRICS["TC"] = {"metric": "tensor_cores",
+GPU_METRICS["GPU (max)"] = {"metric": "duty_cycle",
+                            "operation": "max_over_time",
+                            "show_overall": True,
+                            "show_per_gpu": True,
+                            "write_to_db": False,
+                            "long_name": "utilization (max)"}
+GPU_METRICS["SM"] = {"metric": "sm_util_percent",
+                     "operation": "avg_over_time",
+                     "show_overall": True,
+                     "show_per_gpu": True,
+                     "write_to_db": True,
+                     "long_name": "Streaming Multiprocessor (SM) utilization"}
+GPU_METRICS["OCC"] = {"metric": "sm_occupancy_percent",
+                      "operation": "avg_over_time",
+                      "show_overall": True,
+                      "show_per_gpu": True,
+                      "write_to_db": False,
+                      "long_name": "Occupancy"}
+GPU_METRICS["TC"] = {"metric": "any_tensor_util_percent",
                      "operation": "avg_over_time",
                      "show_overall": True,
                      "show_per_gpu": True,
                      "write_to_db": False,
-                     "long_name": "Tensor Core (TC)"}
-GPU_METRICS["FP16"] = {"metric": "fp16",
+                     "long_name": "Tensor Core (TC) utilization"}
+GPU_METRICS["FP16"] = {"metric": "fp16_util_percent",
                        "operation": "avg_over_time",
                        "show_overall": True,
                        "show_per_gpu": True,
-                       "write_to_db": False}
-GPU_METRICS["FP16 (min)"] = {"metric": "fp16",
+                       "write_to_db": False,
+                       "long_name": "FP16 (avg) utilization"}
+GPU_METRICS["FP16 (min)"] = {"metric": "fp32_util_percent",
                              "operation": "min_over_time",
                              "show_overall": True,
                              "show_per_gpu": True,
-                             "write_to_db": False}
-GPU_METRICS["FP32 (avg)"] = {"metric": "fp32",
-                       "operation": "avg_over_time",
-                       "show_overall": True,
-                       "show_per_gpu": True,
-                       "write_to_db": False}
-GPU_METRICS["FP32 (max)"] = {"metric": "fp32",
+                             "write_to_db": False,
+                             "long_name": "FP16 (min) utilization"}
+GPU_METRICS["FP32 (avg)"] = {"metric": "fp64_util_percent",
+                             "operation": "avg_over_time",
+                             "show_overall": True,
+                             "show_per_gpu": True,
+                             "write_to_db": False,
+                             "long_name": "FP32 (avg) utilization"}
+GPU_METRICS["FP32 (max)"] = {"metric": "fp32_util_percent",
                              "operation": "max_over_time",
                              "show_overall": True,
                              "show_per_gpu": True,
-                             "write_to_db": False}
-GPU_METRICS["SM"] = {"metric": "sm",
-                     "operation": "avg_over_time",
-                     "show_overall": True,
-                     "show_per_gpu": True,
-                     "write_to_db": False,
-                     "long_name": "Streaming Multiprocessor (SM)"}
+                             "write_to_db": False,
+                             "long_name": "FP32 (max) utilization"}
+GPU_METRICS["FP64 (max)"] = {"metric": "fp64_util_percent",
+                             "operation": "max_over_time",
+                             "show_overall": True,
+                             "show_per_gpu": True,
+                             "write_to_db": False,
+                             "long_name": "FP64 (max) utilization"}
+GPU_METRICS["PCIE Recv."] = {"metric": "pcie_rx_per_sec",
+                             "operation": "avg_over_time",
+                             "show_overall": False,
+                             "show_per_gpu": True,
+                             "write_to_db": False,
+                             "long_name": "Data Received by GPU over PCIe (bytes/s)"}
+GPU_METRICS["PCIE Sent"] = {"metric": "pcie_tx_per_sec",
+                            "operation": "avg_over_time",
+                            "show_overall": False,
+                            "show_per_gpu": True,
+                            "write_to_db": False,
+                            "long_name": "Data Transmitted from GPU over PCIe (bytes/s)"}
+GPU_METRICS["NVLink Recv."] = {"metric": "nvlink_total_rx_per_sec",
+                               "operation": "avg_over_time",
+                               "show_overall": False,
+                               "show_per_gpu": True,
+                               "write_to_db": False}
+GPU_METRICS["NVLink Sent"] = {"metric": "nvlink_total_tx_per_sec",
+                              "operation": "avg_over_time",
+                              "show_overall": False,
+                              "show_per_gpu": True,
+                              "write_to_db": False}
+GPU_METRICS["Power (W)"] = {"metric": "power_usage_milliwatts",
+                            "operation": "avg_over_time",
+                            "show_overall": False,
+                            "show_per_gpu": True,
+                            "write_to_db": False,
+                            "long_name": "Power Usage"}
+GPU_METRICS["Power (std)"] = {"metric": "power_usage_milliwatts",
+                              "operation": "stddev_over_time",
+                              "show_overall": False,
+                              "show_per_gpu": True,
+                              "write_to_db": False,
+                              "long_name": "Power Usage (STD)"}
+GPU_METRICS["Temp (C)"] = {"metric": "temperature_celsius",
+                           "operation": "avg_over_time",
+                           "show_overall": False,
+                           "show_per_gpu": True,
+                           "write_to_db": False,
+                           "long_name": "Temperature"}
 
 
 ################################################################################

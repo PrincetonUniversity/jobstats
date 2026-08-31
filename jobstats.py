@@ -9,6 +9,7 @@ import json
 import base64
 import gzip
 import syslog
+from typing import Dict
 import config as c
 if c.EXTERNAL_DB_CONFIG.get("enabled", False):
     from db_handler import JobstatsDBHandler
@@ -65,6 +66,7 @@ class Jobstats:
         self.debug_syslog = debug_syslog
         self.force_recalc = force_recalc
         self.batch_script = batch_script
+        self.json_or_base64 = json_or_base64
         self.sp_node = {}
         # translate cluster name
         if self.cluster in c.CLUSTER_TRANS:
@@ -374,24 +376,48 @@ class Jobstats:
                                                                                                       j))
 
     def gpu_metric_query_string(self, metric: str, op: str) -> str:
-        """Compute the operation on the given quantity for the specified job."""
-        if op not in ("avg_over_time", "max_over_time", "min_over_time"):
-            print(f"WARNING: {op} is not valid. Using avg_over_time().")
-            op = "avg_over_time"
+        """Generate the Prometheus query string for the given metric and operation."""
+        if op not in ("avg_over_time", "max_over_time", "min_over_time", "stddev_over_time"):
+            self.error(f"Operation {op} is not a supported Prometheus function.")
         metrics = {}
         if c.GPU_METRICS_EXPORTER == "NVML":
-            metrics["sm"]           = "nvidia_gpu_sm_util_percent"
-            metrics["occupancy"]    = "nvidia_gpu_sm_occupancy_percent"
-            metrics["tensor_cores"] = "nvidia_gpu_any_tensor_util_percent"
-            metrics["fp16"]         = "nvidia_gpu_fp16_util_percent"
-            metrics["fp32"]         = "nvidia_gpu_fp32_util_percent"
-            metrics["fp64"]         = "nvidia_gpu_fp64_util_percent"
-            metrics["integer"]      = "nvidia_gpu_integer_util"
+            metrics["duty_cycle"]              = "nvidia_gpu_duty_cycle"
+            metrics["memory_used_bytes"]       = "nvidia_gpu_memory_used_bytes"
+            metrics["memory_total_bytes"]      = "nvidia_gpu_memory_total_bytes"
+            metrics["sm_util_percent"]         = "nvidia_gpu_sm_util_percent"
+            metrics["sm_occupancy_percent"]    = "nvidia_gpu_sm_occupancy_percent"
+            metrics["any_tensor_util_percent"] = "nvidia_gpu_any_tensor_util_percent"
+            metrics["fp16_util_percent"]       = "nvidia_gpu_fp16_util_percent"
+            metrics["fp32_util_percent"]       = "nvidia_gpu_fp32_util_percent"
+            metrics["fp64_util_percent"]       = "nvidia_gpu_fp64_util_percent"
+            metrics["integer_util"]            = "nvidia_gpu_integer_util"
+            metrics["pcie_rx_per_sec"]         = "nvidia_gpu_pcie_rx_per_sec"
+            metrics["pcie_tx_per_sec"]         = "nvidia_gpu_pcie_tx_per_sec"
+            metrics["nvlink_total_rx_per_sec"] = "nvidia_gpu_nvlink_total_rx_per_sec"
+            metrics["nvlink_total_tx_per_sec"] = "nvidia_gpu_nvlink_total_tx_per_sec"
+            metrics["temperature_celsius"]     = "nvidia_gpu_temperature_celsius"
+            metrics["power_usage_milliwatts"]  = "nvidia_gpu_power_usage_milliwatts"
         elif c.GPU_METRICS_EXPORTER == "DCGM":
-            metrics["tensor_cores"] = "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE"
-            metrics["fp16"]         = "DCGM_FI_PROF_PIPE_FP16_ACTIVE"
-        # TODO error handling
-        metric_full = metrics[metric]
+            metrics["duty_cycle"]              = "DCGM_FI_DEV_GPU_UTIL"
+            metrics["memory_used_MiB"]         = "DCGM_FI_DEV_FB_USED"
+            metrics["memory_total_MiB"]        = "DCGM_FI_DEV_FB_TOTAL"
+            metrics["sm_util_percent"]         = "DCGM_FI_PROF_SM_ACTIVE"
+            metrics["sm_occupancy_percent"]    = "DCGM_FI_PROF_SM_OCCUPANCY"
+            metrics["any_tensor_util_percent"] = "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE"
+            metrics["fp16_util_percent"]       = "DCGM_FI_PROF_PIPE_FP16_ACTIVE"
+            metrics["fp32_util_percent"]       = "DCGM_FI_PROF_PIPE_FP32_ACTIVE"
+            metrics["fp64_util_percent"]       = "DCGM_FI_PROF_PIPE_FP64_ACTIVE"
+            metrics["integer_util"]            = "DCGM_FI_PROF_PIPE_INT_ACTIVE"
+            metrics["pcie_rx_per_sec"]         = "DCGM_FI_PROF_PCIE_RX_BYTES"
+            metrics["pcie_tx_per_sec"]         = "DCGM_FI_PROF_PCIE_TX_BYTES"
+            metrics["nvlink_total_rx_per_sec"] = "DCGM_FI_PROF_NVLINK_RX_BYTES"
+            metrics["nvlink_total_tx_per_sec"] = "DCGM_FI_PROF_NVLINK_TX_BYTES"
+            metrics["temperature_celsius"]     = "DCGM_FI_DEV_GPU_TEMP"
+            metrics["power_usage_milliwatts"]  = "DCGM_FI_DEV_POWER_USAGE"
+        if metric in metrics:
+            metric_full = metrics[metric]
+        else:
+            self.error(f"{metric} is not valid for exporter {c.GPU_METRICS_EXPORTER}.")
         if c.GPU_EXPORTER_JOBID:
             return f"{op}({metric_full}" + "{{cluster='{cluster}', jobid='{jobid}'}}[{diff}s:])"
         return f"{op}(({metric_full}" + "{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])"
@@ -425,14 +451,21 @@ class Jobstats:
                     self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}',jobid='{jobid}'}} * 100))[{diff}s:])")
                 else:
                     self.get_data('gpu_utilization', "avg_over_time(((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}'}} * 100)) and nvidia_gpu_jobId == {jobid})[{diff}s:])")
-            # code below is valid for Hopper and later with version 0.2.3+ of nvidia prometheus exporter
-            if (not args or c.GPU_METRICS) and c.GPU_METRICS_EXPORTER != "None":
-                for key, value in c.GPU_METRICS.items():
-                    metric = value["metric"]
-                    operation = value["operation"]
+
+            # detailed GPU metrics
+            if c.GPU_METRICS and c.GPU_METRICS_EXPORTER == "None":
+                self.error('Must set exporter to "NVML" or "DCGM" when GPU_METRICS is not empty.')
+            if not args or c.GPU_METRICS:
+                for name, settings in c.GPU_METRICS.items():
+                    metric = settings["metric"]
+                    operation = settings["operation"]
+                    write_to_db = settings["write_to_db"]
                     prom_query_str = self.gpu_metric_query_string(metric, operation)
-                    self.get_data(key, prom_query_str)
-                    # keep count on hits in sp_nodes?
+                    if self.json_or_base64:
+                        if write_to_db:
+                            self.get_data(name, prom_query_str)
+                    else:
+                        self.get_data(name, prom_query_str)
 
     def parse_stats(self):
         sp_node = self.sp_node
@@ -513,8 +546,7 @@ class Jobstats:
             self.gpu_util__node_util_index = []
             for n, d in sp_node.items():
                 if 'gpu_utilization' in d:
-                    gpus = list(d['gpu_utilization'].keys())
-                    gpus.sort()
+                    gpus = sorted(d['gpu_utilization'].keys())
                     for g in gpus:
                         util = d['gpu_utilization'][g]
                         overall += util
@@ -531,50 +563,59 @@ class Jobstats:
 
             class DetailedGpuMetric:
 
-                """Data structure to store the detailed GPU metrics."""
+                """Class to store individual detailed GPU metrics."""
 
-                def __init__(self, name: str, settings: dict, is_mig: bool) -> None:
+                def __init__(self, name: str, settings: Dict[str, Dict], is_mig: bool) -> None:
                     self.name = name
                     self.metric       = settings["metric"]
                     self.operation    = settings["operation"]
                     self.show_overall = settings["show_overall"]
                     self.show_per_gpu = settings["show_per_gpu"]
                     self.write_to_db  = settings["write_to_db"]
-                    self.long_name = settings.get("long_name")
+                    self.long_name    = settings.get("long_name")
+                    self.is_mig = is_mig
+                    # omit "duty_cycle" why?
                     ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy")
-                    self.fac = 100 if any(m in self.metric for m in ms) else 1
-                    self.mig = is_mig
+                    self.is_percentage = any(m in self.metric for m in ms)
+                    if self.is_percentage:
+                        self.fac = 100
+                    elif "power" in self.metric:
+                        self.fac = 0.001
+                    else:
+                        self.fac = 1
+                    # finally correct duty_cycle
+                    if "duty" in self.metric:
+                        self.is_percentage = True
 
                 def parse(self, sp_node: dict) -> None:
                     overall = 0
                     overall_gpu_count = 0
                     self.error_code = 0
-                    self.node_util_index = []
+                    self.node_value_index = []
                     for n, d in sp_node.items():
                         if self.name in d:
-                            gpus = list(d[self.name].keys())
-                            gpus.sort()
+                            gpus = sorted(d[self.name].keys())
                             for g in gpus:
-                                util = self.fac * d[self.name][g]
-                                overall += util
+                                value = self.fac * d[self.name][g]
+                                overall += value
                                 overall_gpu_count += 1
-                                self.node_util_index.append((n, util, g))
+                                self.node_value_index.append((n, value, g))
                         else:
-                            if self.mig:
-                                self.node_util_index.append((n, None, "#"))
+                            if self.is_mig:
+                                self.node_value_index.append((n, None, "#"))
                             else:
                                 self.error_code = 1
-                                self.node_util_index.append((n, None, None))
+                                self.node_value_index.append((n, None, None))
                                 break
-                    self.total__util_gpus = (overall, overall_gpu_count)
+                    self.total__value_gpus = (overall, overall_gpu_count)
 
                 def __str__(self) -> str:
-                    return f"{self.name}, {self.metric}, {self.operation}, {self.node_util_index}, {self.error_code}"
+                    return (f"{self.name}, {self.metric}, {self.operation}, "
+                            f"{self.node_value_index}, {self.error_code}")
 
             self.detailed_gpu_metrics = []
-            for key, value in c.GPU_METRICS.items():
-                gm = DetailedGpuMetric(key, value, self.is_mig_job())
-                # TODO not efficient to loop for metric
+            for name, settings in c.GPU_METRICS.items():
+                gm = DetailedGpuMetric(name, settings, self.is_mig_job())
                 gm.parse(sp_node)
                 self.detailed_gpu_metrics.append(gm)
  
@@ -585,8 +626,7 @@ class Jobstats:
             self.gpu_mem__node_used_total_index = []
             for n, d in sp_node.items():
                 if 'gpu_used_memory' in d and 'gpu_total_memory' in d:
-                    gpus = list(d['gpu_total_memory'].keys())
-                    gpus.sort()
+                    gpus = sorted(d['gpu_total_memory'].keys())
                     for g in gpus:
                         used  = d['gpu_used_memory'][g]
                         total = d['gpu_total_memory'][g]
@@ -604,6 +644,10 @@ class Jobstats:
                     self.gpu_mem_error_code = 3
             self.gpu_mem_total__used_alloc = (overall, overall_total)
 
+    def remove_detailed_gpu_metrics(self, js_data: dict) -> dict:
+        """Remove detailed GPU metrics that have write_to_db set to False."""
+        pass
+ 
     def __str__(self, compact=False):
         js_data = {'nodes': self.sp_node, 'total_time': self.diff, 'gpus': self.gpus}
         if compact:
@@ -622,12 +666,10 @@ class Jobstats:
 
     def is_mig_job(self) -> bool:
         """Returns true if the job ran on a MIG node."""
-        if hasattr(c, "MIG_NODES_1") and any([node in c.MIG_NODES_1 for node in self.sp_node]):
-            return True
-        elif hasattr(c, "MIG_NODES_2") and any([node in c.MIG_NODES_2 for node in self.sp_node]):
-            return True
-        else:
-            return False
+        mig_nodes_1 = getattr(c, "MIG_NODES_1", [])
+        mig_nodes_2 = getattr(c, "MIG_NODES_2", [])
+        return any(node in mig_nodes_1 or node in mig_nodes_2
+                   for node in self.sp_node)
 
     def report_job_json(self, encode):
         data = self.__str__(encode)

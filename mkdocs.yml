@@ -14,6 +14,7 @@ nav:
     - Grafana:         setup/grafana.md
     - Open OnDemand:   setup/ood.md
     - jobstats:        setup/jobstats_command.md
+    - GPU Metrics:     setup/detailed_gpu_metrics.md
     - Email Reports:   setup/smail.md
     - External Database: setup/external-database.md
   - Jobstats Tools:
