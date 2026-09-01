@@ -5,17 +5,17 @@ repo_name: PrincetonUniversity/jobstats
 nav:
   - What is Jobstats?: index.md
   - Setup:
-    - Overview:        setup/overview.md
-    - CPU Statistics:  setup/cgroups.md
-    - GPU Statistics:  setup/gpu_node_scripts.md
-    - Node Statistics: setup/node.md
-    - Job Summaries:   setup/summaries.md
-    - Prometheus:      setup/prometheus.md
-    - Grafana:         setup/grafana.md
-    - Open OnDemand:   setup/ood.md
-    - jobstats:        setup/jobstats_command.md
-    - GPU Metrics:     setup/detailed_gpu_metrics.md
-    - Email Reports:   setup/smail.md
+    - Overview:          setup/overview.md
+    - CPU Statistics:    setup/cgroups.md
+    - GPU Statistics:    setup/gpu_node_scripts.md
+    - Node Statistics:   setup/node.md
+    - Job Summaries:     setup/summaries.md
+    - Prometheus:        setup/prometheus.md
+    - Grafana:           setup/grafana.md
+    - Open OnDemand:     setup/ood.md
+    - jobstats:          setup/jobstats_command.md
+    - Detailed Metrics:  setup/detailed_gpu_metrics.md
+    - Email Reports:     setup/smail.md
     - External Database: setup/external-database.md
   - Jobstats Tools:
     - Overview:            tools/overview.md

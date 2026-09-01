@@ -1,8 +1,7 @@
-import math
 import datetime
+import math
 from abc import ABC, abstractmethod
 from textwrap import TextWrapper
-from typing import Dict
 import config as c
 from jobstats import Jobstats
 try:
@@ -23,6 +22,7 @@ class BaseFormatter(ABC):
 
     def __init__(self, js: Jobstats) -> None:
         self.js = js
+        self.gm_overall = {}
 
     @abstractmethod
     def output(self, no_color: bool=True) -> str:
@@ -144,8 +144,7 @@ class BaseFormatter(ABC):
             return f"     Time Limit: {clr}UNLIMITED{self.txt_normal}"
         if self.js.state == "COMPLETED" and self.js.timelimitraw > 0:
             self.js.time_efficiency = round(100 * self.js.diff / (SECONDS_PER_MINUTE * self.js.timelimitraw))
-            if self.js.time_efficiency > 100:
-                self.js.time_efficiency = 100
+            self.js.time_efficiency = min(self.js.time_efficiency, 100)
             if self.js.time_efficiency < c.TIME_EFFICIENCY_BLACK and self.js.diff > 3 * c.MIN_RUNTIME_SECONDS:
                 self.js.time_eff_violation = True
             if self.js.time_efficiency < c.TIME_EFFICIENCY_RED and self.js.time_eff_violation:
@@ -194,7 +193,7 @@ class BaseFormatter(ABC):
             if i == 0:
                 wrapper.initial_indent = first_indent
                 note += wrapper.fill(item)
-            elif any([item.startswith(start) for start in starts]):
+            elif any(item.startswith(start) for start in starts):
                 note += f"\n{indent}  {item}\n"
             elif item == "\n":
                 note += item
@@ -209,7 +208,7 @@ class BaseFormatter(ABC):
         else:
             styling = ""
         # add newline(s) to the end of the note
-        if any([items[-1].startswith(start) for start in starts]):
+        if any(items[-1].startswith(start) for start in starts):
             newlines = "\n"
         else:
             newlines = "\n\n"
@@ -388,8 +387,9 @@ class ClassicOutput(BaseFormatter):
                 overall, overall_gpu_count = gm.total__value_gpus
                 if overall_gpu_count:
                     self.js.metric_utilization = overall / overall_gpu_count
+                    self.gm_overall[f"{gm.name}-util"] = overall / overall_gpu_count
                     meter = self.draw_meter(round(self.js.metric_utilization), hardware="other", util=True)
-                    metric_util = f"{spaces}{gm.name} utilization  {meter}\n"
+                    metric_util = f"{spaces}{gm.name} util. {meter}\n"
                 else:
                     # set utilization to 100 to avoid triggering low utilization notes
                     self.js.metric_utilization = 100
@@ -432,19 +432,51 @@ class ClassicOutput(BaseFormatter):
         """Return the grid of metrics as a string. By only allowing for metrics
            with a zero error code, one can ensure that each list of values has
            has the same length."""
-        grid = ""
-        # first pass to get width per column
+        if not self.js.detailed_gpu_metrics:
+            return ""
+        headers = []
+        columns = []
         for gm in self.js.detailed_gpu_metrics:
             metric_found_in_prom = bool(gm.total__value_gpus[1])
             if metric_found_in_prom and gm.show_per_gpu and gm.error_code == 0:
-                name = gm.name
-        # second pass to load the values for each column
-        for gm in self.js.detailed_gpu_metrics:
-            metric_found_in_prom = bool(gm.total__value_gpus[1])
-            if metric_found_in_prom and gm.show_per_gpu and gm.error_code == 0:
-                for node, value, gpu_index in gm.node_value_index:
-                    grid += f"{node} {gpu_index} {value}\n"
-        return grid
+                headers.append(gm.name)
+                this_metric = []
+                for _, value, _ in gm.node_value_index:
+                    if "power" in gm.metric:
+                        value_str = str(round(value)) + "W"
+                    elif "temperature" in gm.metric:
+                        value_str = str(round(value)) + "\u00B0" + "C"
+                    elif "rx" in gm.metric or "tx" in gm.metric:
+                        value_str = str(self.human_bytes(round(value), 0)) + "/s"
+                    elif any(x in gm.metric for x in ("sm", "occup")):
+                        value_str = str(round(value)) + "%"
+                    elif any(x in gm.metric for x in ("duty", "tensor", "fp")):
+                        value_str = str(round(value, 1)) + "%"
+                    else:
+                        value_str = str(value)
+                    this_metric.append(value_str)
+                columns.append(this_metric)   
+                row_labels = [f"  {node} (GPU {idx})  " for node, _, idx in gm.node_value_index]
+        if not headers:
+            return ""
+        col_widths = [max(len(header), max((len(val) for val in col), default=0))
+                      for header, col in zip(headers, columns)]
+        rows = list(zip(*columns))
+        table_lines = []
+        header_line = " | ".join(h.rjust(w) for h, w in zip(headers, col_widths))
+        table_lines.append(header_line)
+        separator = "-+-".join("-" * w for w in col_widths)
+        table_lines.append(separator)
+        for row in rows:
+            row_line = " | ".join(v.rjust(w) for v, w in zip(row, col_widths))
+            table_lines.append(row_line)
+        final = []
+        for i, line in enumerate(table_lines):
+            if i < 2:
+                final.append(" " * max(map(len, row_labels)) + line)
+            else:
+                final.append(row_labels[i - 2] + line)
+        return "\n".join(final)
 
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
@@ -479,7 +511,7 @@ class ClassicOutput(BaseFormatter):
                     metric_found_in_prom = bool(gm.total__value_gpus[1])
                     if metric_found_in_prom and gm.show_overall:
                         if not divider:
-                            report += " " + 78 * "─" + "\n"
+                            report += "  " + 76 * "─" + "\n"
                             divider = True
                         report += self.output_overall_detailed_gpu_metric(gm, max_len)
         report += "\n"
@@ -557,8 +589,8 @@ class ClassicOutput(BaseFormatter):
                 report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
             # detailed GPU metrics
             if c.GPU_METRICS:
-                if len(self.js.detailed_gpu_metrics) > 30:
-                    report += self.grid_detailed_gpu_metrics()
+                if len(self.js.detailed_gpu_metrics) > 3:
+                    report += "\n" + self.grid_detailed_gpu_metrics() + "\n"
                 else:
                     for gm in self.js.detailed_gpu_metrics:
                         metric_found_in_prom = bool(gm.total__value_gpus[1])
@@ -570,16 +602,22 @@ class ClassicOutput(BaseFormatter):
                                     pct = "%" if gm.is_percentage else ""
                                     if "power" in gm.metric:
                                         pct = " W"
+                                    elif "rx" in gm.metric or "tx" in gm.metric:
+                                        value = self.human_bytes(value) + "/s"
+                                        pct = ""
                                     elif "temperature" in gm.metric:
                                         pct = "\u00B0" + "C"
                                     if value is not None and gm.is_percentage:
                                         report += f"{gutter}    {node} (GPU {gpu_index}): {value:.1f}{pct}\n"
+                                    elif value is not None and not gm.is_percentage and "rx" in gm.metric or "tx" in gm.metric:
+                                        report += f"{gutter}    {node} (GPU {gpu_index}): {value}{pct}\n"
                                     elif value is not None and not gm.is_percentage:
                                         report += f"{gutter}    {node} (GPU {gpu_index}): {round(value)}{pct}\n"
                                     else:
                                         report += f"{gutter}    An error was encountered ({gm.error_code})\n"
                             else:
                                 report += f"{gutter}    An error was encountered ({gm.error_code})\n"
+                report += "                       https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/\n"
 
         ########################################################################
         #                             BATCH SCRIPT                             #

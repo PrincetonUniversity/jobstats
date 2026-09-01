@@ -58,17 +58,19 @@ MIN_RUNTIME_SECONDS   = 10 * SAMPLING_PERIOD  # seconds
 ################################################################################
 GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
 GPU_METRICS = {}
-GPU_METRICS["GPU (max)"] = {"metric": "duty_cycle",
-                            "operation": "max_over_time",
-                            "show_overall": True,
-                            "show_per_gpu": True,
-                            "write_to_db": False,
-                            "long_name": "utilization (max)"}
+"""
+GPU_METRICS["GPU Max"] = {"metric": "duty_cycle",
+                          "operation": "max_over_time",
+                          "show_overall": True,
+                          "show_per_gpu": True,
+                          "write_to_db": False,
+                          "long_name": "utilization (max)"}
+"""
 GPU_METRICS["SM"] = {"metric": "sm_util_percent",
                      "operation": "avg_over_time",
                      "show_overall": True,
                      "show_per_gpu": True,
-                     "write_to_db": True,
+                     "write_to_db": False,
                      "long_name": "Streaming Multiprocessor (SM) utilization"}
 GPU_METRICS["OCC"] = {"metric": "sm_occupancy_percent",
                       "operation": "avg_over_time",
@@ -82,76 +84,58 @@ GPU_METRICS["TC"] = {"metric": "any_tensor_util_percent",
                      "show_per_gpu": True,
                      "write_to_db": False,
                      "long_name": "Tensor Core (TC) utilization"}
-GPU_METRICS["FP16"] = {"metric": "fp16_util_percent",
-                       "operation": "avg_over_time",
-                       "show_overall": True,
-                       "show_per_gpu": True,
-                       "write_to_db": False,
-                       "long_name": "FP16 (avg) utilization"}
-GPU_METRICS["FP16 (min)"] = {"metric": "fp32_util_percent",
-                             "operation": "min_over_time",
-                             "show_overall": True,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "FP16 (min) utilization"}
-GPU_METRICS["FP32 (avg)"] = {"metric": "fp64_util_percent",
-                             "operation": "avg_over_time",
-                             "show_overall": True,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "FP32 (avg) utilization"}
-GPU_METRICS["FP32 (max)"] = {"metric": "fp32_util_percent",
-                             "operation": "max_over_time",
-                             "show_overall": True,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "FP32 (max) utilization"}
-GPU_METRICS["FP64 (max)"] = {"metric": "fp64_util_percent",
-                             "operation": "max_over_time",
-                             "show_overall": True,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "FP64 (max) utilization"}
-GPU_METRICS["PCIE Recv."] = {"metric": "pcie_rx_per_sec",
-                             "operation": "avg_over_time",
-                             "show_overall": False,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "Data Received by GPU over PCIe (bytes/s)"}
+GPU_METRICS["FP16 Max"] = {"metric": "fp32_util_percent",
+                           "operation": "max_over_time",
+                           "show_overall": True,
+                           "show_per_gpu": True,
+                           "write_to_db": False,
+                           "long_name": "FP16 (min) utilization"}
+GPU_METRICS["FP32 Avg"] = {"metric": "fp64_util_percent",
+                           "operation": "avg_over_time",
+                           "show_overall": True,
+                           "show_per_gpu": True,
+                           "write_to_db": False,
+                           "long_name": "FP32 (avg) utilization"}
+GPU_METRICS["FP64 Max"] = {"metric": "fp64_util_percent",
+                           "operation": "max_over_time",
+                           "show_overall": True,
+                           "show_per_gpu": True,
+                           "write_to_db": False,
+                           "long_name": "FP64 (max) utilization"}
+GPU_METRICS["PCIE Recv"] = {"metric": "pcie_rx_per_sec",
+                            "operation": "avg_over_time",
+                            "show_overall": False,
+                            "show_per_gpu": True,
+                            "write_to_db": False,
+                            "long_name": "Data Received by GPU over PCIe"}
 GPU_METRICS["PCIE Sent"] = {"metric": "pcie_tx_per_sec",
                             "operation": "avg_over_time",
                             "show_overall": False,
                             "show_per_gpu": True,
                             "write_to_db": False,
-                            "long_name": "Data Transmitted from GPU over PCIe (bytes/s)"}
-GPU_METRICS["NVLink Recv."] = {"metric": "nvlink_total_rx_per_sec",
-                               "operation": "avg_over_time",
-                               "show_overall": False,
-                               "show_per_gpu": True,
-                               "write_to_db": False}
+                            "long_name": "Data Transmitted from GPU over PCIe"}
+GPU_METRICS["NVLink Recv"] = {"metric": "nvlink_total_rx_per_sec",
+                              "operation": "avg_over_time",
+                              "show_overall": False,
+                              "show_per_gpu": True,
+                              "write_to_db": False}
 GPU_METRICS["NVLink Sent"] = {"metric": "nvlink_total_tx_per_sec",
                               "operation": "avg_over_time",
                               "show_overall": False,
                               "show_per_gpu": True,
                               "write_to_db": False}
-GPU_METRICS["Power (W)"] = {"metric": "power_usage_milliwatts",
-                            "operation": "avg_over_time",
-                            "show_overall": False,
-                            "show_per_gpu": True,
-                            "write_to_db": False,
-                            "long_name": "Power Usage"}
-GPU_METRICS["Power (std)"] = {"metric": "power_usage_milliwatts",
-                              "operation": "stddev_over_time",
-                              "show_overall": False,
-                              "show_per_gpu": True,
-                              "write_to_db": False,
-                              "long_name": "Power Usage (STD)"}
-GPU_METRICS["Temp (C)"] = {"metric": "temperature_celsius",
-                           "operation": "avg_over_time",
-                           "show_overall": False,
-                           "show_per_gpu": True,
-                           "write_to_db": False,
-                           "long_name": "Temperature"}
+GPU_METRICS["Power"] = {"metric": "power_usage_milliwatts",
+                        "operation": "avg_over_time",
+                        "show_overall": False,
+                        "show_per_gpu": True,
+                        "write_to_db": False,
+                        "long_name": "Power Usage"}
+GPU_METRICS["Temp"] = {"metric": "temperature_celsius",
+                       "operation": "avg_over_time",
+                       "show_overall": False,
+                       "show_per_gpu": True,
+                       "write_to_db": False,
+                       "long_name": "Temperature"}
 
 
 ################################################################################
@@ -587,6 +571,19 @@ note = ('f"This job ran in the {self.js.qos} QOS. Each user can only run a small
         "https://researchcomputing.princeton.edu/support/knowledge-base/job-priority#test-queue")
 style = "normal"
 NOTES.append((condition, note, style))
+
+# detailed GPU metrics
+"""
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'
+note = ("The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores. Should your code be using them?")
+style = "normal"
+NOTES.append((condition, note, style))
+
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["FP64 Max-util"] > 0) and self.js.is_retained()'
+note = ("The FP64 utilization of the job was {self.gm_overall[\'FP64 Max-util\']}%. Usually AI codes do not use 64-bit arithmetic.")
+style = "normal"
+NOTES.append((condition, note, style))
+"""
 
 # grafana URL via Open OnDemand helper app for Adroit cluster
 condition = '(self.js.cluster == "adroit") and self.js.is_retained()'

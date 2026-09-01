@@ -1,15 +1,15 @@
+import base64
 import csv
+import datetime
+import gzip
+import json
 import os
 import subprocess
 import sys
-import time
-import datetime
-import requests
-import json
-import base64
-import gzip
 import syslog
+import time
 from typing import Dict
+import requests
 import config as c
 if c.EXTERNAL_DB_CONFIG.get("enabled", False):
     from db_handler import JobstatsDBHandler
@@ -119,11 +119,10 @@ class Jobstats:
                 self.sp_node = t["nodes"]
             except Exception as e:
                 print("ERROR: %s" %e)
-        if not self.sp_node:
+        if not self.sp_node and (self.diff >= 2 * SAMPLING_PERIOD):
             # call prometheus to get detailed statistics (if long enough)
-            if self.diff >= 2 * SAMPLING_PERIOD:
-                self.get_job_stats()
-        if len(self.sp_node) == 0 and json_or_base64:
+            self.get_job_stats()
+        if len(self.sp_node) == 0 and self.json_or_base64:
             return
         self.parse_stats()
         if self.batch_script:
@@ -260,7 +259,7 @@ class Jobstats:
  
         if self.jobidraw is None:
             if self.cluster:
-                clstr = c.CLUSTER_TRANS[self.cluster] if self.cluster in c.CLUSTER_TRANS else self.cluster
+                clstr = c.CLUSTER_TRANS.get(self.cluster, self.cluster)
                 msg = f"Failed to lookup job {self.jobid} on {clstr}."
                 self.error(msg)
             else:
@@ -422,7 +421,6 @@ class Jobstats:
             return f"{op}({metric_full}" + "{{cluster='{cluster}', jobid='{jobid}'}}[{diff}s:])"
         return f"{op}(({metric_full}" + "{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])"
 
-
     def get_job_stats(self, *args):
         # query CPU and Memory utilization data
         if not args or "total_memory" in args:
@@ -563,7 +561,7 @@ class Jobstats:
 
             class DetailedGpuMetric:
 
-                """Class to store individual detailed GPU metrics."""
+                """Class for individual detailed GPU metrics."""
 
                 def __init__(self, name: str, settings: Dict[str, Dict], is_mig: bool) -> None:
                     self.name = name
@@ -574,7 +572,6 @@ class Jobstats:
                     self.write_to_db  = settings["write_to_db"]
                     self.long_name    = settings.get("long_name")
                     self.is_mig = is_mig
-                    # omit "duty_cycle" why?
                     ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy")
                     self.is_percentage = any(m in self.metric for m in ms)
                     if self.is_percentage:
@@ -644,10 +641,6 @@ class Jobstats:
                     self.gpu_mem_error_code = 3
             self.gpu_mem_total__used_alloc = (overall, overall_total)
 
-    def remove_detailed_gpu_metrics(self, js_data: dict) -> dict:
-        """Remove detailed GPU metrics that have write_to_db set to False."""
-        pass
- 
     def __str__(self, compact=False):
         js_data = {'nodes': self.sp_node, 'total_time': self.diff, 'gpus': self.gpus}
         if compact:

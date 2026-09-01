@@ -1,18 +1,42 @@
 # Detailed GPU Metrics
 
-One use either NVML with GPM extension or DCGM to collect detailed GPU metrics. This applies to NVIDIA Hopper GPUs and later (e.g., H100, H200, B100, B200, B300, R100).
+Jobstats provides detailed GPU metrics in a table:
 
-## Configuration
+```
+                     SM | OCC |    TC | FP16 Max | FP32 Avg | FP64 Max | PCIE Recv | PCIE Sent | NVLink Recv | NVLink Sent | Power | Temp
+                    ----+-----+-------+----------+----------+----------+-----------+-----------+-------------+-------------+-------+-----
+della-k1g2 (GPU 4)  40% | 10% | 10.0% |     0.9% |     0.0% |     0.0% |    71MB/s |    12MB/s |      25GB/s |      25GB/s |  346W | 46°C
+della-k1g2 (GPU 5)  30% | 10% | 10.0% |     0.9% |     0.0% |     0.0% |    68MB/s |    12MB/s |      25GB/s |      25GB/s |  337W | 43°C
+della-k1g2 (GPU 6)  40% | 10% | 10.0% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s |  351W | 46°C
+della-k1g2 (GPU 7)  30% | 10% | 10.0% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s |  355W | 45°C
+```
 
-Set the exporter:
+- `SM` is Streaming Multiprocessor (SM) utilization. Measures the average activity of the Streaming Multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip. This quantity varies from 0 to 100%.
+- `OCC` is occupancy which measures the ratio of active threads (or warps) currently running on a processing core to the maximum possible number that can fit on that core at one time. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware. This quantity varies from 0 to 100%.
+- `TC` is Tensor Core utilization which is the percentage of the time that the specialized AI hardware Tensor Cores were actively working during a specific measurement interval. It tracks activity across all supported precision types (e.g., FP16, BF16, INT8, or TF32). This quantity varies from 0 to 100%.
+- `FP16 Max` is the maximum percentage of time the GPU's half-precision (FP16) arithmetic pipes/cores were active over a sample period. This quantity varies from 0 to 100%.
+- `FP32 Avg` is the time-averaged percentage of time the GPU's single-precision (FP32) arithmetic pipes/cores were active over a sample period. This quantity varies from 0 to 100%.
+- `FP64 Max` is the maximum percentage of time the GPU's double-precision (FP64) arithmetic pipes/cores were active over a sample period. This quantity varies from 0 to 100%.
+- `PCIE Recv` is the rate of data being transmitted to the GPU over the PCIe bus. This includes data being sent from the CPU to the GPU.
+- `PCIE Sent` is the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.
+- `NVLink Sent` is the aggregate rate at which a GPU sends data over its NVLink connections.
+- `NVLink Recv` is the aggregate rate at which the GPU receives data over all of its NVLink connections.
+- `Power` is the mean GPU power in units of Watts.
+- `Temp` is the temperature in units of Celsius.
+
+## Directions for System Administrators
+
+Jobstats can be configured to collect detailed GPU metrics using either NVML or DCGM. This applies to NVIDIA Hopper GPUs and later (e.g., H100, H200, B100, B200, B300, R100). It is recommended to use the NVML exporter since it is lightweight and it does not conflict with profilers such as NVIDIA Nsight.
+
+In `config.py`, set the exporter:
 
 ```python
 GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
 ```
 
-If using NVML then use version 0.2.3+ of [Jobstats (NVIDIA) Prometheus exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/).
+For `"NVML"` use version 0.2.3+ of the [Jobstats (NVIDIA) Prometheus exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/).
 
-Each GPU metric is specified as a Python dictionary:
+Each GPU metric is specified as a Python dictionary in the configuration file:
 
 ```python
 GPU_METRICS = {}
@@ -21,7 +45,7 @@ GPU_METRICS["TC"] = {"metric": "tensor_cores",
                      "show_overall": True,
                      "show_per_gpu": True,
                      "write_to_db": False,
-                     "long_name": "Tensor Core (TC)"}
+                     "long_name": "Tensor Core utilization"}
 ```
 
 The choices for "metric" are:
@@ -49,7 +73,10 @@ The choices for "operation" are:
 - "max_over_time"
 - "stddev_over_time"
 
-See `config.py` in the Jobstats GitHub repository for examples.
+Each site can construct a custom set of metrics by selecting different `"metric"` and `"operation"`. See `config.py` in the Jobstats GitHub repository for examples.
+
+To see the overall utilization of a metric choose `"show_overall": True`. This will produced a text-based meter in the output.
+Using `"write_to_db": True` will cause the metric to be stored the `AdminComment` field at job completion in either the Slurm database or an external MySQL/MariaDB database if configured. The metric will then be available when the `jobstats` command is run.
 
 ## Metrics
 
@@ -66,7 +93,6 @@ The example below returns the maximum GPU utilization:
 ```python
 GPU_METRICS["GPU Util (max)"] = {"metric": "duty_cycle",
                                  "operation": "max_over_time",
-                                 "is_percentage": True,
                                  "show_overall": True,
                                  "show_per_gpu": True,
                                  "write_to_db": False}
@@ -83,7 +109,6 @@ Below is a sample configuration entry:
 ```python
 GPU_METRICS["SM"] = {"metric": "sm_util_percent",
                      "operation": "avg_over_time",
-                     "is_percentage": True,
                      "show_overall": True,
                      "show_per_gpu": True,
                      "write_to_db": False,
@@ -104,7 +129,6 @@ Below is a sample configuration entry:
 ```python
 GPU_METRICS["OCC"] = {"metric": "sm_occupancy_percent",
                       "operation": "avg_over_time",
-                      "is_percentage": True,
                       "show_overall": True,
                       "show_per_gpu": True,
                       "write_to_db": False,
@@ -121,7 +145,7 @@ GPU_METRICS["Power (mW)"] = {"metric": "power_usage_milliwatts",
                              "show_overall": False,
                              "show_per_gpu": True,
                              "write_to_db": False,
-                             "long_name": "Power (mW)"}
+                             "long_name": "Power Usage"}
 ```
 
 ### Temperature
@@ -134,7 +158,7 @@ GPU_METRICS["Temp. (C)"] = {"metric": "temperature_celsius",
                             "show_overall": False,
                             "show_per_gpu": True,
                             "write_to_db": False,
-                            "long_name": "Temperature (C)"}
+                            "long_name": "Temperature"}
 ```
 
 ### Tensor Core Utilization
@@ -143,6 +167,14 @@ Percentage of the time that the specialized AI hardware Tensor Cores were active
 
 This quantity varies from 0 to 100%.
 
+```python
+GPU_METRICS["TC"] = {"metric": "any_tensor_util_percent",
+                     "operation": "avg_over_time",
+                     "show_overall": True,
+                     "show_per_gpu": True,
+                     "write_to_db": False,
+                     "long_name": "Tensor Core (TC) utilization"}
+```
 
 ### FP16/FP32/FP64 Utilization
 
@@ -169,21 +201,20 @@ The metric `nvidia_gpu_pcie_tx_per_sec` represents the rate of data being transm
 
 The metric `nvidia_gpu_pcie_rx_per_sec` represents the rate of data being transmitted to the GPU over the PCIe bus.
 
-### NVLink Data Rate (Received)
-
-The metric nvidia_gpu_nvlink_total_rx_per_sec represents the total rate of data being received by a specific GPU across all its active NVLink connections, measured in bytes per second. This is a critical performance counter used in high-performance computing (HPC) and deep learning environments to monitor how efficiently GPUs are communicating with one another. If this number is pinned at the maximum theoretical bandwidth of your hardware, your workload is "communication-bound." It helps ensure that your software (like NCCL for PyTorch or TensorFlow) is actually using NVLink rather than falling back to the much slower PCIe bus. A sudden drop in this value during a heavy workload could indicate a hardware failure or a "degraded" link where one or more NVLink lanes have shut down.
+The metric `nvidia_gpu_pcie_rx_per_sec` represents the rate of data being received by the GPU over the PCIe (Peripheral Component Interconnect Express) bus. In the context of GPU monitoring, this metric tracks the throughput of "Host-to-Device" (H2D) communication—essentially how fast data is moving from your CPU/System RAM into the GPU’s memory.
 
 ### NVLink Data Rate (Received)
 
-The metric nvidia_gpu_pcie_rx_per_sec represents the rate of data being received by the GPU over the PCIe (Peripheral Component Interconnect Express) bus. In the context of GPU monitoring (typically using NVIDIA DCGM and Prometheus), this metric tracks the throughput of "Host-to-Device" (H2D) communication—essentially how fast data is moving from your CPU/System RAM into the GPU’s memory.
+The metric `nvidia_gpu_nvlink_total_rx_per_sec` represents the total rate of data being received by a specific GPU across all its active NVLink connections, measured in bytes per second. This is a critical performance counter used in high-performance computing (HPC) and deep learning environments to monitor how efficiently GPUs are communicating with one another. If this number is pinned at the maximum theoretical bandwidth of your hardware, your workload is "communication-bound." It helps ensure that your software (like NCCL for PyTorch or TensorFlow) is actually using NVLink rather than falling back to the much slower PCIe bus. A sudden drop in this value during a heavy workload could indicate a hardware failure or a "degraded" link where one or more NVLink lanes have shut down.
+
+### NVLink Data Rate (Transmitted)
+
+Sames as above but data transmitted from the GPU.
 
 ## Comparison Between NVML and DCGM
 
-The table below illustrates the differences between NVML and DCGM:
+The table below illustrates the differences in the metrics between NVML and DCGM:
 
-Certainly. Here is the Markdown for the table:
-
-```markdown
 | NVML field | DCGM metric | Equivalent? | Notes |
 |---|---|---|---|
 | `nvidia_gpu_sm_occupancy_percent` | `DCGM_FI_PROF_SM_OCCUPANCY` | **Exact** | Percentage of theoretical maximum resident warps. |
@@ -200,21 +231,27 @@ Certainly. Here is the Markdown for the table:
 | `nvidia_gpu_pcie_tx_per_sec` | `DCGM_FI_PROF_PCIE_TX_BYTES` | **Exact concept** | Bytes transmitted over PCIe. |
 | `nvidia_gpu_nvlink_total_rx_per_sec` | `DCGM_FI_PROF_NVLINK_RX_BYTES` | **Exact concept** | NVLink RX traffic; aggregate across links if necessary. |
 | `nvidia_gpu_nvlink_total_tx_per_sec` | `DCGM_FI_PROF_NVLINK_TX_BYTES` | **Exact concept** | NVLink TX traffic; aggregate across links if necessary. |
-```
 
 ## Custom Job Notes
 
-The overall utilization value of metrics that are a percentage can be referenced in the notes with:
+The overall utilization value of metrics that are a percentage (e.g., "FP16") with `"show_overall: True"` can be referenced in the notes with:
 
 ```
-self.js.dgm["<SHORT-NAME>-util"]
+self.gm_overall["<SHORT-NAME>-util"]
 ```
 
-Below is an example note for a GPU cluster intended for LLM research:
+Below are two example notes for a GPU cluster intended for AI research:
 
 ```python
-condition = '(self.js.cluster == "della") and (self.js.dgm["TC-util"] == 0) and self.js.is_retained()'
-note = ("The Tensor Core utilization of the job was 0%. Usual AI codes use the Tensor Cores. Should your code be using them?")
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'
+note = ("The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores. Should your code be using them?")
+style = "normal"
+NOTES.append((condition, note, style))
+```
+
+```python
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["FP64 (max)-util"] > 0) and self.js.is_retained()'
+note = ("The FP64 utilization of the job was {self.gm_overall[\'FP64 (max)-util\']}%. Usually AI codes do not use 64-bit arithmetic.")
 style = "normal"
 NOTES.append((condition, note, style))
 ```

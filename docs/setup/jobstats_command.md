@@ -160,11 +160,11 @@ the conditions in the example notes in `config.py` to see how the other values a
 
 The following optional settings can be added:
 
-```
+```python
 # optional settings
-GPU_MEM_UTIL_RED = 25    # percentage
+GPU_MEM_UTIL_RED   = 25  # percentage
 GPU_MEM_UTIL_BLACK = 50  # percentage
-CPU_MEM_UTIL_RED = 50    # percentage
+CPU_MEM_UTIL_RED   = 50  # percentage
 CPU_MEM_UTIL_BLACK = 80  # percentage
 ```
 
@@ -184,18 +184,26 @@ MIN_RUNTIME_SECONDS = 10 * SAMPLING_PERIOD  # seconds
 
 ## Detailed GPU Metrics (Optional)
 
-There are fourteen metrics that can be made available via `config.py`. For example:
+There are several detailed GPU metrics that can be made available via `config.py` and the appropriate exporter. Here are a few of the metrics:
+
+- GPU power
+- Tensor Core utilization
+- FP64 utilization
+- NVLink transfers
+- and several others
+
+Below is an example entry for FP16 utilization:
 
 ```python
 GPU_METRICS["FP16"] = {"metric": "fp16_util_percent",
                        "operation": "avg_over_time",
-                       "is_percentage": True,
                        "show_overall": True,
                        "show_per_gpu": True,
-                       "write_to_db": False}
+                       "write_to_db": False,
+                       "long_name": "FP16 utilization"}
 ```
 
-See [GPU Metrics](detailed_gpu_metrics.md) for details.
+See [Detailed Metrics](detailed_gpu_metrics.md) for a full explanation.
 
 ## MIG GPU Nodes (Optional)
 
