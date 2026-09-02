@@ -413,6 +413,7 @@ class Jobstats:
             metrics["nvlink_total_tx_per_sec"] = "DCGM_FI_PROF_NVLINK_TX_BYTES"
             metrics["temperature_celsius"]     = "DCGM_FI_DEV_GPU_TEMP"
             metrics["power_usage_milliwatts"]  = "DCGM_FI_DEV_POWER_USAGE"
+            metrics["dram_active"]             = "DCGM_FI_PROF_DRAM_ACTIVE"
         if metric in metrics:
             metric_full = metrics[metric]
         else:
@@ -610,6 +611,7 @@ class Jobstats:
                     return (f"{self.name}, {self.metric}, {self.operation}, "
                             f"{self.node_value_index}, {self.error_code}")
 
+            # detailed gpu metrics
             self.detailed_gpu_metrics = []
             for name, settings in c.GPU_METRICS.items():
                 gm = DetailedGpuMetric(name, settings, self.is_mig_job())

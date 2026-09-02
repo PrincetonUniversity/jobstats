@@ -2,6 +2,7 @@ import datetime
 import math
 from abc import ABC, abstractmethod
 from textwrap import TextWrapper
+
 import config as c
 from jobstats import Jobstats
 try:
@@ -389,7 +390,7 @@ class ClassicOutput(BaseFormatter):
                     self.js.metric_utilization = overall / overall_gpu_count
                     self.gm_overall[f"{gm.name}-util"] = overall / overall_gpu_count
                     meter = self.draw_meter(round(self.js.metric_utilization), hardware="other", util=True)
-                    metric_util = f"{spaces}{gm.name} util. {meter}\n"
+                    metric_util = f"    {spaces}{gm.name} util. {meter}\n"
                 else:
                     # set utilization to 100 to avoid triggering low utilization notes
                     self.js.metric_utilization = 100
@@ -424,7 +425,7 @@ class ClassicOutput(BaseFormatter):
         lengths = [0]
         for gm in self.js.detailed_gpu_metrics:
             metric_found_in_prom = bool(gm.total__value_gpus[1])
-            if metric_found_in_prom:
+            if metric_found_in_prom and gm.show_overall:
                 lengths.append(len(gm.name))
         return max(lengths)
 
@@ -450,13 +451,13 @@ class ClassicOutput(BaseFormatter):
                         value_str = str(self.human_bytes(round(value), 0)) + "/s"
                     elif any(x in gm.metric for x in ("sm", "occup")):
                         value_str = str(round(value)) + "%"
-                    elif any(x in gm.metric for x in ("duty", "tensor", "fp")):
+                    elif any(x in gm.metric for x in ("duty", "tensor", "fp", "integer")):
                         value_str = str(round(value, 1)) + "%"
                     else:
                         value_str = str(value)
                     this_metric.append(value_str)
                 columns.append(this_metric)   
-                row_labels = [f"  {node} (GPU {idx})  " for node, _, idx in gm.node_value_index]
+                row_labels = [f"    {node} (GPU {idx})  " for node, _, idx in gm.node_value_index]
         if not headers:
             return ""
         col_widths = [max(len(header), max((len(val) for val in col), default=0))
@@ -470,13 +471,13 @@ class ClassicOutput(BaseFormatter):
         for row in rows:
             row_line = " | ".join(v.rjust(w) for v, w in zip(row, col_widths))
             table_lines.append(row_line)
-        final = []
+        final = [" " * max(map(len, row_labels)) + "-" * len(table_lines[1])]
         for i, line in enumerate(table_lines):
             if i < 2:
                 final.append(" " * max(map(len, row_labels)) + line)
             else:
                 final.append(row_labels[i - 2] + line)
-        return "\n".join(final)
+        return "\n".join(final) + "\n" + " " * max(map(len, row_labels)) + "-" * len(table_lines[1])
 
     def output(self, no_color: bool=True) -> str:
         if blessed_is_available and not no_color:
@@ -588,9 +589,12 @@ class ClassicOutput(BaseFormatter):
             else:
                 report += f"{gutter}    An error was encountered ({self.js.gpu_mem_error_code})\n"
             # detailed GPU metrics
-            if c.GPU_METRICS:
+            num_detailed = sum(1 for gm in self.js.detailed_gpu_metrics if gm.show_per_gpu and gm.total__value_gpus[1])
+            if c.GPU_METRICS and num_detailed > 2:
                 if len(self.js.detailed_gpu_metrics) > 3:
-                    report += "\n" + self.grid_detailed_gpu_metrics() + "\n"
+                    report += "\n  Detailed GPU Metrics\n"
+                    report += self.grid_detailed_gpu_metrics() + "\n"
+                    report += "                         https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/\n"
                 else:
                     for gm in self.js.detailed_gpu_metrics:
                         metric_found_in_prom = bool(gm.total__value_gpus[1])
@@ -617,7 +621,7 @@ class ClassicOutput(BaseFormatter):
                                         report += f"{gutter}    An error was encountered ({gm.error_code})\n"
                             else:
                                 report += f"{gutter}    An error was encountered ({gm.error_code})\n"
-                report += "                       https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/\n"
+                #report += "                       https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/\n"
 
         ########################################################################
         #                             BATCH SCRIPT                             #
