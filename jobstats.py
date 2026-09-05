@@ -374,8 +374,14 @@ class Jobstats:
                                                                                                       self.end,
                                                                                                       j))
 
+    @staticmethod
+    def internal_detailed_metric_name(metric: str, operation: str) -> str:
+        return f"{metric}_{operation[:3]}"
+
     def gpu_metric_query_string(self, metric: str, op: str) -> str:
-        """Generate the Prometheus query string for the given metric and operation."""
+        """Generate the Prometheus query string for the given metric and operation.
+           The first three letters of 'operation' is appended to the metric name
+           when a DetailedGpuMetric object is created."""
         if op not in ("avg_over_time", "max_over_time", "min_over_time", "stddev_over_time"):
             self.error(f"Operation {op} is not a supported Prometheus function.")
         metrics = {}
@@ -455,16 +461,17 @@ class Jobstats:
             if c.GPU_METRICS and c.GPU_METRICS_EXPORTER == "None":
                 self.error('Must set exporter to "NVML" or "DCGM" when GPU_METRICS is not empty.')
             if not args or c.GPU_METRICS:
-                for name, settings in c.GPU_METRICS.items():
+                for _, settings in c.GPU_METRICS.items():
                     metric = settings["metric"]
                     operation = settings["operation"]
                     write_to_db = settings["write_to_db"]
+                    name_ss = Jobstats.internal_detailed_metric_name(metric, operation)
                     prom_query_str = self.gpu_metric_query_string(metric, operation)
                     if self.json_or_base64:
                         if write_to_db:
-                            self.get_data(name, prom_query_str)
+                            self.get_data(name_ss, prom_query_str)
                     else:
-                        self.get_data(name, prom_query_str)
+                        self.get_data(name_ss, prom_query_str)
 
     def parse_stats(self):
         sp_node = self.sp_node
@@ -584,6 +591,9 @@ class Jobstats:
                     # finally correct duty_cycle
                     if "duty" in self.metric:
                         self.is_percentage = True
+                    # internal metric name for summary statistics
+                    self.__name_ss = Jobstats.internal_detailed_metric_name(self.metric,
+                                                                            self.operation)
 
                 def parse(self, sp_node: dict) -> None:
                     overall = 0
@@ -591,10 +601,10 @@ class Jobstats:
                     self.error_code = 0
                     self.node_value_index = []
                     for n, d in sp_node.items():
-                        if self.name in d:
-                            gpus = sorted(d[self.name].keys())
+                        if self.__name_ss in d:
+                            gpus = sorted(d[self.__name_ss].keys())
                             for g in gpus:
-                                value = self.fac * d[self.name][g]
+                                value = self.fac * d[self.__name_ss][g]
                                 overall += value
                                 overall_gpu_count += 1
                                 self.node_value_index.append((n, value, g))

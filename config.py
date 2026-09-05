@@ -573,14 +573,17 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # detailed GPU metrics
-"""
-condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'
-note = ("The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores. Should your code be using them?")
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition  or "ailab" in self.js.partition) and ' \
+            '("TC-util" in self.gm_overall) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'
+note = ("The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores.")
 style = "normal"
 NOTES.append((condition, note, style))
 
-condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["FP64 Max-util"] > 0) and self.js.is_retained()'
-note = ("The FP64 utilization of the job was {self.gm_overall[\'FP64 Max-util\']}%. Usually AI codes do not use 64-bit arithmetic.")
+"""
+condition = '(self.js.cluster == "della") and ("pli" in self.js.partition or "ailab" in self.js.partition) and ' \
+            '("FP64 Max-util" in self.gm_overall) and (self.gm_overall["FP64 Max-util"] > 0) and ' \
+            'self.js.is_retained()'
+note = (f'"The FP64 utilization of the job was {self.gm_overall["FP64 Max-util"]}%. Most AI codes do not use FP64 arithmetic."')
 style = "normal"
 NOTES.append((condition, note, style))
 """
