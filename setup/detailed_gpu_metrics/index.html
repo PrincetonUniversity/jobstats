@@ -1,0 +1,1777 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/">
+      
+      
+        <link rel="prev" href="../jobstats_command/">
+      
+      
+        <link rel="next" href="../smail/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Detailed Metrics - Jobstats</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#detailed-gpu-metrics" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Jobstats" class="md-header__button md-logo" aria-label="Jobstats" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Jobstats
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Detailed Metrics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="blue"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="deep-purple"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/PrincetonUniversity/jobstats" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PrincetonUniversity/jobstats
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Jobstats" class="md-nav__button md-logo" aria-label="Jobstats" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Jobstats
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/PrincetonUniversity/jobstats" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    PrincetonUniversity/jobstats
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What is Jobstats?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Setup
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cgroups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CPU Statistics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gpu_node_scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPU Statistics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node Statistics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../summaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job Summaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prometheus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prometheus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Grafana
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ood/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Open OnDemand
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../jobstats_command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    jobstats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detailed Metrics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Detailed Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-for-system-administrators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration for System Administrators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gpu-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#streaming-multiprocessor-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming Multiprocessor Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#occupancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Occupancy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temperature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensor-core-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensor Core Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fp16fp32fp64-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FP16/FP32/FP64 Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integer-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integer Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-to-cpu-data-transfer-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU to CPU Data Transfer Rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-transfer-rate-to-the-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Transfer Rate to the GPU
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nvlink-data-rate-received" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NVLink Data Rate (Received)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nvlink-data-rate-transmitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NVLink Data Rate (Transmitted)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-between-nvml-and-dcgm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison Between NVML and DCGM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-job-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Job Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../smail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Email Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../external-database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Jobstats Tools
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Jobstats Tools
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/job_defense_shield/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job Defense Shield
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/gpudash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GPU Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/reportseff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reportseff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tools/utilization_reports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilization Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../publications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Publications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-for-system-administrators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration for System Administrators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metrics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Metrics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gpu-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#streaming-multiprocessor-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Streaming Multiprocessor Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#occupancy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Occupancy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#power" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Power
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temperature
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensor-core-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensor Core Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fp16fp32fp64-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FP16/FP32/FP64 Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integer-utilization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integer Utilization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gpu-to-cpu-data-transfer-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GPU to CPU Data Transfer Rate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-transfer-rate-to-the-gpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Transfer Rate to the GPU
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nvlink-data-rate-received" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NVLink Data Rate (Received)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nvlink-data-rate-transmitted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NVLink Data Rate (Transmitted)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-between-nvml-and-dcgm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison Between NVML and DCGM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-job-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Job Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="detailed-gpu-metrics">Detailed GPU Metrics</h1>
+<p>Jobstats provides the following detailed GPU metrics:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                     SM | OCC |  TC | INT | FP16 Max | FP32 Avg | FP64 Max | PCIe Recv | PCIe Sent | NVLink Recv | NVLink Sent | Power | Temp
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                    ----+-----+-----+-----+----------+----------+----------+-----------+-----------+-------------+-------------+-------+-----
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>della-k1g2 (GPU 4)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    71MB/s |    12MB/s |      25GB/s |      25GB/s | 346 W | 46°C
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>della-k1g2 (GPU 5)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    68MB/s |    12MB/s |      25GB/s |      25GB/s | 337 W | 43°C
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>della-k1g2 (GPU 6)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 351 W | 46°C
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>della-k1g2 (GPU 7)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 355 W | 45°C
+</span></code></pre></div>
+<p>At Princeton Research Computing, these GPU metrics are measured every 30 seconds. Below is the definition of each:</p>
+<ul>
+<li><code>SM</code> is streaming multiprocessor (SM) utilization. The quantity measures the average activity of the streaming multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip. For reference, an NVIDIA H100 SXM GPU has 132 SMs. This quantity varies from 0 to 100%. SM utilization is less than or equal to GPU utilization.</li>
+<li><code>OCC</code> is occupancy which measures the time-averaged ratio of active threads (or warps) currently running on a processing core to the maximum possible number that can fit on that core at one time, averaged over all cores. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware. This quantity varies from 0 to 100%. An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed. Occupancy is typically less than both GPU utilization and SM utilization.</li>
+<li><code>TC</code> is Tensor Core utilization which is the time-averaged percentage of time that the specialized AI hardware Tensor Cores were actively working during a specific measurement interval. It tracks activity across all supported precision types (e.g., FP16, BF16, INT8, or TF32). For reference, an NVIDIA H100 SXM GPU has 528 Tensor Cores. This quantity varies from 0 to 100%. Deep learning codes like PyTorch will automatically use the Tensor Cores when possible.</li>
+<li><code>INT</code> is the time average of the measurements of the percentage of time that the integer (INT) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.</li>
+<li><code>FP16 Max</code> is the maximum value of the measurements of the percentage of time that the half-precision (FP16) arithmetic pipes/cores of the GPU were active over the lifetime of the job. This quantity varies from 0 to 100%. Note that FP16 operations performed on the Tensor Cores are not included by this metric.</li>
+<li><code>FP32 Avg</code> is the time average of the measurements of the percentage of time that the single-precision (FP32) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.</li>
+<li><code>FP64 Max</code> is the maximum value of the measurements of the percentage of time that the double-precision (FP64) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.</li>
+<li><code>PCIe Recv</code> is the rate of data being transmitted to the GPU from the host (CPU/system memory) over the PCIe bus. PCIe (Peripheral Component Interconnect Express) is the high-speed communication bus that connects the GPU to the CPU and the rest of the computer. In a deep learning training workload, batches of data are almost continuously sent from the CPU to the GPU. The maximum value for this metric is typically tens of gigabytes per second.</li>
+<li><code>PCIe Sent</code> is the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.</li>
+<li><code>NVLink Sent</code> is the averge value of the measurements of the aggregate rate at which a GPU sends data over its NVLink connections during the brief measurement interval. NVLink is a high-speed GPU-to-GPU interconnect that enables fast data transfers. For example, during multi-GPU AI training, GPUs frequently exchange gradients or other tensors. If that communication goes over NVLink rather than PCIe, a significant performance gain can be achieved. If you have access to a multi-GPU node, run the command <code>nvidia-smi topo -m</code> to see the NVLink topology and interconnect map. Not all GPU systems provide NVLink. Single-GPU jobs will not use NVLink.</li>
+<li><code>NVLink Recv</code> is the averge value of the measurements of the aggregate rate at which the GPU receives data over all of its NVLink connections during the brief measurement interval.</li>
+<li><code>Power</code> is the time-averaged GPU power usage in units of Watts.</li>
+<li><code>Temp</code> is the time-averaged temperature in units of Celsius.</li>
+<li><code>GPU utilization</code> is the percentage of time that a GPU kernel is running on the GPU. This quantity is independent of the number of threads being used. It varies between 0 to 100%. The instantaneous value of this metric can be obtained by running the <code>nvidia-smi</code> command.</li>
+</ul>
+<h2 id="configuration-for-system-administrators">Configuration for System Administrators</h2>
+<p>Jobstats can be configured to collect detailed GPU metrics using either NVML or DCGM. This applies to NVIDIA Hopper GPUs and later (e.g., H100, H200, B100, B200, B300, R100). It is recommended to use the NVML exporter since it is lightweight and it does not conflict with profilers such as NVIDIA Nsight.</p>
+<p>In <code>config.py</code>, set the exporter:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">GPU_METRICS_EXPORTER</span> <span class="o">=</span> <span class="s2">"NVML"</span>  <span class="c1"># choices are "None", "NVML" or "DCGM"</span>
+</span></code></pre></div>
+<p>For <code>"NVML"</code> use version 0.2.3+ of the <a href="https://github.com/plazonic/nvidia_gpu_prometheus_exporter/">Jobstats (NVIDIA) Prometheus exporter</a>.</p>
+<p>Each GPU metric is specified as a Python dictionary in the configuration file:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">GPU_METRICS</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"TC"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"tensor_cores"</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>                     <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>                     <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>                     <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>                     <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>                     <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Tensor Core utilization"</span><span class="p">}</span>
+</span></code></pre></div>
+<p>The choices for "metric" are:</p>
+<ul>
+<li><code>"duty_cycle"</code></li>
+<li><code>"sm"</code></li>
+<li><code>"occupancy"</code></li>
+<li><code>"fp16"</code></li>
+<li><code>"fp32"</code></li>
+<li><code>"fp64"</code></li>
+<li><code>"integer"</code></li>
+<li><code>"tensor_cores"</code></li>
+<li><code>"memory_used_bytes"</code></li>
+<li><code>"power_usage_milliwatts"</code></li>
+<li><code>"temperature_celsius"</code></li>
+<li><code>"pcie_rx_per_sec"</code></li>
+<li><code>"pcie_tx_per_sec"</code></li>
+<li><code>"nvlink_total_rx_per_sec"</code></li>
+<li><code>"nvlink_total_tx_per_sec"</code></li>
+</ul>
+<p>The choices for "operation" are:</p>
+<ul>
+<li><code>"min_over_time"</code></li>
+<li><code>"avg_over_time"</code></li>
+<li><code>"max_over_time"</code></li>
+<li><code>"stddev_over_time"</code></li>
+</ul>
+<p>Each site can construct a custom set of metrics by selecting different <code>"metric"</code> and <code>"operation"</code>. See <code>config.py</code> in the Jobstats GitHub repository for examples.</p>
+<p>To see the overall utilization of a metric choose <code>"show_overall": True</code>. This will produced a text-based meter in the output.
+Using <code>"write_to_db": True</code> will cause the metric to be stored the <code>AdminComment</code> field at job completion in either the Slurm database or an external MySQL/MariaDB database if configured. The metric will then be available when the <code>jobstats</code> command is run.</p>
+<h2 id="metrics">Metrics</h2>
+<h3 id="gpu-utilization">GPU Utilization</h3>
+<p>The percentage of time that a GPU kernel is running on the GPU. This quantity is independent of the number of threads being used.</p>
+<p>This quantity varies from 0 to 100%.</p>
+<p>Most users are familar with this metric from the <code>nvidia-smi</code> command.</p>
+<p>The example below returns the maximum GPU utilization:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"GPU Util (max)"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"duty_cycle"</span><span class="p">,</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>                                 <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"max_over_time"</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>                                 <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>                                 <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                                 <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="streaming-multiprocessor-utilization">Streaming Multiprocessor Utilization</h3>
+<p>Measures the average activity of the Streaming Multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip.</p>
+<p>SM utilization is less than or equal GPU utilization.</p>
+<p>Below is a sample configuration entry:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"SM"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"sm_util_percent"</span><span class="p">,</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                     <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                     <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                     <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>                     <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                     <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Streaming Multiprocessor (SM) utilization"</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="occupancy">Occupancy</h3>
+<p>GPU occupancy measures the ratio of active threads or warps currently running on a processing core to the maximum possible number that can fit on that core at one time. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware.</p>
+<p>An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed.</p>
+<p>Occupancy utilization tends to fall below both GPU utilization and SM utilization.</p>
+<p>Below is a sample configuration entry:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"OCC"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"sm_occupancy_percent"</span><span class="p">,</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                      <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                      <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>                      <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>                      <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>                      <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Occupancy"</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="power">Power</h3>
+<p>The power per GPU is available.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"Power (mW)"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"power_usage_milliwatts"</span><span class="p">,</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>                             <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>                             <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>                             <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>                             <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>                             <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Power Usage"</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="temperature">Temperature</h3>
+<p>The temperature per GPU in units of Celsius is available.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"Temp. (C)"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"temperature_celsius"</span><span class="p">,</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>                            <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>                            <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>                            <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                            <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>                            <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Temperature"</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="tensor-core-utilization">Tensor Core Utilization</h3>
+<p>Percentage of the time that the specialized AI hardware Tensor Cores were actively working during a specific measurement interval. It tracks activity across all supported precision types (e.g., FP16, BF16, INT8, or TF32).</p>
+<p>This quantity varies from 0 to 100%.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">GPU_METRICS</span><span class="p">[</span><span class="s2">"TC"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"metric"</span><span class="p">:</span> <span class="s2">"any_tensor_util_percent"</span><span class="p">,</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>                     <span class="s2">"operation"</span><span class="p">:</span> <span class="s2">"avg_over_time"</span><span class="p">,</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>                     <span class="s2">"show_overall"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>                     <span class="s2">"show_per_gpu"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>                     <span class="s2">"write_to_db"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>                     <span class="s2">"long_name"</span><span class="p">:</span> <span class="s2">"Tensor Core (TC) utilization"</span><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="fp16fp32fp64-utilization">FP16/FP32/FP64 Utilization</h3>
+<p>Percentage of time the GPU's half-precision (FP16) arithmetic pipes/cores were active over a sample period.</p>
+<p>These three quantities each vary from 0 to 100%.</p>
+<p>Consider looking at FP64 with <code>max_over_time</code> on a cluster for AI research to find codes that are using double precision.</p>
+<h3 id="integer-utilization">Integer Utilization</h3>
+<p>Percentage of time the integer arithmetic pipes/cores were active over a sample period.</p>
+<p>This quantity varies from 0 to 100%.</p>
+<h3 id="gpu-to-cpu-data-transfer-rate">GPU to CPU Data Transfer Rate</h3>
+<p>The metric <code>nvidia_gpu_pcie_tx_per_sec</code> represents the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.</p>
+<h3 id="data-transfer-rate-to-the-gpu">Data Transfer Rate to the GPU</h3>
+<p>The metric <code>nvidia_gpu_pcie_rx_per_sec</code> represents the rate of data being transmitted to the GPU over the PCIe bus.</p>
+<p>The metric <code>nvidia_gpu_pcie_rx_per_sec</code> represents the rate of data being received by the GPU over the PCIe (Peripheral Component Interconnect Express) bus. In the context of GPU monitoring, this metric tracks the throughput of "Host-to-Device" (H2D) communication—essentially how fast data is moving from your CPU/System RAM into the GPU’s memory.</p>
+<h3 id="nvlink-data-rate-received">NVLink Data Rate (Received)</h3>
+<p>The metric <code>nvidia_gpu_nvlink_total_rx_per_sec</code> represents the total rate of data being received by a specific GPU across all its active NVLink connections, measured in bytes per second. This is a critical performance counter used in high-performance computing (HPC) and deep learning environments to monitor how efficiently GPUs are communicating with one another. If this number is pinned at the maximum theoretical bandwidth of your hardware, your workload is "communication-bound." It helps ensure that your software (like NCCL for PyTorch or TensorFlow) is actually using NVLink rather than falling back to the much slower PCIe bus. A sudden drop in this value during a heavy workload could indicate a hardware failure or a "degraded" link where one or more NVLink lanes have shut down.</p>
+<h3 id="nvlink-data-rate-transmitted">NVLink Data Rate (Transmitted)</h3>
+<p>Sames as above but data transmitted from the GPU.</p>
+<h2 id="comparison-between-nvml-and-dcgm">Comparison Between NVML and DCGM</h2>
+<p>The table below illustrates the differences in the metrics between NVML and DCGM:</p>
+<table>
+<thead>
+<tr>
+<th>NVML field</th>
+<th>DCGM metric</th>
+<th>Equivalent?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nvidia_gpu_sm_occupancy_percent</code></td>
+<td><code>DCGM_FI_PROF_SM_OCCUPANCY</code></td>
+<td><strong>Exact</strong></td>
+<td>Percentage of theoretical maximum resident warps.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_sm_util_percent</code></td>
+<td><code>DCGM_FI_PROF_SM_ACTIVE</code></td>
+<td><strong>Very close / exact concept</strong></td>
+<td>Percentage of cycles in which an SM has ≥1 warp assigned.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_fp16_util_percent</code></td>
+<td><code>DCGM_FI_PROF_PIPE_FP16_ACTIVE</code></td>
+<td><strong>Exact</strong></td>
+<td>FP16 pipe activity; <strong>does not include HMMA tensor operations</strong>.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_fp32_util_percent</code></td>
+<td><code>DCGM_FI_PROF_PIPE_FP32_ACTIVE</code></td>
+<td><strong>Exact</strong></td>
+<td>FP32 pipe activity.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_fp64_util_percent</code></td>
+<td><code>DCGM_FI_PROF_PIPE_FP64_ACTIVE</code></td>
+<td><strong>Exact</strong></td>
+<td>FP64 pipe activity.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_integer_util</code></td>
+<td><code>DCGM_FI_PROF_PIPE_INT_ACTIVE</code></td>
+<td><strong>Exact</strong></td>
+<td>Integer pipe activity.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_duty_cycle</code></td>
+<td><code>DCGM_FI_DEV_GPU_UTIL</code></td>
+<td><strong>Approximate</strong></td>
+<td>General GPU utilization; probably the closest DCGM equivalent.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_memory_used_bytes</code></td>
+<td><code>DCGM_FI_DEV_FB_USED</code></td>
+<td><strong>Exact concept</strong></td>
+<td>DCGM reports MiB rather than bytes; multiply by <code>1024²</code>.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_memory_total_bytes</code></td>
+<td><code>DCGM_FI_DEV_FB_TOTAL</code></td>
+<td><strong>Exact concept</strong></td>
+<td>If available in your DCGM version; otherwise derive from used + free.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_any_tensor_util_percent</code></td>
+<td><code>DCGM_FI_PROF_PIPE_TENSOR_ACTIVE</code></td>
+<td><strong>Exact</strong></td>
+<td>Activity of tensor pipelines.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_pcie_rx_per_sec</code></td>
+<td><code>DCGM_FI_PROF_PCIE_RX_BYTES</code></td>
+<td><strong>Exact concept</strong></td>
+<td>Bytes received over PCIe; depending on exporter, this may already be a rate.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_pcie_tx_per_sec</code></td>
+<td><code>DCGM_FI_PROF_PCIE_TX_BYTES</code></td>
+<td><strong>Exact concept</strong></td>
+<td>Bytes transmitted over PCIe.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_nvlink_total_rx_per_sec</code></td>
+<td><code>DCGM_FI_PROF_NVLINK_RX_BYTES</code></td>
+<td><strong>Exact concept</strong></td>
+<td>NVLink RX traffic; aggregate across links if necessary.</td>
+</tr>
+<tr>
+<td><code>nvidia_gpu_nvlink_total_tx_per_sec</code></td>
+<td><code>DCGM_FI_PROF_NVLINK_TX_BYTES</code></td>
+<td><strong>Exact concept</strong></td>
+<td>NVLink TX traffic; aggregate across links if necessary.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="custom-job-notes">Custom Job Notes</h2>
+<p>The overall utilization value of metrics that are a percentage (e.g., "FP16") with <code>"show_overall: True"</code> can be referenced in the notes with:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>self.gm_overall["&lt;SHORT-NAME&gt;-util"]
+</span></code></pre></div>
+<p>Below are two example notes for a GPU cluster intended for AI research:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">condition</span> <span class="o">=</span> <span class="s1">'(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">note</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores. Should your code be using them?"</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">style</span> <span class="o">=</span> <span class="s2">"normal"</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">NOTES</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">condition</span><span class="p">,</span> <span class="n">note</span><span class="p">,</span> <span class="n">style</span><span class="p">))</span>
+</span></code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">condition</span> <span class="o">=</span> <span class="s1">'(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["FP64 (max)-util"] &gt; 0) and self.js.is_retained()'</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">note</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"The FP64 utilization of the job was </span><span class="si">{self.gm_overall[\'FP64 (max)-util\']}</span><span class="s2">%. Usually AI codes do not use 64-bit arithmetic."</span><span class="p">)</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">style</span> <span class="o">=</span> <span class="s2">"normal"</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">NOTES</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">condition</span><span class="p">,</span> <span class="n">note</span><span class="p">,</span> <span class="n">style</span><span class="p">))</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../jobstats_command/" class="md-footer__link md-footer__link--prev" aria-label="Previous: jobstats">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                jobstats
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../smail/" class="md-footer__link md-footer__link--next" aria-label="Next: Email Reports">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Email Reports
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy;2026 Princeton University. All rights reserved.
+    </div>
+  
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/PrincetonUniversity/jobstats" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.footer"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
