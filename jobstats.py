@@ -396,6 +396,7 @@ class Jobstats:
             metrics["fp32_util_percent"]       = "nvidia_gpu_fp32_util_percent"
             metrics["fp64_util_percent"]       = "nvidia_gpu_fp64_util_percent"
             metrics["integer_util"]            = "nvidia_gpu_integer_util"
+            metrics["dram_bw_util_percent"]    = "nvidia_gpu_dram_bw_util_percent"
             metrics["pcie_rx_per_sec"]         = "nvidia_gpu_pcie_rx_per_sec"
             metrics["pcie_tx_per_sec"]         = "nvidia_gpu_pcie_tx_per_sec"
             metrics["nvlink_total_rx_per_sec"] = "nvidia_gpu_nvlink_total_rx_per_sec"
@@ -413,13 +414,13 @@ class Jobstats:
             metrics["fp32_util_percent"]       = "DCGM_FI_PROF_PIPE_FP32_ACTIVE"
             metrics["fp64_util_percent"]       = "DCGM_FI_PROF_PIPE_FP64_ACTIVE"
             metrics["integer_util"]            = "DCGM_FI_PROF_PIPE_INT_ACTIVE"
+            metrics["dram_active"]             = "DCGM_FI_PROF_DRAM_ACTIVE"
             metrics["pcie_rx_per_sec"]         = "DCGM_FI_PROF_PCIE_RX_BYTES"
             metrics["pcie_tx_per_sec"]         = "DCGM_FI_PROF_PCIE_TX_BYTES"
             metrics["nvlink_total_rx_per_sec"] = "DCGM_FI_PROF_NVLINK_RX_BYTES"
             metrics["nvlink_total_tx_per_sec"] = "DCGM_FI_PROF_NVLINK_TX_BYTES"
             metrics["temperature_celsius"]     = "DCGM_FI_DEV_GPU_TEMP"
             metrics["power_usage_milliwatts"]  = "DCGM_FI_DEV_POWER_USAGE"
-            metrics["dram_active"]             = "DCGM_FI_PROF_DRAM_ACTIVE"
         if metric in metrics:
             metric_full = metrics[metric]
         else:
@@ -580,7 +581,7 @@ class Jobstats:
                     self.write_to_db  = settings["write_to_db"]
                     self.long_name    = settings.get("long_name")
                     self.is_mig = is_mig
-                    ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy")
+                    ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy", "dram")
                     self.is_percentage = any(m in self.metric for m in ms)
                     if self.is_percentage:
                         self.fac = 100

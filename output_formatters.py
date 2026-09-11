@@ -449,7 +449,7 @@ class ClassicOutput(BaseFormatter):
                         value_str = str(round(value)) + "\u00B0" + "C"
                     elif "rx" in gm.metric or "tx" in gm.metric:
                         value_str = str(self.human_bytes(round(value), 0)) + "/s"
-                    elif any(x in gm.metric for x in ("sm", "occup")):
+                    elif any(x in gm.metric for x in ("sm", "occup", "dram")):
                         value_str = str(round(value)) + "%"
                     elif any(x in gm.metric for x in ("duty", "tensor", "fp", "integer")):
                         value_str = str(round(value, 1)) + "%"

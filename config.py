@@ -100,6 +100,12 @@ GPU_METRICS["FP64 Max"] = {"metric": "fp64_util_percent",
                            "show_per_gpu": True,
                            "write_to_db": True,
                            "long_name": "FP64 (max) utilization"}
+GPU_METRICS["DRAM BW"] = {"metric": "dram_bw_util_percent",
+                          "operation": "avg_over_time",
+                          "show_overall": True,
+                          "show_per_gpu": True,
+                          "write_to_db": True,
+                          "long_name": "DRAM Bandwidth utilization"}
 GPU_METRICS["PCIe Recv"] = {"metric": "pcie_rx_per_sec",
                             "operation": "avg_over_time",
                             "show_overall": False,
@@ -453,9 +459,9 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 condition = '(self.js.cluster == "tiger3") and (self.js.partition == "gpu") and ' \
-            '(not zero_gpu) and (cores_per_gpu > 12)'
+            '(not zero_gpu) and (cores_per_gpu > 28)'
 note = ("Each node on Tiger (gpu) has 112 CPU-cores and 4 GPUs. If possible " \
-        "please try to allocate only up to 12 CPU-cores per GPU. This will " \
+        "please try to allocate only up to 28 CPU-cores per GPU. This will " \
         "prevent the situation where there are free GPUs on a node but not " \
         "enough CPU-cores to accept new jobs. For more info:",
         "https://researchcomputing.princeton.edu/systems/tiger")
@@ -610,7 +616,7 @@ style = "normal"
 NOTES.append((condition, note, style))
 
 # grafana URL via Open OnDemand helper app for Tiger cluster
-condition = '(self.js.cluster == "tiger") and self.js.is_retained()'
+condition = '(self.js.cluster == "tiger3") and self.js.is_retained()'
 note = ("See the URL below for various job metrics plotted as a function of time:",
         'f"https://mytiger.princeton.edu/pun/sys/jobstats/{self.js.jobid}  (VPN required off-campus)"')
 style = "normal"

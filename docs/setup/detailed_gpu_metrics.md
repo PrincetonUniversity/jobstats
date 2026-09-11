@@ -3,12 +3,12 @@
 Jobstats provides the following detailed GPU metrics:
 
 ```
-                     SM | OCC |  TC | INT | FP16 Max | FP32 Avg | FP64 Max | PCIe Recv | PCIe Sent | NVLink Recv | NVLink Sent | Power | Temp
-                    ----+-----+-----+-----+----------+----------+----------+-----------+-----------+-------------+-------------+-------+-----
-della-k1g2 (GPU 4)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    71MB/s |    12MB/s |      25GB/s |      25GB/s | 346 W | 46°C
-della-k1g2 (GPU 5)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    68MB/s |    12MB/s |      25GB/s |      25GB/s | 337 W | 43°C
-della-k1g2 (GPU 6)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 351 W | 46°C
-della-k1g2 (GPU 7)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 355 W | 45°C
+                     SM | OCC |  TC | INT | FP16 Max | FP32 Avg | FP64 Max | DRAM BW | PCIe Recv | PCIe Sent | NVLink Recv | NVLink Sent | Power | Temp
+                    ----+-----+-----+-----+----------+----------+----------+---------+-----------+-----------+-------------+-------------+-------+-----
+della-k1g2 (GPU 4)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |     30% |    71MB/s |    12MB/s |      25GB/s |      25GB/s | 346 W | 46°C
+della-k1g2 (GPU 5)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |     25% |    68MB/s |    12MB/s |      25GB/s |      25GB/s | 337 W | 43°C
+della-k1g2 (GPU 6)  40% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |     30% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 351 W | 46°C
+della-k1g2 (GPU 7)  30% | 10% | 15% |  6% |     0.9% |     0.0% |     0.0% |     25% |    69MB/s |    12MB/s |      25GB/s |      25GB/s | 355 W | 45°C
 ```
 
 At Princeton Research Computing, these GPU metrics are measured every 30 seconds. Below is the definition of each:
@@ -20,6 +20,7 @@ At Princeton Research Computing, these GPU metrics are measured every 30 seconds
 - `FP16 Max` is the maximum value of the measurements of the percentage of time that the half-precision (FP16) arithmetic pipes/cores of the GPU were active over the lifetime of the job. This quantity varies from 0 to 100%. Note that FP16 operations performed on the Tensor Cores are not included by this metric.
 - `FP32 Avg` is the time average of the measurements of the percentage of time that the single-precision (FP32) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.
 - `FP64 Max` is the maximum value of the measurements of the percentage of time that the double-precision (FP64) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.
+- `DRAM BW` is the percentage of the GPU's theoretical maximum DRAM memory bandwidth that is being used. This relates to data movement between the GPU memory and the GPU streaming multiprocessors  where the numerical operations are carried out. For reference, an NVIDIA H100 SXM GPU has a theoretical maximum DRAM memory bandwidth of 3.35 TB/s. This quantity varies from 0 to 100%.
 - `PCIe Recv` is the rate of data being transmitted to the GPU from the host (CPU/system memory) over the PCIe bus. PCIe (Peripheral Component Interconnect Express) is the high-speed communication bus that connects the GPU to the CPU and the rest of the computer. In a deep learning training workload, batches of data are almost continuously sent from the CPU to the GPU. The maximum value for this metric is typically tens of gigabytes per second.
 - `PCIe Sent` is the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.
 - `NVLink Sent` is the averge value of the measurements of the aggregate rate at which a GPU sends data over its NVLink connections during the brief measurement interval. NVLink is a high-speed GPU-to-GPU interconnect that enables fast data transfers. For example, during multi-GPU AI training, GPUs frequently exchange gradients or other tensors. If that communication goes over NVLink rather than PCIe, a significant performance gain can be achieved. If you have access to a multi-GPU node, run the command `nvidia-smi topo -m` to see the NVLink topology and interconnect map. Not all GPU systems provide NVLink. Single-GPU jobs will not use NVLink.
@@ -62,6 +63,7 @@ The choices for "metric" are:
 - `"fp64"`
 - `"integer"`
 - `"tensor_cores"`
+- `"dram_bw_util_percent"`
 - `"memory_used_bytes"`
 - `"power_usage_milliwatts"`
 - `"temperature_celsius"`
@@ -188,6 +190,20 @@ These three quantities each vary from 0 to 100%.
 
 Consider looking at FP64 with `max_over_time` on a cluster for AI research to find codes that are using double precision.
 
+### DRAM Bandwidth Percentage
+
+Percentage of the theoretical bandwidth being used.
+
+```python
+GPU_METRICS["DRAM BW"] = {"metric": "dram_bw_util_percent",
+                          "operation": "avg_over_time",
+                          "show_overall": True,
+                          "show_per_gpu": True,
+                          "write_to_db": True,
+                          "long_name": "DRAM Bandwidth utilization"}
+```
+
+This quantity varies from 0 to 100%.
 
 ### Integer Utilization
 
