@@ -20,7 +20,7 @@ At Princeton Research Computing, these GPU metrics are measured every 30 seconds
 - `FP16 Max` is the maximum value of the measurements of the percentage of time that the half-precision (FP16) arithmetic pipes/cores of the GPU were active over the lifetime of the job. This quantity varies from 0 to 100%. Note that FP16 operations performed on the Tensor Cores are not included by this metric.
 - `FP32 Avg` is the time average of the measurements of the percentage of time that the single-precision (FP32) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.
 - `FP64 Max` is the maximum value of the measurements of the percentage of time that the double-precision (FP64) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.
-- `DRAM BW` is the percentage of the GPU's theoretical maximum DRAM memory bandwidth that is being used. This relates to data movement between the GPU memory and the GPU streaming multiprocessors  where the numerical operations are carried out. For reference, an NVIDIA H100 SXM GPU has a theoretical maximum DRAM memory bandwidth of 3.35 TB/s. This quantity varies from 0 to 100%.
+- `DRAM BW` is the percentage of the GPU's theoretical maximum DRAM memory bandwidth that is being used. This relates to data movement between the GPU memory and the GPU streaming multiprocessors  where the numerical operations are carried out. For reference, an NVIDIA H100 SXM GPU has a theoretical maximum DRAM memory bandwidth of 3.35 TB/s. This quantity varies from 0 to 100%. High SM utilization with low DRAM BW utilization suggests compute-heavy work, while low/moderate SM utilization with high DRAM BW utilization is a strong indication of a memory-bandwidth-bound application.
 - `PCIe Recv` is the rate of data being transmitted to the GPU from the host (CPU/system memory) over the PCIe bus. PCIe (Peripheral Component Interconnect Express) is the high-speed communication bus that connects the GPU to the CPU and the rest of the computer. In a deep learning training workload, batches of data are almost continuously sent from the CPU to the GPU. The maximum value for this metric is typically tens of gigabytes per second.
 - `PCIe Sent` is the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.
 - `NVLink Sent` is the averge value of the measurements of the aggregate rate at which a GPU sends data over its NVLink connections during the brief measurement interval. NVLink is a high-speed GPU-to-GPU interconnect that enables fast data transfers. For example, during multi-GPU AI training, GPUs frequently exchange gradients or other tensors. If that communication goes over NVLink rather than PCIe, a significant performance gain can be achieved. If you have access to a multi-GPU node, run the command `nvidia-smi topo -m` to see the NVLink topology and interconnect map. Not all GPU systems provide NVLink. Single-GPU jobs will not use NVLink.
@@ -39,12 +39,11 @@ In `config.py`, set the exporter:
 GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
 ```
 
-For `"NVML"` use version 0.2.3+ of the [Jobstats (NVIDIA) Prometheus exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/).
+For `"NVML"` use version 0.2.3+ of the [Jobstats (NVIDIA) Prometheus exporter](https://github.com/plazonic/nvidia_gpu_prometheus_exporter/). Note that the "DCGM" choice is not fully supported. Sites are encouraged to use "NVML". Contributions are welcome for the DCGM approach. Open a GitHub issue to discuss this.
 
-Each GPU metric is specified as a Python dictionary in the configuration file:
+Each GPU metric is specified as a Python dictionary in the configuration file, for example:
 
 ```python
-GPU_METRICS = {}
 GPU_METRICS["TC"] = {"metric": "tensor_cores",
                      "operation": "avg_over_time",
                      "show_overall": True,
@@ -79,157 +78,42 @@ The choices for "operation" are:
 - `"max_over_time"`
 - `"stddev_over_time"`
 
-Each site can construct a custom set of metrics by selecting different `"metric"` and `"operation"`. See `config.py` in the Jobstats GitHub repository for examples.
+Each site can construct a custom set of metrics. See `config.py` in the Jobstats GitHub repository for examples.
 
-To see the overall utilization of a metric choose `"show_overall": True`. This will produced a text-based meter in the output.
-Using `"write_to_db": True` will cause the metric to be stored the `AdminComment` field at job completion in either the Slurm database or an external MySQL/MariaDB database if configured. The metric will then be available when the `jobstats` command is run.
+To see the overall utilization of a metric choose `"show_overall": True`. This will produced a text-based meter in the output. This should only be done for quantities that are reported as a percentage.
 
-## Metrics
+Using `"write_to_db": True` will cause the metric to be stored the `AdminComment` field at job completion in either the Slurm database or an external MySQL/MariaDB database if configured. The metric will then be available when the `jobstats` command is run. Using `show_per_gpu: True` will show the metric value for each GPU in the "Detailed Utilization" section of the output. Lastly, "long_name" will be used in the "Detailed Utilization" section if the concise table format is not used.
 
-### GPU Utilization
 
-The percentage of time that a GPU kernel is running on the GPU. This quantity is independent of the number of threads being used.
+## Example Metrics
 
-This quantity varies from 0 to 100%.
-
-Most users are familar with this metric from the `nvidia-smi` command.
-
-The example below returns the maximum GPU utilization:
+Below is a simple example entry with three metrics for `config.py`:
 
 ```python
-GPU_METRICS["GPU Util (max)"] = {"metric": "duty_cycle",
-                                 "operation": "max_over_time",
-                                 "show_overall": True,
-                                 "show_per_gpu": True,
-                                 "write_to_db": False}
-```
-
-### Streaming Multiprocessor Utilization
-
-Measures the average activity of the Streaming Multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip.
-
-SM utilization is less than or equal GPU utilization.
-
-Below is a sample configuration entry:
-
-```python
+################################################################################
+##                 D E T A I L E D    G P U    M E T R I C S                  ##
+################################################################################
+GPU_METRICS_EXPORTER = "NVML"
+GPU_METRICS = {}
 GPU_METRICS["SM"] = {"metric": "sm_util_percent",
                      "operation": "avg_over_time",
                      "show_overall": True,
                      "show_per_gpu": True,
-                     "write_to_db": False,
+                     "write_to_db": True,
                      "long_name": "Streaming Multiprocessor (SM) utilization"}
-```
-
-
-### Occupancy
-
-GPU occupancy measures the ratio of active threads or warps currently running on a processing core to the maximum possible number that can fit on that core at one time. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware.
-
-An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed.
-
-Occupancy utilization tends to fall below both GPU utilization and SM utilization.
-
-Below is a sample configuration entry:
-
-```python
-GPU_METRICS["OCC"] = {"metric": "sm_occupancy_percent",
-                      "operation": "avg_over_time",
-                      "show_overall": True,
-                      "show_per_gpu": True,
-                      "write_to_db": False,
-                      "long_name": "Occupancy"}
-```
-
-### Power
-
-The power per GPU is available.
-
-```python
-GPU_METRICS["Power (mW)"] = {"metric": "power_usage_milliwatts",
-                             "operation": "avg_over_time",
-                             "show_overall": False,
-                             "show_per_gpu": True,
-                             "write_to_db": False,
-                             "long_name": "Power Usage"}
-```
-
-### Temperature
-
-The temperature per GPU in units of Celsius is available.
-
-```python
-GPU_METRICS["Temp. (C)"] = {"metric": "temperature_celsius",
-                            "operation": "avg_over_time",
-                            "show_overall": False,
-                            "show_per_gpu": True,
-                            "write_to_db": False,
-                            "long_name": "Temperature"}
-```
-
-### Tensor Core Utilization
-
-Percentage of the time that the specialized AI hardware Tensor Cores were actively working during a specific measurement interval. It tracks activity across all supported precision types (e.g., FP16, BF16, INT8, or TF32).
-
-This quantity varies from 0 to 100%.
-
-```python
-GPU_METRICS["TC"] = {"metric": "any_tensor_util_percent",
-                     "operation": "avg_over_time",
-                     "show_overall": True,
-                     "show_per_gpu": True,
-                     "write_to_db": False,
-                     "long_name": "Tensor Core (TC) utilization"}
-```
-
-### FP16/FP32/FP64 Utilization
-
-Percentage of time the GPU's half-precision (FP16) arithmetic pipes/cores were active over a sample period.
-
-These three quantities each vary from 0 to 100%.
-
-Consider looking at FP64 with `max_over_time` on a cluster for AI research to find codes that are using double precision.
-
-### DRAM Bandwidth Percentage
-
-Percentage of the theoretical bandwidth being used.
-
-```python
 GPU_METRICS["DRAM BW"] = {"metric": "dram_bw_util_percent",
                           "operation": "avg_over_time",
                           "show_overall": True,
                           "show_per_gpu": True,
                           "write_to_db": True,
                           "long_name": "DRAM Bandwidth utilization"}
+GPU_METRICS["Power"] = {"metric": "power_usage_milliwatts",
+                        "operation": "avg_over_time",
+                        "show_overall": False,
+                        "show_per_gpu": True,
+                        "write_to_db": True,
+                        "long_name": "Power Usage"}
 ```
-
-This quantity varies from 0 to 100%.
-
-### Integer Utilization
-
-Percentage of time the integer arithmetic pipes/cores were active over a sample period.
-
-This quantity varies from 0 to 100%.
-
-
-### GPU to CPU Data Transfer Rate
-
-The metric `nvidia_gpu_pcie_tx_per_sec` represents the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.
-
-
-### Data Transfer Rate to the GPU
-
-The metric `nvidia_gpu_pcie_rx_per_sec` represents the rate of data being transmitted to the GPU over the PCIe bus.
-
-The metric `nvidia_gpu_pcie_rx_per_sec` represents the rate of data being received by the GPU over the PCIe (Peripheral Component Interconnect Express) bus. In the context of GPU monitoring, this metric tracks the throughput of "Host-to-Device" (H2D) communication—essentially how fast data is moving from your CPU/System RAM into the GPU’s memory.
-
-### NVLink Data Rate (Received)
-
-The metric `nvidia_gpu_nvlink_total_rx_per_sec` represents the total rate of data being received by a specific GPU across all its active NVLink connections, measured in bytes per second. This is a critical performance counter used in high-performance computing (HPC) and deep learning environments to monitor how efficiently GPUs are communicating with one another. If this number is pinned at the maximum theoretical bandwidth of your hardware, your workload is "communication-bound." It helps ensure that your software (like NCCL for PyTorch or TensorFlow) is actually using NVLink rather than falling back to the much slower PCIe bus. A sudden drop in this value during a heavy workload could indicate a hardware failure or a "degraded" link where one or more NVLink lanes have shut down.
-
-### NVLink Data Rate (Transmitted)
-
-Sames as above but data transmitted from the GPU.
 
 ## Comparison Between NVML and DCGM
 
@@ -265,13 +149,6 @@ Below are two example notes for a GPU cluster intended for AI research:
 ```python
 condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["TC-util"] == 0) and self.js.is_retained()'
 note = ("The Tensor Core utilization of the job was 0%. Usually AI codes use the Tensor Cores. Should your code be using them?")
-style = "normal"
-NOTES.append((condition, note, style))
-```
-
-```python
-condition = '(self.js.cluster == "della") and ("pli" in self.js.partition) and (self.gm_overall["FP64 (max)-util"] > 0) and self.js.is_retained()'
-note = ("The FP64 utilization of the job was {self.gm_overall[\'FP64 (max)-util\']}%. Usually AI codes do not use 64-bit arithmetic.")
 style = "normal"
 NOTES.append((condition, note, style))
 ```

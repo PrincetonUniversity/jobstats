@@ -84,8 +84,8 @@ $ jobstats 39798795
 
 ### News and Updates
 
-- 29 Jul 2026: Jobstats presentation at PEARC 2026: "[Getting the Most Out of Your GPUs: Automatic Cancellation of Low Efficiency
-Jobs, GPU Fractionalization, Detailed Metrics, and GPU Sharing](https://dl.acm.org/doi/10.1145/3785462.3815871)"
+- 2 Sep 2026: [Detailed GPU metrics](https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/) added to main branch
+- 29 Jul 2026: PEARC 2026: "Getting the Most Out of Your GPUs" ([Slides](https://researchcomputing.princeton.edu/document/6891), [Paper](https://dl.acm.org/doi/10.1145/3785462.3815871))
 - 23 Apr 2026: Presentation on Jobstats at NCAR ([see slides](https://researchcomputing.princeton.edu/document/6811))
 - 16 Nov 2025: The Jobstats team will be available at Supercomputing 2025 for any discussions (see contact below)
 - 28 Sep 2025: Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?SUBED1=JOBSTATS&A=1)
