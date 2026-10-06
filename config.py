@@ -56,7 +56,8 @@ MIN_RUNTIME_SECONDS   = 10 * SAMPLING_PERIOD  # seconds
 ################################################################################
 ##                 D E T A I L E D    G P U    M E T R I C S                  ##
 ################################################################################
-GPU_METRICS_EXPORTER = "NVML"  # choices are "None", "NVML" or "DCGM"
+GPU_METRICS_EXPORTER = "NVML"  # choices are "None" or "NVML" (or "DCGM")
+GPU_METRICS_DOCS_URL = "https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/"
 GPU_METRICS = {}
 GPU_METRICS["SM"] = {"metric": "sm_util_percent",
                      "operation": "avg_over_time",
@@ -106,6 +107,18 @@ GPU_METRICS["DRAM BW"] = {"metric": "dram_bw_util_percent",
                           "show_per_gpu": True,
                           "write_to_db": True,
                           "long_name": "DRAM Bandwidth utilization"}
+GPU_METRICS["Power"] = {"metric": "power_usage_milliwatts",
+                        "operation": "avg_over_time",
+                        "show_overall": False,
+                        "show_per_gpu": True,
+                        "write_to_db": True,
+                        "long_name": "Power Usage"}
+GPU_METRICS["Temp"] = {"metric": "temperature_celsius",
+                       "operation": "avg_over_time",
+                       "show_overall": False,
+                       "show_per_gpu": True,
+                       "write_to_db": True,
+                       "long_name": "Temperature"}
 GPU_METRICS["PCIe Recv"] = {"metric": "pcie_rx_per_sec",
                             "operation": "avg_over_time",
                             "show_overall": False,
@@ -130,18 +143,6 @@ GPU_METRICS["NVLink Sent"] = {"metric": "nvlink_total_tx_per_sec",
                               "show_per_gpu": True,
                               "write_to_db": True,
                               "long_name": "Data Transmitted from GPU over NVLink"}
-GPU_METRICS["Power"] = {"metric": "power_usage_milliwatts",
-                        "operation": "avg_over_time",
-                        "show_overall": False,
-                        "show_per_gpu": True,
-                        "write_to_db": True,
-                        "long_name": "Power Usage"}
-GPU_METRICS["Temp"] = {"metric": "temperature_celsius",
-                       "operation": "avg_over_time",
-                       "show_overall": False,
-                       "show_per_gpu": True,
-                       "write_to_db": True,
-                       "long_name": "Temperature"}
 
 
 ################################################################################
@@ -612,6 +613,13 @@ NOTES.append((condition, note, style))
 condition = '(self.js.cluster == "stellar") and self.js.is_retained()'
 note = ("See the URL below for various job metrics plotted as a function of time:",
         'f"https://mystellar.princeton.edu/pun/sys/jobstats/{self.js.jobid}  (VPN required off-campus)"')
+style = "normal"
+NOTES.append((condition, note, style))
+
+# grafana URL via Open OnDemand helper app for StellarAI cluster
+condition = '(self.js.cluster == "stellarai") and self.js.is_retained()'
+note = ("See the URL below for various job metrics plotted as a function of time:",
+        'f"https://mystellarai.princeton.edu/pun/sys/jobstats/{self.js.jobid}  (VPN required off-campus)"')
 style = "normal"
 NOTES.append((condition, note, style))
 

@@ -21,7 +21,7 @@ if not hasattr(c, "GPU_METRICS_EXPORTER"):
     c.GPU_METRICS_EXPORTER = "None"
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 # number of seconds between measurements
 SAMPLING_PERIOD = c.SAMPLING_PERIOD
@@ -383,7 +383,7 @@ class Jobstats:
            The first three letters of 'operation' is appended to the metric name
            when a DetailedGpuMetric object is created."""
         if op not in ("avg_over_time", "max_over_time", "min_over_time", "stddev_over_time"):
-            self.error(f"Operation {op} is not a supported Prometheus function.")
+            self.error(f"Operation {op} is not supported.")
         metrics = {}
         if c.GPU_METRICS_EXPORTER == "NVML":
             metrics["duty_cycle"]              = "nvidia_gpu_duty_cycle"
@@ -597,6 +597,11 @@ class Jobstats:
                                                                             self.operation)
 
                 def parse(self, sp_node: dict) -> None:
+                    """Loop over the data associated with each node. Variable n
+                       is node name while g is the GPU index. The value of
+                       total__value_gpus[1] will be used later for determining
+                       whether or not a valid value was found.
+                    """
                     overall = 0
                     overall_gpu_count = 0
                     self.error_code = 0
