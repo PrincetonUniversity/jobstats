@@ -70,7 +70,7 @@ $ jobstats 39798795
            GPUs: 4
   QOS/Partition: della-gpu/gpu
         Cluster: della
-     Start Time: Fri Mar 4, 2022 at 1:56 AM
+     Start Time: Wed Mar 4, 2026 at 1:56 AM
        Run Time: 18:41:56
      Time Limit: 4-00:00:00
 
@@ -80,6 +80,15 @@ $ jobstats 39798795
   CPU memory usage [|||                                             6%]
   GPU utilization  [||||||||||||||||||||||||||||||||||             68%]
   GPU memory usage [|||||||||||||||||||||||||||||||||              66%]
+  ────────────────────────────────────────────────────────────────────────────
+          SM util. [|||||||||||||||||||||||                        48%]
+         OCC util. [||||||||||                                     20%]
+          TC util. [|||||||||||||||                                30%]
+         INT util. [|||                                             6%]
+    FP16 Max util. [                                                0%]
+    FP32 Avg util. [||                                              4%]
+    FP64 Max util. [                                                0%]
+     DRAM BW util. [||||||||||||||||||||                           40%]
 
                               Detailed Utilization
 ================================================================================
@@ -105,13 +114,39 @@ $ jobstats 39798795
       della-i14g3 (GPU 0): 26.5GB/40.0GB (66.2%)
       della-i14g3 (GPU 1): 26.5GB/40.0GB (66.2%)
 
+  Detailed GPU Metrics
+                         ------------------------------------------------------
+                          SM | OCC |  TC |  INT | FP32 | DRAM BW | Power | Temp
+                         ----+-----+-----+------+------+---------+-------+-----
+    della-i14g2 (GPU 0)  48% | 20% | 30% | 6.3% | 4.1% |     40% |  680W | 66°C
+    della-i14g2 (GPU 1)  48% | 20% | 30% | 6.2% | 4.1% |     40% |  673W | 54°C
+    della-i14g3 (GPU 0)  48% | 20% | 30% | 6.2% | 4.1% |     40% |  671W | 59°C
+    della-i14g3 (GPU 1)  48% | 20% | 30% | 6.3% | 4.1% |     40% |  678W | 65°C
+                         ------------------------------------------------------
+
+                         -------------------------------------------------
+                         PCIe Recv | PCIe Sent | NVLink Recv | NVLink Sent
+                         ----------+-----------+-------------+------------
+    della-i14g2 (GPU 0)    80 MB/s |   13 MB/s |    285 MB/s |    347 MB/s
+    della-i14g2 (GPU 1)    80 MB/s |   13 MB/s |    287 MB/s |    346 MB/s
+    della-i14g3 (GPU 0)    81 MB/s |   13 MB/s |    287 MB/s |    346 MB/s
+    della-i14g3 (GPU 1)    81 MB/s |   13 MB/s |    287 MB/s |    346 MB/s
+                         -------------------------------------------------
+                         https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/
+
                                      Notes
 ================================================================================
   * This job only used 6% of the 256GB of total allocated CPU memory. For
     future jobs, please allocate less memory by using a Slurm directive such
     as --mem-per-cpu=1G or --mem=10G. This will reduce your queue times and
-    make the resources available to other users. For more info:
+    make the resources available to other jobs. For more info:
       https://researchcomputing.princeton.edu/support/knowledge-base/memory
+
+  * This job only needed 19% of the requested time which was 4-00:00:00. For
+    future jobs, please request less time by modifying the --time Slurm
+    directive. This will lower your queue times and allow the Slurm job
+    scheduler to work more effectively for all users. For more info:
+      https://researchcomputing.princeton.edu/support/knowledge-base/slurm
 
   * See the URL below for various job metrics plotted as a function of time:
       https://mydella.princeton.edu/pun/sys/jobstats/39798795

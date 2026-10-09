@@ -69,14 +69,14 @@ $ jobstats 39798795
       della-i14g3 (GPU 1): 26.5GB/40.0GB (66.2%)
 
   Detailed GPU Metrics
-                         --------------------------------------------------------------------------------
-                          SM | OCC |  TC |  INT | FP16 Max | FP32 Avg | FP64 Max | DRAM BW | Power | Temp
-                         ----+-----+-----+------+----------+----------+----------+---------+-------+-----
-    della-i14g2 (GPU 0)  48% | 20% | 30% | 6.3% |       0% |     4.1% |       0% |     40% |  680W | 66°C
-    della-i14g2 (GPU 1)  48% | 20% | 30% | 6.2% |       0% |     4.1% |       0% |     40% |  673W | 54°C
-    della-i14g3 (GPU 0)  48% | 20% | 30% | 6.2% |       0% |     4.1% |       0% |     40% |  671W | 59°C
-    della-i14g3 (GPU 1)  48% | 20% | 30% | 6.3% |       0% |     4.1% |       0% |     40% |  678W | 65°C
-                         --------------------------------------------------------------------------------
+                         ------------------------------------------------------
+                          SM | OCC |  TC |  INT | FP32 | DRAM BW | Power | Temp
+                         ----+-----+-----+------+------+---------+-------+-----
+    della-i14g2 (GPU 0)  48% | 20% | 30% | 6.3% | 4.1% |     40% |  680W | 66°C
+    della-i14g2 (GPU 1)  48% | 20% | 30% | 6.2% | 4.1% |     40% |  673W | 54°C
+    della-i14g3 (GPU 0)  48% | 20% | 30% | 6.2% | 4.1% |     40% |  671W | 59°C
+    della-i14g3 (GPU 1)  48% | 20% | 30% | 6.3% | 4.1% |     40% |  678W | 65°C
+                         ------------------------------------------------------
 
                          -------------------------------------------------
                          PCIe Recv | PCIe Sent | NVLink Recv | NVLink Sent
@@ -112,6 +112,7 @@ Subscribe to the [Jobstats mailing list](https://lists.princeton.edu/cgi-bin/wa?
 
 ### News and Updates
 
+- 15 Nov 2026: The Jobstats team will be available at Supercomputing 2026 for any discussions (see contact below)
 - 5 Oct 2026: Jobstats version 1.1.0 was released (see [CHANGELOG](CHANGELOG.md))
 - 2 Sep 2026: [Detailed GPU metrics](https://princetonuniversity.github.io/jobstats/setup/detailed_gpu_metrics/) added to main branch
 - 29 Jul 2026: PEARC 2026: "Getting the Most Out of Your GPUs" ([Slides](https://researchcomputing.princeton.edu/document/6891), [Paper](https://dl.acm.org/doi/10.1145/3785462.3815871))

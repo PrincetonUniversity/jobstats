@@ -18,7 +18,9 @@ della-k1g2 (GPU 6)    69 MB/s |   12 MB/s |     25 GB/s |     25 GB/s
 della-k1g2 (GPU 7)    69 MB/s |   12 MB/s |     25 GB/s |     25 GB/s
 ```
 
-These GPU metrics are measured every tens of seconds or every few minutes depending on the configuration at your institution. Different institutions record different metrics. These measurements are only available on the Hopper GPU architecture (e.g., H100) and newer. Here are the definitions of the metrics shown above:
+These GPU metrics are measured every tens of seconds or every few minutes depending on the configuration at your institution. Different institutions record different metrics. These measurements are only available on the Hopper GPU architecture (e.g., H100) and newer.
+
+Below are the definitions of the metrics shown above:
 
 - `SM` is streaming multiprocessor (SM) utilization. The quantity measures the average activity of the streaming multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip. For reference, an NVIDIA H100 SXM GPU has 132 SMs. This quantity varies from 0 to 100%. SM utilization is less than or equal to GPU utilization.
 - `OCC` is occupancy which measures the time-averaged ratio of active threads (or warps) currently running on a processing core to the maximum possible number that can fit on that core at one time, averaged over all cores. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware. This quantity varies from 0 to 100%. An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed. Occupancy is typically less than both GPU utilization and SM utilization.
@@ -99,7 +101,7 @@ To see the overall utilization of a metric choose `"show_overall": True`. This w
 
 Using `"write_to_db": True` will cause the metric to be stored in the `AdminComment` field at job completion in either the Slurm database or an [external MySQL/MariaDB database](external-database.md). The metric will then be available when the `jobstats` command is run. Using `show_per_gpu: True` will show the metric value for each GPU in the "Detailed Utilization" section of the output. Lastly, `"long_name"` will be used in the "Detailed Utilization" section if the concise table format is not used.
 
-One or more tables will be used to display the data if there are four detailed metrics or more. Otherwise, the data will be displayed as lines of text. Metrics with a name containing "PCIe" or "NVLink" will be displayed in a seperate table.
+One or more tables will be used to display the data if there are four detailed metrics or more. Otherwise, the data will be displayed as lines of text. Metrics with a name containing "PCIe" or "NVLink" will be displayed in a separate table.
 
 ## Example Metrics
 
