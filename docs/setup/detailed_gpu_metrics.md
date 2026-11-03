@@ -22,8 +22,9 @@ These GPU metrics are measured every tens of seconds or every few minutes depend
 
 Below are the definitions of the metrics shown above:
 
-- `SM` is streaming multiprocessor (SM) utilization. The quantity measures the average activity of the streaming multiprocessors (SMs) on your GPU or the percentage of all available SMs that are currently active. An SM is considered active if it has at least one warp (a bundle of 32 threads) assigned to it. This metric is the ratio of cycles where SMs had active warps compared to the total possible cycles, averaged across all SMs on the chip. For reference, an NVIDIA H100 SXM GPU has 132 SMs. This quantity varies from 0 to 100%. SM utilization is less than or equal to GPU utilization.
-- `OCC` is occupancy which measures the time-averaged ratio of active threads (or warps) currently running on a processing core to the maximum possible number that can fit on that core at one time, averaged over all cores. It compares how many parallel execution units (called warps or wavefronts) are active on a streaming multiprocessor against the absolute limit of the hardware. This quantity varies from 0 to 100%. An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed. Occupancy is typically less than both GPU utilization and SM utilization.
+- `GPU utilization` is the percentage of time, over a sampling interval, that at least one kernel is executing on the GPU. This quantity is independent of the number of threads or GPU cores being used. Consequently, GPU utilization can be high even when only a small fraction of the GPU's computational resources are being utilized. It varies between 0 to 100%. The instantaneous value of this metric can be obtained by running the `nvidia-smi` command.
+- `SM` is SM utilization or the percentage of time that the Streaming Multiprocessors are actively executing one or more warps. A warp is a group of 32 threads that execute the same instruction in a SIMT (Single Instruction, Multiple Threads) fashion. For reference, an NVIDIA B200 GPU has 148 active SMs, each containing 128 FP32 CUDA cores. SM utilization provides a more fine-grained view of GPU activity than overall GPU utilization. When a workload makes effective use of the GPU's computational resources, both GPU utilization and SM utilization are generally high. This quantity varies from 0 to 100%. SM utilization is less than or equal to GPU utilization.
+- `OCC` is the occupancy which is the ratio of the number of active warps on an SM to the maximum number of warps that the SM can support (32, 48 or 64). A warp assigned to an SM can be in one of three states: active, eligible or stalled. The occupancy varies from 0 to 100%. An occupancy of 100% does not always mean best performance. If a task has enough active threads to hide memory delays, pushing occupancy higher can crowd hardware resources and hurt overall speed. Occupancy is typically less than both GPU utilization and SM utilization.
 - `TC` is Tensor Core utilization which is the time-averaged percentage of time that the specialized AI hardware Tensor Cores were actively working during a specific measurement interval. It tracks activity across all supported precision types (e.g., FP16, BF16, INT8, or TF32). For reference, an NVIDIA H100 SXM GPU has 528 Tensor Cores. This quantity varies from 0 to 100%. Deep learning codes like PyTorch will automatically use the Tensor Cores when possible.
 - `INT` is the time average of the measurements of the percentage of time that the integer (INT) arithmetic pipes/cores were active. This quantity varies from 0 to 100%.
 - `FP16 Max` is the maximum value of the measurements of the percentage of time that the half-precision (FP16) arithmetic pipes/cores of the GPU were active over the lifetime of the job. This quantity varies from 0 to 100%. Note that FP16 operations performed on the Tensor Cores are not included by this metric.
@@ -36,7 +37,6 @@ Below are the definitions of the metrics shown above:
 - `PCIe Sent` is the rate of data being transmitted from the GPU to the host (CPU/system memory) over the PCIe bus. In simpler terms, it measures how fast the GPU is "sending" data back to the rest of the computer.
 - `NVLink Sent` is the averge value of the measurements of the aggregate rate at which a GPU sends data over its NVLink connections during the brief measurement interval. NVLink is a high-speed GPU-to-GPU interconnect that enables fast data transfers. For example, during multi-GPU AI training, GPUs frequently exchange gradients or other tensors. If that communication goes over NVLink rather than PCIe, a significant performance gain can be achieved. If you have access to a multi-GPU node, run the command `nvidia-smi topo -m` to see the NVLink topology and interconnect map. Not all GPU systems provide NVLink. Single-GPU jobs will not use NVLink.
 - `NVLink Recv` is the averge value of the measurements of the aggregate rate at which the GPU receives data over all of its NVLink connections during the brief measurement interval.
-- `GPU utilization` is the percentage of time that a GPU kernel is running on the GPU. This quantity is independent of the number of threads being used. It varies between 0 to 100%. The instantaneous value of this metric can be obtained by running the `nvidia-smi` command.
 
 ## Configuration for System Administrators
 
@@ -103,6 +103,101 @@ Using `"write_to_db": True` will cause the metric to be stored in the `AdminComm
 
 One or more tables will be used to display the data if there are four detailed metrics or more. Otherwise, the data will be displayed as lines of text. Metrics with a name containing "PCIe" or "NVLink" will be displayed in a separate table.
 
+!!! warning "Writing Your Own Analysis Code"
+    Only `gpu_utilization` is stored in the database as a percentage (see 71.5 and 71.0 below). The
+    other metrics are not stored as a percentage and must be multiplied by 100%. For example, in the output
+    below `any_tensor_util_percent_avg` is 0.1 which becomes 10% when converted to a percentage.
+    This is only important if you write your own code to work with the data.
+    Jobstats and Job Defense Shield correctly handle these stored metrics.
+
+Below is sample output for a job with two GPUs:
+
+```
+$ jobstats 16549508 -j
+{
+    "gpus": 2,
+    "nodes": {
+        "della-j15g2": {
+            "any_tensor_util_percent_avg": {
+                "0": 0.1,
+                "1": 0.1
+            },
+            "cpus": 16,
+            "dram_bw_util_percent_avg": {
+                "0": 0.4,
+                "1": 0.4
+            },
+            "fp16_util_percent_max": {
+                "0": 0.002,
+                "1": 0.002
+            },
+            "fp32_util_percent_avg": {
+                "0": 0.014,
+                "1": 0.014
+            },
+            "fp64_util_percent_max": {
+                "0": 0.0,
+                "1": 0.0
+            },
+            "gpu_total_memory": {
+                "0": 85520809984,
+                "1": 85520809984
+            },
+            "gpu_used_memory": {
+                "0": 81646649344,
+                "1": 80509992960
+            },
+            "gpu_utilization": {
+                "0": 71.5,
+                "1": 71.0
+            },
+            "integer_util_avg": {
+                "0": 0.1,
+                "1": 0.1
+            },
+            "nvlink_total_rx_per_sec_avg": {
+                "0": 11963911576.3,
+                "1": 11964666798.2
+            },
+            "nvlink_total_tx_per_sec_avg": {
+                "0": 11964984490.0,
+                "1": 11963593782.7
+            },
+            "pcie_rx_per_sec_avg": {
+                "0": 798553767.7,
+                "1": 797196590.8
+            },
+            "pcie_tx_per_sec_avg": {
+                "0": 102899032.0,
+                "1": 102563101.1
+            },
+            "power_usage_milliwatts_avg": {
+                "0": 460401.1,
+                "1": 448975.1
+            },
+            "sm_occupancy_percent_avg": {
+                "0": 0.2,
+                "1": 0.2
+            },
+            "sm_util_percent_avg": {
+                "0": 0.6,
+                "1": 0.6
+            },
+            "temperature_celsius_avg": {
+                "0": 54.0,
+                "1": 49.6
+            },
+            "total_memory": 268435456000,
+            "total_time": 210076.7,
+            "used_memory": 259693637632
+        }
+    },
+    "total_time": 41417
+}
+```
+
+For the job above, the tensor core activity was 10%, DRAM bandwidth was 40%, FP16 (max) was 0.2%, FP32 was 1.4%, FP64 (max) was 0.0%, GPU utiliation 71.25%, integer activity was 10%, occupancy was 20%, and SM utilization was 60%.
+
 ## Example Metrics
 
 Below is a simple example entry for `config.py` with three metrics:
@@ -133,6 +228,7 @@ GPU_METRICS["Power"] = {"metric": "power_usage_milliwatts",
                         "write_to_db": True,
                         "long_name": "Power Usage"}
 ```
+
 
 ## Comparison Between NVML and DCGM
 
