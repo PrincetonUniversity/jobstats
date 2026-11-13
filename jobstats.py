@@ -13,7 +13,7 @@ import requests
 import config as c
 if c.EXTERNAL_DB_CONFIG.get("enabled", False):
     from db_handler import JobstatsDBHandler
-if not hasattr(c, "GPU_EXPORTER_JOBID"):
+if not hasattr(c, "AMD_EXPORTER_JOBID"):
     c.GPU_EXPORTER_JOBID = False
 if not hasattr(c, "GPU_METRICS"):
     c.GPU_METRICS = {}
@@ -315,7 +315,7 @@ class Jobstats:
             j = d['data']['result']
             for i in j:
                 node = i['metric']['instance'].split(':')[0]
-                minor = i['metric'].get('minor_number', None)
+                minor = i['metric'].get('gpu_id', None)
                 if 'value' in i:
                     v = i['value'][1]
                 if 'values' in i:
@@ -385,49 +385,22 @@ class Jobstats:
         if op not in ("avg_over_time", "max_over_time", "min_over_time", "stddev_over_time"):
             self.error(f"Operation {op} is not supported.")
         metrics = {}
-        if c.GPU_METRICS_EXPORTER == "NVML":
-            metrics["duty_cycle"]              = "nvidia_gpu_duty_cycle"
-            metrics["memory_used_bytes"]       = "nvidia_gpu_memory_used_bytes"
-            metrics["memory_total_bytes"]      = "nvidia_gpu_memory_total_bytes"
-            metrics["sm_util_percent"]         = "nvidia_gpu_sm_util_percent"
-            metrics["sm_occupancy_percent"]    = "nvidia_gpu_sm_occupancy_percent"
-            metrics["any_tensor_util_percent"] = "nvidia_gpu_any_tensor_util_percent"
-            metrics["fp16_util_percent"]       = "nvidia_gpu_fp16_util_percent"
-            metrics["fp32_util_percent"]       = "nvidia_gpu_fp32_util_percent"
-            metrics["fp64_util_percent"]       = "nvidia_gpu_fp64_util_percent"
-            metrics["integer_util"]            = "nvidia_gpu_integer_util"
-            metrics["dram_bw_util_percent"]    = "nvidia_gpu_dram_bw_util_percent"
-            metrics["pcie_rx_per_sec"]         = "nvidia_gpu_pcie_rx_per_sec"
-            metrics["pcie_tx_per_sec"]         = "nvidia_gpu_pcie_tx_per_sec"
-            metrics["nvlink_total_rx_per_sec"] = "nvidia_gpu_nvlink_total_rx_per_sec"
-            metrics["nvlink_total_tx_per_sec"] = "nvidia_gpu_nvlink_total_tx_per_sec"
-            metrics["temperature_celsius"]     = "nvidia_gpu_temperature_celsius"
-            metrics["power_usage_milliwatts"]  = "nvidia_gpu_power_usage_milliwatts"
-        elif c.GPU_METRICS_EXPORTER == "DCGM":
-            metrics["duty_cycle"]              = "DCGM_FI_DEV_GPU_UTIL"
-            metrics["memory_used_MiB"]         = "DCGM_FI_DEV_FB_USED"
-            metrics["memory_total_MiB"]        = "DCGM_FI_DEV_FB_TOTAL"
-            metrics["sm_util_percent"]         = "DCGM_FI_PROF_SM_ACTIVE"
-            metrics["sm_occupancy_percent"]    = "DCGM_FI_PROF_SM_OCCUPANCY"
-            metrics["any_tensor_util_percent"] = "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE"
-            metrics["fp16_util_percent"]       = "DCGM_FI_PROF_PIPE_FP16_ACTIVE"
-            metrics["fp32_util_percent"]       = "DCGM_FI_PROF_PIPE_FP32_ACTIVE"
-            metrics["fp64_util_percent"]       = "DCGM_FI_PROF_PIPE_FP64_ACTIVE"
-            metrics["integer_util"]            = "DCGM_FI_PROF_PIPE_INT_ACTIVE"
-            metrics["dram_active"]             = "DCGM_FI_PROF_DRAM_ACTIVE"
-            metrics["pcie_rx_per_sec"]         = "DCGM_FI_PROF_PCIE_RX_BYTES"
-            metrics["pcie_tx_per_sec"]         = "DCGM_FI_PROF_PCIE_TX_BYTES"
-            metrics["nvlink_total_rx_per_sec"] = "DCGM_FI_PROF_NVLINK_RX_BYTES"
-            metrics["nvlink_total_tx_per_sec"] = "DCGM_FI_PROF_NVLINK_TX_BYTES"
-            metrics["temperature_celsius"]     = "DCGM_FI_DEV_GPU_TEMP"
-            metrics["power_usage_milliwatts"]  = "DCGM_FI_DEV_POWER_USAGE"
+        if c.GPU_METRICS_EXPORTER == "AMD":
+            metrics["gpu_gfx_activity"]        = "gpu_gfx_activity"
+            metrics["gpu_umc_activity"]        = "gpu_umc_activity"
+            metrics["pcie_rx_per_sec"]         = "pcie_rx"
+            metrics["pcie_tx_per_sec"]         = "pcie_tx"
+            metrics["xgmi_total_rx_per_sec"]   = "gpu_xgmi_nbr_0_tx_thrput"
+            metrics["xgmi_total_tx_per_sec"]   = "gpu_xgmi_nbr_1_tx_thrput"
+            metrics["temperature_celsius"]     = "gpu_junction_temperature"
+            metrics["power_usage_milliwatts"]  = "gpu_average_package_power"
         if metric in metrics:
             metric_full = metrics[metric]
         else:
             self.error(f"{metric} is not valid for exporter {c.GPU_METRICS_EXPORTER}.")
-        if c.GPU_EXPORTER_JOBID:
-            return f"{op}({metric_full}" + "{{cluster='{cluster}', jobid='{jobid}'}}[{diff}s:])"
-        return f"{op}(({metric_full}" + "{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])"
+        if c.AMD_EXPORTER_JOBID:
+            return f"{op}({metric_full}" + "{{cluster='{cluster}', job_id='{jobid}'}}[{diff}s:])"
+        return f"{op}(({metric_full}" + "{{cluster='{cluster}'}} and jobid == {jobid})[{diff}s:])"
 
     def get_job_stats(self, *args):
         # query CPU and Memory utilization data
@@ -443,24 +416,24 @@ class Jobstats:
         # and now GPUs
         if self.gpus:
             if not args or "gpu_total_memory" in args:
-                if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_total_memory', "max_over_time(nvidia_gpu_memory_total_bytes{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
+                if c.AMD_EXPORTER_JOBID:
+                    self.get_data('gpu_total_memory', "max_over_time(gpu_total_vram{{cluster='{cluster}',job_id='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_total_memory', "max_over_time((nvidia_gpu_memory_total_bytes{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
+                    self.get_data('gpu_total_memory', "max_over_time(gpu_total_vram{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
             if not args or "gpu_used_memory" in args:
-                if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_used_memory', "max_over_time(nvidia_gpu_memory_used_bytes{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
+                if c.AMD_EXPORTER_JOBID:
+                    self.get_data('gpu_used_memory', "max_over_time(gpu_used_vram{{cluster='{cluster}',job_id='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_used_memory', "max_over_time((nvidia_gpu_memory_used_bytes{{cluster='{cluster}'}} and nvidia_gpu_jobId == {jobid})[{diff}s:])")
+                    self.get_data('gpu_used_memory', "max_over_time(gpu_used_vram{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
             if not args or "gpu_utilization" in args:
-                if c.GPU_EXPORTER_JOBID:
-                    self.get_data('gpu_utilization', "avg_over_time((nvidia_gpu_duty_cycle{{cluster='{cluster}',jobid='{jobid}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}',jobid='{jobid}'}} * 100))[{diff}s:])")
+                if c.AMD_EXPORTER_JOBID:
+                    self.get_data('gpu_utilization', "max_over_time(gpu_gfx_activity{{cluster='{cluster}',job_id='{jobid}'}}[{diff}s:])")
                 else:
-                    self.get_data('gpu_utilization', "avg_over_time(((nvidia_gpu_duty_cycle{{cluster='{cluster}'}} or (nvidia_gpu_graphics_util_percent{{cluster='{cluster}'}} * 100)) and nvidia_gpu_jobId == {jobid})[{diff}s:])")
+                    self.get_data('gpu_utilization', "max_over_time(gpu_gfx_activity{{cluster='{cluster}',jobid='{jobid}'}}[{diff}s:])")
 
             # detailed GPU metrics
             if c.GPU_METRICS and c.GPU_METRICS_EXPORTER == "None":
-                self.error('Must set exporter to "NVML" or "DCGM" when GPU_METRICS is not empty.')
+                self.error('Must set exporter to "AMD" when GPU_METRICS is not empty.')
             if not args or c.GPU_METRICS:
                 for _, settings in c.GPU_METRICS.items():
                     metric = settings["metric"]
@@ -581,17 +554,10 @@ class Jobstats:
                     self.write_to_db  = settings["write_to_db"]
                     self.long_name    = settings.get("long_name")
                     self.is_mig = is_mig
-                    ms = ("sm", "fp16", "fp32", "fp64", "tensor", "integer", "occupancy", "dram")
+                    ms = ("activity", "gfx", "umc", "util", "occupancy")
                     self.is_percentage = any(m in self.metric for m in ms)
-                    if self.is_percentage:
-                        self.fac = 100
-                    elif "power" in self.metric:
-                        self.fac = 0.001
-                    else:
-                        self.fac = 1
-                    # finally correct duty_cycle
-                    if "duty" in self.metric:
-                        self.is_percentage = True
+                    self.fac = 1
+
                     # internal metric name for summary statistics
                     self.__name_ss = Jobstats.internal_detailed_metric_name(self.metric,
                                                                             self.operation)

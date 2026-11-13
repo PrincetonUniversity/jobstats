@@ -456,12 +456,10 @@ class ClassicOutput(BaseFormatter):
                         value_str = str(round(value)) + "W"
                     elif "temperature" in gm.metric:
                         value_str = str(round(value)) + "\u00B0" + "C"
-                    elif "rx" in gm.metric or "tx" in gm.metric:
+                    elif any(x in gm.metric for x in ("rx", "tx", "pcie", "xgmi")):
                         value_str = self.human_bytes(round(value), 0, spaces=" ") + "/s"
-                    elif any(x in gm.metric for x in ("sm", "occup", "dram")):
+                    elif any(x in gm.metric for x in ("gfx", "umc")):
                         value_str = str(round(value)) + "%"
-                    elif any(x in gm.metric for x in ("duty", "tensor", "fp", "integer")):
-                        value_str = str(round(value, 1)) + "%"
                     else:
                         value_str = str(value)
                     this_metric.append(value_str)
@@ -591,8 +589,8 @@ class ClassicOutput(BaseFormatter):
             report += f"\n{gutter}GPU memory usage per node - maximum used/total\n"
             if self.js.gpu_mem_error_code == 0:
                 for node, used, total, gpu_index in self.js.gpu_mem__node_used_total_index:
-                    hs_used = self.human_bytes(used)
-                    hs_total = self.human_bytes(total).replace(".0GB", "GB")
+                    hs_used = self.human_bytes(used* 1024 * 1024)
+                    hs_total = self.human_bytes(total * 1024 * 1024).replace(".0GB", "GB")
                     eff = 100 * used / total
                     report += f"{gutter}    {node} (GPU {gpu_index}): {hs_used}/{hs_total} ({eff:.1f}%)\n"
             else:
